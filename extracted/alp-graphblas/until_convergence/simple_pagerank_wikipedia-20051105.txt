@@ -1,0 +1,1491 @@
+%%MatrixMarket weighted-matrix coordinate pattern general
+%	 There are 3 unique source vertex types present in this graph. An index of source type ID and their description follows:
+%		 0: input scalar
+%		 1: ALP/GraphBLAS container
+%		 2: input iterator
+%	 There are 6 unique operation vertex types present in this graph. An index of vertex type ID and their description follows:
+%		 6: clear( vector )
+%		 9: set( vector, scalar )
+%		 19: eWiseLambda( f, vector )
+%		 65: vxm( vector, vector, matrix, ring )
+%		 71: buildMatrixUnique( matrix, scalar, scalar, scalar )
+%		 102: eWiseLambda( function, vector )
+%	 There are 1 unique output vertex types present in this graph. An index of output vertex type ID and their description follows:
+%		 103: output container
+%        This hyperDAG captures the canonical PageRank algorithm on wikipedia-20051105, which converged within 44 iterations.
+281 326 587
+0 % no additional data on hyperedges at present
+1 % no additional data on hyperedges at present
+2 % no additional data on hyperedges at present
+3 % no additional data on hyperedges at present
+4 % no additional data on hyperedges at present
+5 % no additional data on hyperedges at present
+6 % no additional data on hyperedges at present
+7 % no additional data on hyperedges at present
+8 % no additional data on hyperedges at present
+9 % no additional data on hyperedges at present
+10 % no additional data on hyperedges at present
+11 % no additional data on hyperedges at present
+12 % no additional data on hyperedges at present
+13 % no additional data on hyperedges at present
+14 % no additional data on hyperedges at present
+15 % no additional data on hyperedges at present
+16 % no additional data on hyperedges at present
+17 % no additional data on hyperedges at present
+18 % no additional data on hyperedges at present
+19 % no additional data on hyperedges at present
+20 % no additional data on hyperedges at present
+21 % no additional data on hyperedges at present
+22 % no additional data on hyperedges at present
+23 % no additional data on hyperedges at present
+24 % no additional data on hyperedges at present
+25 % no additional data on hyperedges at present
+26 % no additional data on hyperedges at present
+27 % no additional data on hyperedges at present
+28 % no additional data on hyperedges at present
+29 % no additional data on hyperedges at present
+30 % no additional data on hyperedges at present
+31 % no additional data on hyperedges at present
+32 % no additional data on hyperedges at present
+33 % no additional data on hyperedges at present
+34 % no additional data on hyperedges at present
+35 % no additional data on hyperedges at present
+36 % no additional data on hyperedges at present
+37 % no additional data on hyperedges at present
+38 % no additional data on hyperedges at present
+39 % no additional data on hyperedges at present
+40 % no additional data on hyperedges at present
+41 % no additional data on hyperedges at present
+42 % no additional data on hyperedges at present
+43 % no additional data on hyperedges at present
+44 % no additional data on hyperedges at present
+45 % no additional data on hyperedges at present
+46 % no additional data on hyperedges at present
+47 % no additional data on hyperedges at present
+48 % no additional data on hyperedges at present
+49 % no additional data on hyperedges at present
+50 % no additional data on hyperedges at present
+51 % no additional data on hyperedges at present
+52 % no additional data on hyperedges at present
+53 % no additional data on hyperedges at present
+54 % no additional data on hyperedges at present
+55 % no additional data on hyperedges at present
+56 % no additional data on hyperedges at present
+57 % no additional data on hyperedges at present
+58 % no additional data on hyperedges at present
+59 % no additional data on hyperedges at present
+60 % no additional data on hyperedges at present
+61 % no additional data on hyperedges at present
+62 % no additional data on hyperedges at present
+63 % no additional data on hyperedges at present
+64 % no additional data on hyperedges at present
+65 % no additional data on hyperedges at present
+66 % no additional data on hyperedges at present
+67 % no additional data on hyperedges at present
+68 % no additional data on hyperedges at present
+69 % no additional data on hyperedges at present
+70 % no additional data on hyperedges at present
+71 % no additional data on hyperedges at present
+72 % no additional data on hyperedges at present
+73 % no additional data on hyperedges at present
+74 % no additional data on hyperedges at present
+75 % no additional data on hyperedges at present
+76 % no additional data on hyperedges at present
+77 % no additional data on hyperedges at present
+78 % no additional data on hyperedges at present
+79 % no additional data on hyperedges at present
+80 % no additional data on hyperedges at present
+81 % no additional data on hyperedges at present
+82 % no additional data on hyperedges at present
+83 % no additional data on hyperedges at present
+84 % no additional data on hyperedges at present
+85 % no additional data on hyperedges at present
+86 % no additional data on hyperedges at present
+87 % no additional data on hyperedges at present
+88 % no additional data on hyperedges at present
+89 % no additional data on hyperedges at present
+90 % no additional data on hyperedges at present
+91 % no additional data on hyperedges at present
+92 % no additional data on hyperedges at present
+93 % no additional data on hyperedges at present
+94 % no additional data on hyperedges at present
+95 % no additional data on hyperedges at present
+96 % no additional data on hyperedges at present
+97 % no additional data on hyperedges at present
+98 % no additional data on hyperedges at present
+99 % no additional data on hyperedges at present
+100 % no additional data on hyperedges at present
+101 % no additional data on hyperedges at present
+102 % no additional data on hyperedges at present
+103 % no additional data on hyperedges at present
+104 % no additional data on hyperedges at present
+105 % no additional data on hyperedges at present
+106 % no additional data on hyperedges at present
+107 % no additional data on hyperedges at present
+108 % no additional data on hyperedges at present
+109 % no additional data on hyperedges at present
+110 % no additional data on hyperedges at present
+111 % no additional data on hyperedges at present
+112 % no additional data on hyperedges at present
+113 % no additional data on hyperedges at present
+114 % no additional data on hyperedges at present
+115 % no additional data on hyperedges at present
+116 % no additional data on hyperedges at present
+117 % no additional data on hyperedges at present
+118 % no additional data on hyperedges at present
+119 % no additional data on hyperedges at present
+120 % no additional data on hyperedges at present
+121 % no additional data on hyperedges at present
+122 % no additional data on hyperedges at present
+123 % no additional data on hyperedges at present
+124 % no additional data on hyperedges at present
+125 % no additional data on hyperedges at present
+126 % no additional data on hyperedges at present
+127 % no additional data on hyperedges at present
+128 % no additional data on hyperedges at present
+129 % no additional data on hyperedges at present
+130 % no additional data on hyperedges at present
+131 % no additional data on hyperedges at present
+132 % no additional data on hyperedges at present
+133 % no additional data on hyperedges at present
+134 % no additional data on hyperedges at present
+135 % no additional data on hyperedges at present
+136 % no additional data on hyperedges at present
+137 % no additional data on hyperedges at present
+138 % no additional data on hyperedges at present
+139 % no additional data on hyperedges at present
+140 % no additional data on hyperedges at present
+141 % no additional data on hyperedges at present
+142 % no additional data on hyperedges at present
+143 % no additional data on hyperedges at present
+144 % no additional data on hyperedges at present
+145 % no additional data on hyperedges at present
+146 % no additional data on hyperedges at present
+147 % no additional data on hyperedges at present
+148 % no additional data on hyperedges at present
+149 % no additional data on hyperedges at present
+150 % no additional data on hyperedges at present
+151 % no additional data on hyperedges at present
+152 % no additional data on hyperedges at present
+153 % no additional data on hyperedges at present
+154 % no additional data on hyperedges at present
+155 % no additional data on hyperedges at present
+156 % no additional data on hyperedges at present
+157 % no additional data on hyperedges at present
+158 % no additional data on hyperedges at present
+159 % no additional data on hyperedges at present
+160 % no additional data on hyperedges at present
+161 % no additional data on hyperedges at present
+162 % no additional data on hyperedges at present
+163 % no additional data on hyperedges at present
+164 % no additional data on hyperedges at present
+165 % no additional data on hyperedges at present
+166 % no additional data on hyperedges at present
+167 % no additional data on hyperedges at present
+168 % no additional data on hyperedges at present
+169 % no additional data on hyperedges at present
+170 % no additional data on hyperedges at present
+171 % no additional data on hyperedges at present
+172 % no additional data on hyperedges at present
+173 % no additional data on hyperedges at present
+174 % no additional data on hyperedges at present
+175 % no additional data on hyperedges at present
+176 % no additional data on hyperedges at present
+177 % no additional data on hyperedges at present
+178 % no additional data on hyperedges at present
+179 % no additional data on hyperedges at present
+180 % no additional data on hyperedges at present
+181 % no additional data on hyperedges at present
+182 % no additional data on hyperedges at present
+183 % no additional data on hyperedges at present
+184 % no additional data on hyperedges at present
+185 % no additional data on hyperedges at present
+186 % no additional data on hyperedges at present
+187 % no additional data on hyperedges at present
+188 % no additional data on hyperedges at present
+189 % no additional data on hyperedges at present
+190 % no additional data on hyperedges at present
+191 % no additional data on hyperedges at present
+192 % no additional data on hyperedges at present
+193 % no additional data on hyperedges at present
+194 % no additional data on hyperedges at present
+195 % no additional data on hyperedges at present
+196 % no additional data on hyperedges at present
+197 % no additional data on hyperedges at present
+198 % no additional data on hyperedges at present
+199 % no additional data on hyperedges at present
+200 % no additional data on hyperedges at present
+201 % no additional data on hyperedges at present
+202 % no additional data on hyperedges at present
+203 % no additional data on hyperedges at present
+204 % no additional data on hyperedges at present
+205 % no additional data on hyperedges at present
+206 % no additional data on hyperedges at present
+207 % no additional data on hyperedges at present
+208 % no additional data on hyperedges at present
+209 % no additional data on hyperedges at present
+210 % no additional data on hyperedges at present
+211 % no additional data on hyperedges at present
+212 % no additional data on hyperedges at present
+213 % no additional data on hyperedges at present
+214 % no additional data on hyperedges at present
+215 % no additional data on hyperedges at present
+216 % no additional data on hyperedges at present
+217 % no additional data on hyperedges at present
+218 % no additional data on hyperedges at present
+219 % no additional data on hyperedges at present
+220 % no additional data on hyperedges at present
+221 % no additional data on hyperedges at present
+222 % no additional data on hyperedges at present
+223 % no additional data on hyperedges at present
+224 % no additional data on hyperedges at present
+225 % no additional data on hyperedges at present
+226 % no additional data on hyperedges at present
+227 % no additional data on hyperedges at present
+228 % no additional data on hyperedges at present
+229 % no additional data on hyperedges at present
+230 % no additional data on hyperedges at present
+231 % no additional data on hyperedges at present
+232 % no additional data on hyperedges at present
+233 % no additional data on hyperedges at present
+234 % no additional data on hyperedges at present
+235 % no additional data on hyperedges at present
+236 % no additional data on hyperedges at present
+237 % no additional data on hyperedges at present
+238 % no additional data on hyperedges at present
+239 % no additional data on hyperedges at present
+240 % no additional data on hyperedges at present
+241 % no additional data on hyperedges at present
+242 % no additional data on hyperedges at present
+243 % no additional data on hyperedges at present
+244 % no additional data on hyperedges at present
+245 % no additional data on hyperedges at present
+246 % no additional data on hyperedges at present
+247 % no additional data on hyperedges at present
+248 % no additional data on hyperedges at present
+249 % no additional data on hyperedges at present
+250 % no additional data on hyperedges at present
+251 % no additional data on hyperedges at present
+252 % no additional data on hyperedges at present
+253 % no additional data on hyperedges at present
+254 % no additional data on hyperedges at present
+255 % no additional data on hyperedges at present
+256 % no additional data on hyperedges at present
+257 % no additional data on hyperedges at present
+258 % no additional data on hyperedges at present
+259 % no additional data on hyperedges at present
+260 % no additional data on hyperedges at present
+261 % no additional data on hyperedges at present
+262 % no additional data on hyperedges at present
+263 % no additional data on hyperedges at present
+264 % no additional data on hyperedges at present
+265 % no additional data on hyperedges at present
+266 % no additional data on hyperedges at present
+267 % no additional data on hyperedges at present
+268 % no additional data on hyperedges at present
+269 % no additional data on hyperedges at present
+270 % no additional data on hyperedges at present
+271 % no additional data on hyperedges at present
+272 % no additional data on hyperedges at present
+273 % no additional data on hyperedges at present
+274 % no additional data on hyperedges at present
+275 % no additional data on hyperedges at present
+276 % no additional data on hyperedges at present
+277 % no additional data on hyperedges at present
+278 % no additional data on hyperedges at present
+279 % no additional data on hyperedges at present
+280 % no additional data on hyperedges at present
+0 1 0 % source vertex of type ALP/GraphBLAS container no. 0
+1 2 0 % source vertex of type input iterator no. 0
+3 1 1 % source vertex of type ALP/GraphBLAS container no. 1
+4 1 2 % source vertex of type ALP/GraphBLAS container no. 2
+5 1 3 % source vertex of type ALP/GraphBLAS container no. 3
+6 1 4 % source vertex of type ALP/GraphBLAS container no. 4
+8 0 0 % source vertex of type input scalar no. 0
+10 0 1 % source vertex of type input scalar no. 1
+12 0 2 % source vertex of type input scalar no. 2
+14 0 3 % source vertex of type input scalar no. 3
+18 1 5 % source vertex of type ALP/GraphBLAS container no. 5
+21 0 4 % source vertex of type input scalar no. 4
+25 1 6 % source vertex of type ALP/GraphBLAS container no. 6
+28 0 5 % source vertex of type input scalar no. 5
+32 1 7 % source vertex of type ALP/GraphBLAS container no. 7
+35 0 6 % source vertex of type input scalar no. 6
+39 1 8 % source vertex of type ALP/GraphBLAS container no. 8
+42 0 7 % source vertex of type input scalar no. 7
+46 1 9 % source vertex of type ALP/GraphBLAS container no. 9
+49 0 8 % source vertex of type input scalar no. 8
+53 1 10 % source vertex of type ALP/GraphBLAS container no. 10
+56 0 9 % source vertex of type input scalar no. 9
+60 1 11 % source vertex of type ALP/GraphBLAS container no. 11
+63 0 10 % source vertex of type input scalar no. 10
+67 1 12 % source vertex of type ALP/GraphBLAS container no. 12
+70 0 11 % source vertex of type input scalar no. 11
+74 1 13 % source vertex of type ALP/GraphBLAS container no. 13
+77 0 12 % source vertex of type input scalar no. 12
+81 1 14 % source vertex of type ALP/GraphBLAS container no. 14
+84 0 13 % source vertex of type input scalar no. 13
+88 1 15 % source vertex of type ALP/GraphBLAS container no. 15
+91 0 14 % source vertex of type input scalar no. 14
+95 1 16 % source vertex of type ALP/GraphBLAS container no. 16
+98 0 15 % source vertex of type input scalar no. 15
+102 1 17 % source vertex of type ALP/GraphBLAS container no. 17
+105 0 16 % source vertex of type input scalar no. 16
+109 1 18 % source vertex of type ALP/GraphBLAS container no. 18
+112 0 17 % source vertex of type input scalar no. 17
+116 1 19 % source vertex of type ALP/GraphBLAS container no. 19
+119 0 18 % source vertex of type input scalar no. 18
+123 1 20 % source vertex of type ALP/GraphBLAS container no. 20
+126 0 19 % source vertex of type input scalar no. 19
+130 1 21 % source vertex of type ALP/GraphBLAS container no. 21
+133 0 20 % source vertex of type input scalar no. 20
+137 1 22 % source vertex of type ALP/GraphBLAS container no. 22
+140 0 21 % source vertex of type input scalar no. 21
+144 1 23 % source vertex of type ALP/GraphBLAS container no. 23
+147 0 22 % source vertex of type input scalar no. 22
+151 1 24 % source vertex of type ALP/GraphBLAS container no. 24
+154 0 23 % source vertex of type input scalar no. 23
+158 1 25 % source vertex of type ALP/GraphBLAS container no. 25
+161 0 24 % source vertex of type input scalar no. 24
+165 1 26 % source vertex of type ALP/GraphBLAS container no. 26
+168 0 25 % source vertex of type input scalar no. 25
+172 1 27 % source vertex of type ALP/GraphBLAS container no. 27
+175 0 26 % source vertex of type input scalar no. 26
+179 1 28 % source vertex of type ALP/GraphBLAS container no. 28
+182 0 27 % source vertex of type input scalar no. 27
+186 1 29 % source vertex of type ALP/GraphBLAS container no. 29
+189 0 28 % source vertex of type input scalar no. 28
+193 1 30 % source vertex of type ALP/GraphBLAS container no. 30
+196 0 29 % source vertex of type input scalar no. 29
+200 1 31 % source vertex of type ALP/GraphBLAS container no. 31
+203 0 30 % source vertex of type input scalar no. 30
+207 1 32 % source vertex of type ALP/GraphBLAS container no. 32
+210 0 31 % source vertex of type input scalar no. 31
+214 1 33 % source vertex of type ALP/GraphBLAS container no. 33
+217 0 32 % source vertex of type input scalar no. 32
+221 1 34 % source vertex of type ALP/GraphBLAS container no. 34
+224 0 33 % source vertex of type input scalar no. 33
+228 1 35 % source vertex of type ALP/GraphBLAS container no. 35
+231 0 34 % source vertex of type input scalar no. 34
+235 1 36 % source vertex of type ALP/GraphBLAS container no. 36
+238 0 35 % source vertex of type input scalar no. 35
+242 1 37 % source vertex of type ALP/GraphBLAS container no. 37
+245 0 36 % source vertex of type input scalar no. 36
+249 1 38 % source vertex of type ALP/GraphBLAS container no. 38
+252 0 37 % source vertex of type input scalar no. 37
+256 1 39 % source vertex of type ALP/GraphBLAS container no. 39
+259 0 38 % source vertex of type input scalar no. 38
+263 1 40 % source vertex of type ALP/GraphBLAS container no. 40
+266 0 39 % source vertex of type input scalar no. 39
+270 1 41 % source vertex of type ALP/GraphBLAS container no. 41
+273 0 40 % source vertex of type input scalar no. 40
+277 1 42 % source vertex of type ALP/GraphBLAS container no. 42
+280 0 41 % source vertex of type input scalar no. 41
+284 1 43 % source vertex of type ALP/GraphBLAS container no. 43
+287 0 42 % source vertex of type input scalar no. 42
+291 1 44 % source vertex of type ALP/GraphBLAS container no. 44
+294 0 43 % source vertex of type input scalar no. 43
+298 1 45 % source vertex of type ALP/GraphBLAS container no. 45
+301 0 44 % source vertex of type input scalar no. 44
+305 1 46 % source vertex of type ALP/GraphBLAS container no. 46
+308 0 45 % source vertex of type input scalar no. 45
+312 1 47 % source vertex of type ALP/GraphBLAS container no. 47
+315 0 46 % source vertex of type input scalar no. 46
+319 1 48 % source vertex of type ALP/GraphBLAS container no. 48
+322 0 47 % source vertex of type input scalar no. 47
+7 6 0 % operation vertex of type clear( vector ) no. 0
+13 9 0 % operation vertex of type set( vector, scalar ) no. 0
+2 71 0 % operation vertex of type buildMatrixUnique( matrix, scalar, scalar, scalar ) no. 0
+15 9 1 % operation vertex of type set( vector, scalar ) no. 1
+16 65 0 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 0
+9 9 2 % operation vertex of type set( vector, scalar ) no. 2
+17 19 0 % operation vertex of type eWiseLambda( f, vector ) no. 0
+11 9 3 % operation vertex of type set( vector, scalar ) no. 3
+22 9 4 % operation vertex of type set( vector, scalar ) no. 4
+23 65 1 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 1
+19 102 0 % operation vertex of type eWiseLambda( function, vector ) no. 0
+20 102 1 % operation vertex of type eWiseLambda( function, vector ) no. 1
+24 102 2 % operation vertex of type eWiseLambda( function, vector ) no. 2
+29 9 5 % operation vertex of type set( vector, scalar ) no. 5
+30 65 2 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 2
+26 102 3 % operation vertex of type eWiseLambda( function, vector ) no. 3
+27 102 4 % operation vertex of type eWiseLambda( function, vector ) no. 4
+31 102 5 % operation vertex of type eWiseLambda( function, vector ) no. 5
+36 9 6 % operation vertex of type set( vector, scalar ) no. 6
+37 65 3 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 3
+33 102 6 % operation vertex of type eWiseLambda( function, vector ) no. 6
+34 102 7 % operation vertex of type eWiseLambda( function, vector ) no. 7
+38 102 8 % operation vertex of type eWiseLambda( function, vector ) no. 8
+43 9 7 % operation vertex of type set( vector, scalar ) no. 7
+44 65 4 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 4
+40 102 9 % operation vertex of type eWiseLambda( function, vector ) no. 9
+41 102 10 % operation vertex of type eWiseLambda( function, vector ) no. 10
+45 102 11 % operation vertex of type eWiseLambda( function, vector ) no. 11
+50 9 8 % operation vertex of type set( vector, scalar ) no. 8
+51 65 5 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 5
+47 102 12 % operation vertex of type eWiseLambda( function, vector ) no. 12
+48 102 13 % operation vertex of type eWiseLambda( function, vector ) no. 13
+52 102 14 % operation vertex of type eWiseLambda( function, vector ) no. 14
+57 9 9 % operation vertex of type set( vector, scalar ) no. 9
+58 65 6 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 6
+54 102 15 % operation vertex of type eWiseLambda( function, vector ) no. 15
+55 102 16 % operation vertex of type eWiseLambda( function, vector ) no. 16
+59 102 17 % operation vertex of type eWiseLambda( function, vector ) no. 17
+64 9 10 % operation vertex of type set( vector, scalar ) no. 10
+65 65 7 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 7
+61 102 18 % operation vertex of type eWiseLambda( function, vector ) no. 18
+62 102 19 % operation vertex of type eWiseLambda( function, vector ) no. 19
+66 102 20 % operation vertex of type eWiseLambda( function, vector ) no. 20
+71 9 11 % operation vertex of type set( vector, scalar ) no. 11
+72 65 8 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 8
+68 102 21 % operation vertex of type eWiseLambda( function, vector ) no. 21
+69 102 22 % operation vertex of type eWiseLambda( function, vector ) no. 22
+73 102 23 % operation vertex of type eWiseLambda( function, vector ) no. 23
+78 9 12 % operation vertex of type set( vector, scalar ) no. 12
+79 65 9 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 9
+75 102 24 % operation vertex of type eWiseLambda( function, vector ) no. 24
+76 102 25 % operation vertex of type eWiseLambda( function, vector ) no. 25
+80 102 26 % operation vertex of type eWiseLambda( function, vector ) no. 26
+85 9 13 % operation vertex of type set( vector, scalar ) no. 13
+86 65 10 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 10
+82 102 27 % operation vertex of type eWiseLambda( function, vector ) no. 27
+83 102 28 % operation vertex of type eWiseLambda( function, vector ) no. 28
+87 102 29 % operation vertex of type eWiseLambda( function, vector ) no. 29
+92 9 14 % operation vertex of type set( vector, scalar ) no. 14
+93 65 11 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 11
+89 102 30 % operation vertex of type eWiseLambda( function, vector ) no. 30
+90 102 31 % operation vertex of type eWiseLambda( function, vector ) no. 31
+94 102 32 % operation vertex of type eWiseLambda( function, vector ) no. 32
+99 9 15 % operation vertex of type set( vector, scalar ) no. 15
+100 65 12 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 12
+96 102 33 % operation vertex of type eWiseLambda( function, vector ) no. 33
+97 102 34 % operation vertex of type eWiseLambda( function, vector ) no. 34
+101 102 35 % operation vertex of type eWiseLambda( function, vector ) no. 35
+106 9 16 % operation vertex of type set( vector, scalar ) no. 16
+107 65 13 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 13
+103 102 36 % operation vertex of type eWiseLambda( function, vector ) no. 36
+104 102 37 % operation vertex of type eWiseLambda( function, vector ) no. 37
+108 102 38 % operation vertex of type eWiseLambda( function, vector ) no. 38
+113 9 17 % operation vertex of type set( vector, scalar ) no. 17
+114 65 14 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 14
+110 102 39 % operation vertex of type eWiseLambda( function, vector ) no. 39
+111 102 40 % operation vertex of type eWiseLambda( function, vector ) no. 40
+115 102 41 % operation vertex of type eWiseLambda( function, vector ) no. 41
+120 9 18 % operation vertex of type set( vector, scalar ) no. 18
+121 65 15 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 15
+117 102 42 % operation vertex of type eWiseLambda( function, vector ) no. 42
+118 102 43 % operation vertex of type eWiseLambda( function, vector ) no. 43
+122 102 44 % operation vertex of type eWiseLambda( function, vector ) no. 44
+127 9 19 % operation vertex of type set( vector, scalar ) no. 19
+128 65 16 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 16
+124 102 45 % operation vertex of type eWiseLambda( function, vector ) no. 45
+125 102 46 % operation vertex of type eWiseLambda( function, vector ) no. 46
+129 102 47 % operation vertex of type eWiseLambda( function, vector ) no. 47
+134 9 20 % operation vertex of type set( vector, scalar ) no. 20
+135 65 17 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 17
+131 102 48 % operation vertex of type eWiseLambda( function, vector ) no. 48
+132 102 49 % operation vertex of type eWiseLambda( function, vector ) no. 49
+136 102 50 % operation vertex of type eWiseLambda( function, vector ) no. 50
+141 9 21 % operation vertex of type set( vector, scalar ) no. 21
+142 65 18 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 18
+138 102 51 % operation vertex of type eWiseLambda( function, vector ) no. 51
+139 102 52 % operation vertex of type eWiseLambda( function, vector ) no. 52
+143 102 53 % operation vertex of type eWiseLambda( function, vector ) no. 53
+148 9 22 % operation vertex of type set( vector, scalar ) no. 22
+149 65 19 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 19
+145 102 54 % operation vertex of type eWiseLambda( function, vector ) no. 54
+146 102 55 % operation vertex of type eWiseLambda( function, vector ) no. 55
+150 102 56 % operation vertex of type eWiseLambda( function, vector ) no. 56
+155 9 23 % operation vertex of type set( vector, scalar ) no. 23
+156 65 20 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 20
+152 102 57 % operation vertex of type eWiseLambda( function, vector ) no. 57
+153 102 58 % operation vertex of type eWiseLambda( function, vector ) no. 58
+157 102 59 % operation vertex of type eWiseLambda( function, vector ) no. 59
+162 9 24 % operation vertex of type set( vector, scalar ) no. 24
+163 65 21 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 21
+159 102 60 % operation vertex of type eWiseLambda( function, vector ) no. 60
+160 102 61 % operation vertex of type eWiseLambda( function, vector ) no. 61
+164 102 62 % operation vertex of type eWiseLambda( function, vector ) no. 62
+169 9 25 % operation vertex of type set( vector, scalar ) no. 25
+170 65 22 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 22
+166 102 63 % operation vertex of type eWiseLambda( function, vector ) no. 63
+167 102 64 % operation vertex of type eWiseLambda( function, vector ) no. 64
+171 102 65 % operation vertex of type eWiseLambda( function, vector ) no. 65
+176 9 26 % operation vertex of type set( vector, scalar ) no. 26
+177 65 23 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 23
+173 102 66 % operation vertex of type eWiseLambda( function, vector ) no. 66
+174 102 67 % operation vertex of type eWiseLambda( function, vector ) no. 67
+178 102 68 % operation vertex of type eWiseLambda( function, vector ) no. 68
+183 9 27 % operation vertex of type set( vector, scalar ) no. 27
+184 65 24 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 24
+180 102 69 % operation vertex of type eWiseLambda( function, vector ) no. 69
+181 102 70 % operation vertex of type eWiseLambda( function, vector ) no. 70
+185 102 71 % operation vertex of type eWiseLambda( function, vector ) no. 71
+190 9 28 % operation vertex of type set( vector, scalar ) no. 28
+191 65 25 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 25
+187 102 72 % operation vertex of type eWiseLambda( function, vector ) no. 72
+188 102 73 % operation vertex of type eWiseLambda( function, vector ) no. 73
+192 102 74 % operation vertex of type eWiseLambda( function, vector ) no. 74
+197 9 29 % operation vertex of type set( vector, scalar ) no. 29
+198 65 26 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 26
+194 102 75 % operation vertex of type eWiseLambda( function, vector ) no. 75
+195 102 76 % operation vertex of type eWiseLambda( function, vector ) no. 76
+199 102 77 % operation vertex of type eWiseLambda( function, vector ) no. 77
+204 9 30 % operation vertex of type set( vector, scalar ) no. 30
+205 65 27 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 27
+201 102 78 % operation vertex of type eWiseLambda( function, vector ) no. 78
+202 102 79 % operation vertex of type eWiseLambda( function, vector ) no. 79
+206 102 80 % operation vertex of type eWiseLambda( function, vector ) no. 80
+211 9 31 % operation vertex of type set( vector, scalar ) no. 31
+212 65 28 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 28
+208 102 81 % operation vertex of type eWiseLambda( function, vector ) no. 81
+209 102 82 % operation vertex of type eWiseLambda( function, vector ) no. 82
+213 102 83 % operation vertex of type eWiseLambda( function, vector ) no. 83
+218 9 32 % operation vertex of type set( vector, scalar ) no. 32
+219 65 29 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 29
+215 102 84 % operation vertex of type eWiseLambda( function, vector ) no. 84
+216 102 85 % operation vertex of type eWiseLambda( function, vector ) no. 85
+220 102 86 % operation vertex of type eWiseLambda( function, vector ) no. 86
+225 9 33 % operation vertex of type set( vector, scalar ) no. 33
+226 65 30 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 30
+222 102 87 % operation vertex of type eWiseLambda( function, vector ) no. 87
+223 102 88 % operation vertex of type eWiseLambda( function, vector ) no. 88
+227 102 89 % operation vertex of type eWiseLambda( function, vector ) no. 89
+232 9 34 % operation vertex of type set( vector, scalar ) no. 34
+233 65 31 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 31
+229 102 90 % operation vertex of type eWiseLambda( function, vector ) no. 90
+230 102 91 % operation vertex of type eWiseLambda( function, vector ) no. 91
+234 102 92 % operation vertex of type eWiseLambda( function, vector ) no. 92
+239 9 35 % operation vertex of type set( vector, scalar ) no. 35
+240 65 32 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 32
+236 102 93 % operation vertex of type eWiseLambda( function, vector ) no. 93
+237 102 94 % operation vertex of type eWiseLambda( function, vector ) no. 94
+241 102 95 % operation vertex of type eWiseLambda( function, vector ) no. 95
+246 9 36 % operation vertex of type set( vector, scalar ) no. 36
+247 65 33 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 33
+243 102 96 % operation vertex of type eWiseLambda( function, vector ) no. 96
+244 102 97 % operation vertex of type eWiseLambda( function, vector ) no. 97
+248 102 98 % operation vertex of type eWiseLambda( function, vector ) no. 98
+253 9 37 % operation vertex of type set( vector, scalar ) no. 37
+254 65 34 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 34
+250 102 99 % operation vertex of type eWiseLambda( function, vector ) no. 99
+251 102 100 % operation vertex of type eWiseLambda( function, vector ) no. 100
+255 102 101 % operation vertex of type eWiseLambda( function, vector ) no. 101
+260 9 38 % operation vertex of type set( vector, scalar ) no. 38
+261 65 35 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 35
+257 102 102 % operation vertex of type eWiseLambda( function, vector ) no. 102
+258 102 103 % operation vertex of type eWiseLambda( function, vector ) no. 103
+262 102 104 % operation vertex of type eWiseLambda( function, vector ) no. 104
+267 9 39 % operation vertex of type set( vector, scalar ) no. 39
+268 65 36 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 36
+264 102 105 % operation vertex of type eWiseLambda( function, vector ) no. 105
+265 102 106 % operation vertex of type eWiseLambda( function, vector ) no. 106
+269 102 107 % operation vertex of type eWiseLambda( function, vector ) no. 107
+274 9 40 % operation vertex of type set( vector, scalar ) no. 40
+275 65 37 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 37
+271 102 108 % operation vertex of type eWiseLambda( function, vector ) no. 108
+272 102 109 % operation vertex of type eWiseLambda( function, vector ) no. 109
+276 102 110 % operation vertex of type eWiseLambda( function, vector ) no. 110
+281 9 41 % operation vertex of type set( vector, scalar ) no. 41
+282 65 38 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 38
+278 102 111 % operation vertex of type eWiseLambda( function, vector ) no. 111
+279 102 112 % operation vertex of type eWiseLambda( function, vector ) no. 112
+283 102 113 % operation vertex of type eWiseLambda( function, vector ) no. 113
+288 9 42 % operation vertex of type set( vector, scalar ) no. 42
+289 65 39 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 39
+285 102 114 % operation vertex of type eWiseLambda( function, vector ) no. 114
+286 102 115 % operation vertex of type eWiseLambda( function, vector ) no. 115
+290 102 116 % operation vertex of type eWiseLambda( function, vector ) no. 116
+295 9 43 % operation vertex of type set( vector, scalar ) no. 43
+296 65 40 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 40
+292 102 117 % operation vertex of type eWiseLambda( function, vector ) no. 117
+293 102 118 % operation vertex of type eWiseLambda( function, vector ) no. 118
+297 102 119 % operation vertex of type eWiseLambda( function, vector ) no. 119
+302 9 44 % operation vertex of type set( vector, scalar ) no. 44
+303 65 41 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 41
+299 102 120 % operation vertex of type eWiseLambda( function, vector ) no. 120
+300 102 121 % operation vertex of type eWiseLambda( function, vector ) no. 121
+304 102 122 % operation vertex of type eWiseLambda( function, vector ) no. 122
+309 9 45 % operation vertex of type set( vector, scalar ) no. 45
+310 65 42 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 42
+306 102 123 % operation vertex of type eWiseLambda( function, vector ) no. 123
+307 102 124 % operation vertex of type eWiseLambda( function, vector ) no. 124
+311 102 125 % operation vertex of type eWiseLambda( function, vector ) no. 125
+316 9 46 % operation vertex of type set( vector, scalar ) no. 46
+317 65 43 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 43
+313 102 126 % operation vertex of type eWiseLambda( function, vector ) no. 126
+314 102 127 % operation vertex of type eWiseLambda( function, vector ) no. 127
+318 102 128 % operation vertex of type eWiseLambda( function, vector ) no. 128
+323 9 47 % operation vertex of type set( vector, scalar ) no. 47
+324 65 44 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 44
+320 102 129 % operation vertex of type eWiseLambda( function, vector ) no. 129
+325 103 0 % output vertex of type output container no. 0
+321 103 1 % output vertex of type output container no. 1
+0 0
+0 2
+1 1
+1 2
+2 2
+2 16
+2 23
+2 30
+2 37
+2 44
+2 51
+2 58
+2 65
+2 72
+2 79
+2 86
+2 93
+2 100
+2 107
+2 114
+2 121
+2 128
+2 135
+2 142
+2 149
+2 156
+2 163
+2 170
+2 177
+2 184
+2 191
+2 198
+2 205
+2 212
+2 219
+2 226
+2 233
+2 240
+2 247
+2 254
+2 261
+2 268
+2 275
+2 282
+2 289
+2 296
+2 303
+2 310
+2 317
+2 324
+3 3
+3 7
+4 4
+4 13
+5 5
+5 11
+6 6
+6 15
+7 7
+7 9
+8 8
+8 9
+9 9
+9 19
+9 20
+10 10
+10 11
+11 11
+11 22
+12 12
+12 13
+13 13
+13 16
+13 23
+13 30
+13 37
+13 44
+13 51
+13 58
+13 65
+13 72
+13 79
+13 86
+13 93
+13 100
+13 107
+13 114
+13 121
+13 128
+13 135
+13 142
+13 149
+13 156
+13 163
+13 170
+13 177
+13 184
+13 191
+13 198
+13 205
+13 212
+13 219
+13 226
+13 233
+13 240
+13 247
+13 254
+13 261
+13 268
+13 275
+13 282
+13 289
+13 296
+13 303
+13 310
+13 317
+13 324
+14 14
+14 15
+15 15
+15 16
+16 16
+16 17
+17 17
+17 19
+17 20
+17 26
+17 27
+17 33
+17 34
+17 40
+17 41
+17 47
+17 48
+17 54
+17 55
+17 61
+17 62
+17 68
+17 69
+17 75
+17 76
+17 82
+17 83
+17 89
+17 90
+17 96
+17 97
+17 103
+17 104
+17 110
+17 111
+17 117
+17 118
+17 124
+17 125
+17 131
+17 132
+17 138
+17 139
+17 145
+17 146
+17 152
+17 153
+17 159
+17 160
+17 166
+17 167
+17 173
+17 174
+17 180
+17 181
+17 187
+17 188
+17 194
+17 195
+17 201
+17 202
+17 208
+17 209
+17 215
+17 216
+17 222
+17 223
+17 229
+17 230
+17 236
+17 237
+17 243
+17 244
+17 250
+17 251
+17 257
+17 258
+17 264
+17 265
+17 271
+17 272
+17 278
+17 279
+17 285
+17 286
+17 292
+17 293
+17 299
+17 300
+17 306
+17 307
+17 313
+17 314
+17 320
+17 321
+18 18
+18 19
+18 20
+19 19
+19 24
+19 26
+19 27
+20 20
+20 26
+20 27
+21 21
+21 22
+22 22
+22 23
+23 23
+23 24
+24 24
+24 29
+25 26
+25 31
+25 33
+25 34
+26 27
+26 33
+26 34
+27 28
+27 29
+28 29
+28 30
+29 30
+29 31
+30 31
+30 36
+31 33
+31 38
+31 40
+31 41
+32 34
+32 40
+32 41
+33 35
+33 36
+34 36
+34 37
+35 37
+35 38
+36 38
+36 43
+37 40
+37 45
+37 47
+37 48
+38 41
+38 47
+38 48
+39 42
+39 43
+40 43
+40 44
+41 44
+41 45
+42 45
+42 50
+43 47
+43 52
+43 54
+43 55
+44 48
+44 54
+44 55
+45 49
+45 50
+46 50
+46 51
+47 51
+47 52
+48 52
+48 57
+49 54
+49 59
+49 61
+49 62
+50 55
+50 61
+50 62
+51 56
+51 57
+52 57
+52 58
+53 58
+53 59
+54 59
+54 64
+55 61
+55 66
+55 68
+55 69
+56 62
+56 68
+56 69
+57 63
+57 64
+58 64
+58 65
+59 65
+59 66
+60 66
+60 71
+61 68
+61 73
+61 75
+61 76
+62 69
+62 75
+62 76
+63 70
+63 71
+64 71
+64 72
+65 72
+65 73
+66 73
+66 78
+67 75
+67 80
+67 82
+67 83
+68 76
+68 82
+68 83
+69 77
+69 78
+70 78
+70 79
+71 79
+71 80
+72 80
+72 85
+73 82
+73 87
+73 89
+73 90
+74 83
+74 89
+74 90
+75 84
+75 85
+76 85
+76 86
+77 86
+77 87
+78 87
+78 92
+79 89
+79 94
+79 96
+79 97
+80 90
+80 96
+80 97
+81 91
+81 92
+82 92
+82 93
+83 93
+83 94
+84 94
+84 99
+85 96
+85 101
+85 103
+85 104
+86 97
+86 103
+86 104
+87 98
+87 99
+88 99
+88 100
+89 100
+89 101
+90 101
+90 106
+91 103
+91 108
+91 110
+91 111
+92 104
+92 110
+92 111
+93 105
+93 106
+94 106
+94 107
+95 107
+95 108
+96 108
+96 113
+97 110
+97 115
+97 117
+97 118
+98 111
+98 117
+98 118
+99 112
+99 113
+100 113
+100 114
+101 114
+101 115
+102 115
+102 120
+103 117
+103 122
+103 124
+103 125
+104 118
+104 124
+104 125
+105 119
+105 120
+106 120
+106 121
+107 121
+107 122
+108 122
+108 127
+109 124
+109 129
+109 131
+109 132
+110 125
+110 131
+110 132
+111 126
+111 127
+112 127
+112 128
+113 128
+113 129
+114 129
+114 134
+115 131
+115 136
+115 138
+115 139
+116 132
+116 138
+116 139
+117 133
+117 134
+118 134
+118 135
+119 135
+119 136
+120 136
+120 141
+121 138
+121 143
+121 145
+121 146
+122 139
+122 145
+122 146
+123 140
+123 141
+124 141
+124 142
+125 142
+125 143
+126 143
+126 148
+127 145
+127 150
+127 152
+127 153
+128 146
+128 152
+128 153
+129 147
+129 148
+130 148
+130 149
+131 149
+131 150
+132 150
+132 155
+133 152
+133 157
+133 159
+133 160
+134 153
+134 159
+134 160
+135 154
+135 155
+136 155
+136 156
+137 156
+137 157
+138 157
+138 162
+139 159
+139 164
+139 166
+139 167
+140 160
+140 166
+140 167
+141 161
+141 162
+142 162
+142 163
+143 163
+143 164
+144 164
+144 169
+145 166
+145 171
+145 173
+145 174
+146 167
+146 173
+146 174
+147 168
+147 169
+148 169
+148 170
+149 170
+149 171
+150 171
+150 176
+151 173
+151 178
+151 180
+151 181
+152 174
+152 180
+152 181
+153 175
+153 176
+154 176
+154 177
+155 177
+155 178
+156 178
+156 183
+157 180
+157 185
+157 187
+157 188
+158 181
+158 187
+158 188
+159 182
+159 183
+160 183
+160 184
+161 184
+161 185
+162 185
+162 190
+163 187
+163 192
+163 194
+163 195
+164 188
+164 194
+164 195
+165 189
+165 190
+166 190
+166 191
+167 191
+167 192
+168 192
+168 197
+169 194
+169 199
+169 201
+169 202
+170 195
+170 201
+170 202
+171 196
+171 197
+172 197
+172 198
+173 198
+173 199
+174 199
+174 204
+175 201
+175 206
+175 208
+175 209
+176 202
+176 208
+176 209
+177 203
+177 204
+178 204
+178 205
+179 205
+179 206
+180 206
+180 211
+181 208
+181 213
+181 215
+181 216
+182 209
+182 215
+182 216
+183 210
+183 211
+184 211
+184 212
+185 212
+185 213
+186 213
+186 218
+187 215
+187 220
+187 222
+187 223
+188 216
+188 222
+188 223
+189 217
+189 218
+190 218
+190 219
+191 219
+191 220
+192 220
+192 225
+193 222
+193 227
+193 229
+193 230
+194 223
+194 229
+194 230
+195 224
+195 225
+196 225
+196 226
+197 226
+197 227
+198 227
+198 232
+199 229
+199 234
+199 236
+199 237
+200 230
+200 236
+200 237
+201 231
+201 232
+202 232
+202 233
+203 233
+203 234
+204 234
+204 239
+205 236
+205 241
+205 243
+205 244
+206 237
+206 243
+206 244
+207 238
+207 239
+208 239
+208 240
+209 240
+209 241
+210 241
+210 246
+211 243
+211 248
+211 250
+211 251
+212 244
+212 250
+212 251
+213 245
+213 246
+214 246
+214 247
+215 247
+215 248
+216 248
+216 253
+217 250
+217 255
+217 257
+217 258
+218 251
+218 257
+218 258
+219 252
+219 253
+220 253
+220 254
+221 254
+221 255
+222 255
+222 260
+223 257
+223 262
+223 264
+223 265
+224 258
+224 264
+224 265
+225 259
+225 260
+226 260
+226 261
+227 261
+227 262
+228 262
+228 267
+229 264
+229 269
+229 271
+229 272
+230 265
+230 271
+230 272
+231 266
+231 267
+232 267
+232 268
+233 268
+233 269
+234 269
+234 274
+235 271
+235 276
+235 278
+235 279
+236 272
+236 278
+236 279
+237 273
+237 274
+238 274
+238 275
+239 275
+239 276
+240 276
+240 281
+241 278
+241 283
+241 285
+241 286
+242 279
+242 285
+242 286
+243 280
+243 281
+244 281
+244 282
+245 282
+245 283
+246 283
+246 288
+247 285
+247 290
+247 292
+247 293
+248 286
+248 292
+248 293
+249 287
+249 288
+250 288
+250 289
+251 289
+251 290
+252 290
+252 295
+253 292
+253 297
+253 299
+253 300
+254 293
+254 299
+254 300
+255 294
+255 295
+256 295
+256 296
+257 296
+257 297
+258 297
+258 302
+259 299
+259 304
+259 306
+259 307
+260 300
+260 306
+260 307
+261 301
+261 302
+262 302
+262 303
+263 303
+263 304
+264 304
+264 309
+265 306
+265 311
+265 313
+265 314
+266 307
+266 313
+266 314
+267 308
+267 309
+268 309
+268 310
+269 310
+269 311
+270 311
+270 316
+271 313
+271 318
+271 320
+271 321
+272 314
+272 320
+272 321
+273 315
+273 316
+274 316
+274 317
+275 317
+275 318
+276 318
+276 323
+277 320
+277 325
+278 322
+278 323
+279 323
+279 324
+280 324
+280 325
