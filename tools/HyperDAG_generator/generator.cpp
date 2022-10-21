@@ -285,7 +285,7 @@ struct Matrix
 
 
     // Reads matrix from file
-    bool read(string filename)
+    bool read(string filename, bool IndexedFromOne = false)
     {
         ifstream infile(filename);
         if(!infile.is_open())
@@ -314,6 +314,7 @@ struct Matrix
         cells.resize(n, vector<bool>(n,false));
 
         // read nonzeros
+        int indexOffset = IndexedFromOne ? 1 : 0;
         for(int i=0; i<NrNonzeros; ++i)
         {
             if(infile.eof())
@@ -324,16 +325,20 @@ struct Matrix
             }
 
             int x, y;
-            infile >> x >> y;
+            getline(infile, line);
+            while(!infile.eof() && line.at(0)=='%')
+               getline(infile, line);
 
-            if(x<0 || y<0 || x>=n || y>=n)
+            sscanf(line.c_str(), "%d %d", &x, &y);
+
+            if(x<indexOffset || y<indexOffset || x>=n+indexOffset || y>=n+indexOffset)
             {
                 cout<<"Incorrect input file format (index out of range).\n";
                 Dummy();
                 return false;
             }
 
-            cells[x][y] = true;
+            cells[x-indexOffset][y-indexOffset] = true;
         }
 
         desc="%Matrix A is read from input file "+filename+".";
@@ -793,8 +798,8 @@ DAG CreatekNN(const Matrix& M, int K, int source)
                     rowNotEmpty[i]=true;
                 }
 
-                if(rowNotEmpty[i])
-                    ++rowIdx;
+            if(rowNotEmpty[i])
+                ++rowIdx;
         }
 
         // setup for next iteration
@@ -840,6 +845,7 @@ int main(int argc, char* argv[])
     int N=-1, edges=-1, K=-1, sourceNode=-1, indegFix=-1;
     double sourceProb=-1.0, nonzeroProb=-1.0, indegExp = -1.0;
     string infile, outfile, mode, indegreeString;
+    bool indexedFromOne = false;
 
     // PROCESS COMMAND LINE ARGUMENTS
 
@@ -930,6 +936,9 @@ int main(int argc, char* argv[])
         else if (string(argv[i]) == "-debugMode")
             DebugMode = true;
 
+        else if (string(argv[i]) == "-indexedFromOne")
+            indexedFromOne = true;
+
         else
         {
             cerr << "Parameter error: unknown parameter/option "<< string(argv[i]) << endl;
@@ -956,6 +965,11 @@ int main(int argc, char* argv[])
         outfile="output.txt";
         if(DebugMode)
             cout << "Output file not specified; using default output filename (output.txt)." << endl;
+    }
+    if(infile.empty() && indexedFromOne)
+    {
+        cerr << "Parameter error: cannot use parameter \"indexedFromOne\" without an input file." << endl;
+        return 1;
     }
 
     // N
@@ -1098,7 +1112,7 @@ int main(int argc, char* argv[])
     Matrix M(1);
     if(!infile.empty())
     {
-        if(!M.read(infile))
+        if(!M.read(infile, indexedFromOne))
         {
             cerr << "Error reading matrix from input file." << endl;
             return 1;
