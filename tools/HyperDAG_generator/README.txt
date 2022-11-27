@@ -73,7 +73,7 @@ POSSIBLE PARAMETERS (case sensitive):
 
 "-output": describes the name of the output file where the hyperDAG is written. If not specified, the default name is "output.txt"
 
-"-input": if used, then instead of randomly generating a matrix, the input matrix is read from a text file. The input parameter describes the name of the input file to read the matrix from. The input file is expected to be in a MatrixMarket "pattern" format. Can only be used in fine-grained (SpMV, SpMVExp, kNN, CG) modes.
+"-input": if used, then instead of randomly generating a matrix, the input matrix is read from a text file. The input parameter describes the name of the input file to read the matrix from. The input file is expected to be in a MatrixMarket-like "coordinate pattern general" format (briefly described at the end of this file), with columns/rows indexed from 0 by default. Can only be used in fine-grained (SpMV, SpMVExp, kNN, CG) modes.
 
 "-N" : describes the number of rows/columns in the square matrix (in SpMV, SpMVExp, kNN and CG mode) or the number of nodes in the random DAG (ER, fixedIN and expectedIn mode). If not specified, the default value is 10 in any mode.
 
@@ -88,6 +88,8 @@ POSSIBLE PARAMETERS (case sensitive):
 "-sourceProb" : describes the probability for each node to be chosen as a source with indegree 0. Its value has to be between 0 and 1. If not specified, the default value is 0. Can only be used in fixedIn and expectedIn modes.
 
 "-sourceNode" : in kNN mode, it specifies the cell index of the sparse vector that is initially non-zero. Has to be an integer between 0 and (N-1). Can only be used in kNN mode if an input file is specified.
+
+"indexedFromOne" : if set, then the input matrix file is assumed to have the matrix rows/columns indexed from 1 to N. By default (if this flag is not used), we assume that the rows/columns of the input file are indexed from 0 to (N-1). See a more detailed overview of the input file format below. This parameter does not need a following argument. It can only be used in fine-grained (SpMV, SpMVExp, kNN, CG) modes, and only if an input file is specified.
 
 "-debugMode": enables debugging messages on the standard output during the run of the program. This parameter does not need a following argument, and it can be used in any mode.
 
@@ -105,6 +107,20 @@ SOME EXAMPLE CALLS:
 -mode SpMVExp -K 10 -nonzeroProb 0.2  
 -mode SpMVExp -K 5 -input infile.txt  
 -mode kNN -N 15 -K 3 -nonzeroProb 0.25  
--mode kNN -input infile.txt -sourceNode 3  
+-mode kNN -input infile.txt -indexedFromOne -sourceNode 3 
 -mode CG -N 20 -K 5 -nonzeroProb 0.4 -debugMode  
 -mode CG -input infile.txt -K 1  
+
+---------------------------------
+INPUT FILE FORMAT (for matrices):
+---------------------------------
+
+If the "input" option is used to read the matrix from an input file, then the input file is expected in a MatrixMarket-like "coordinate pattern general" format, as briefly summarized below.
+
+- The file can begin with several header/comment lines, each starting with a '%'.
+
+- The first non-comment line should contain three integers "N N Z" separated by spaces, where N is the number of columns/rows, and the third number is the number of nonzeros. Note that the first two numbers need to be equal; we are assuming a square matrix, but N still has to appear twice in this line to conform to standards.
+
+- The next Z lines should each contain two integers "X Y", separated by a space, meaning that there is a non-zero in row X, column Y. Additionally, the value of the nonzero can appear at the end of the line, separated by another whitespace from Y; this will be ignored.
+
+- By default, we assume that rows and columns are numbered from 0 to (N-1), to conform to general notations on graphs and to our output files. However, several matrix collections (e.g. MatrixMarket) instead have rows and columns numbered from 1 to N. In order to read matrices with such indexing, the "indexedFromOne" flag can be used.
