@@ -21,6 +21,7 @@ limitations under the License.
 #include <fstream>
 #include <vector>
 #include <string>
+#include <sstream>
 #include <list>
 #include <algorithm>
 
@@ -69,6 +70,10 @@ struct DAG
 
     void addEdge(int v1, int v2, const std::string& description = "", bool noPrint = false)
     {
+        if( v1 == v2 ) {
+            cerr << "Self-loop edge addition error: " << v1 << " -> " << v2 << endl;
+            abort();
+        }
         if(v1>=v2){
             cerr<<"DAG edge addition error."<<endl;
             abort();
@@ -76,6 +81,8 @@ struct DAG
 
         if( v1 >= Out.size() || v2 >= In.size() ){
             cerr<<"DAG edge addition error: node index out of range."<<endl;
+            cerr << "v1: " << v1 << ", v2: " << v2 << endl;
+            cerr << "n: " << n << ", Out.size(): " << Out.size() << ", In.size(): " << In.size() << endl;
             abort();
         }
 
@@ -87,7 +94,7 @@ struct DAG
     }
 
     // Prints the hyperDAG corresponding to the DAG into a file
-    void printHyperDAG(string filename)
+    void printHyperDAG(const string& filename)
     {
         int sinks=0, pins=0;
         for(int i=0; i<n; ++i)
@@ -97,7 +104,7 @@ struct DAG
                 ++sinks;
 
         ofstream outfile;
-        outfile.open (filename);
+        outfile.open(filename);
         outfile << "%" << desc <<"\n";
         outfile << "% Hyperdeges: " << n - sinks <<"\n";
         outfile << "% Nodes: " << n <<"\n";
@@ -547,9 +554,24 @@ DAG CreateLLtSolver(const Matrix& L)
     if( DebugMode )
         L.print( "LLtSolver" );
 
-    DAG G(4*L.n);
-    string name="HyperDAG model of LLtSolver operation: inv(trans(L)) . (inv(L) . b)\n"+L.desc;
-    G.desc.assign(name);
+    const int LOffset = 0;
+    const int xOffset = LOffset+L.n*L.n;
+    const int yOffset = xOffset+L.n;
+    const int zOffset = yOffset+L.n;
+
+    DAG G(zOffset + L.n);
+    stringstream description;
+    description <<
+        "HyperDAG model of LLtSolver operation: inv(trans(L)) . (inv(L) . b)\n"
+        << "L.desc: " << (L.desc) << "\n"
+        << "Nodes of matrix L: [" + to_string(LOffset) << ";" << to_string(LOffset+L.n*L.n-1) << "] (row-wise)\n"
+        << "Nodes of vector x: [" + to_string(xOffset) << ";" << to_string(xOffset+L.n-1) << "]\n"
+        << "Nodes of vector y: [" + to_string(yOffset) << ";" << to_string(yOffset+L.n-1) << "]\n"
+        << "Nodes of vector z: [" + to_string(zOffset) << ";" << to_string(zOffset+L.n-1) << "]\n";
+    description << "\n";
+    std::cout << description.str();
+    L.print( "L", description );
+    G.desc.assign(description.str());
 
     // find empty rows in the matrix
     vector<bool> rowNotEmpty(L.n, false);
@@ -561,9 +583,7 @@ DAG CreateLLtSolver(const Matrix& L)
         cout << "Row " << i << ": " << rowNotEmpty[i] << endl;
 
     // Forward substitution DAG
-    int LOffset = 0;
-    int xOffset = L.n;
-    int yOffset = 2*L.n;
+
     for(int i=0; i<L.n; ++i) {
 
         if(!rowNotEmpty[i]) continue;
@@ -576,7 +596,7 @@ DAG CreateLLtSolver(const Matrix& L)
         G.addEdge(x_i, y_i, x_i_str + " -> " + y_i_str );
 
         // Division by L[i][i]
-        int L_i_i = LOffset+i;
+        int L_i_i = LOffset+i*L.n+i;
         std::string L_i_i_str = "L["+to_string(i)+"]["+to_string(i)+"]";
         G.addEdge(L_i_i, y_i, L_i_i_str + " -> " + y_i_str );
 
@@ -584,8 +604,7 @@ DAG CreateLLtSolver(const Matrix& L)
         for(int j=0; j<i; ++j) {
             if(not L.cells[i][j]) continue;
 
-            
-            int L_i_j = LOffset+j;
+            int L_i_j = LOffset+i*L.n+j;
             std::string L_i_j_str = "L["+to_string(i)+"]["+to_string(j)+"]";
             G.addEdge(L_i_j, y_i, L_i_j_str + " -> " + y_i_str );
 
@@ -597,7 +616,6 @@ DAG CreateLLtSolver(const Matrix& L)
     if(DebugMode) cout << "-- Forward substitution DAG created." << endl;
 
     // Backward substitution DAG
-    int zOffset = 3*L.n;
     for(int i=L.n-1; i>=0; --i) {
         if(!rowNotEmpty[i]) continue;
 
@@ -609,22 +627,22 @@ DAG CreateLLtSolver(const Matrix& L)
         G.addEdge(y_i, z_i, y_i_str + " -> " + z_i_str );
 
         // Division by L[i][i]
-        int L_i_i = LOffset+i;
+        int L_i_i = LOffset+i*L.n+i;
         std::string L_i_i_str = "L["+to_string(i)+"]["+to_string(i)+"]";
         G.addEdge(L_i_i, z_i, L_i_i_str + " -> " + z_i_str );
 
         // Sum of trans(L)[i][j] * x[j]
         for(int j=i+1; j<L.n; ++j) {
             if(not L.cells[i][j]) continue;
-            
-            int L_j_i = LOffset+i;
+
+            int L_j_i = LOffset+j*L.n+i;
             std::string L_j_i_str = "trans(L)["+to_string(i)+"]["+to_string(j)+"]";
             G.addEdge(L_j_i, z_i, L_j_i_str + " -> " + z_i_str );
 
             int y_i = yOffset+i;
             std::string y_i_str = "y["+to_string(i)+"]";
             G.addEdge(y_i, z_i, y_i_str + " -> " + z_i_str );
-        
+
         }
         if(DebugMode) cout << endl;
     }
@@ -661,10 +679,6 @@ DAG CreateLUSolver(const Matrix& L, const Matrix& U)
         abort();
     }
 
-    DAG G(5*L.n);
-    string name="HyperDAG model of LUSolver operation: inv(U) . (inv(L) . b)\nL.desc: "
-        +L.desc + "\nU.desc: " + U.desc;
-    G.desc.assign(name);
 
     // only keep components that are predecessors of the final nonzeros
     // (in particular, indeces corresponding to (i) empty columns in the original vector or (ii) emtpy rows in the result vector)
@@ -676,11 +690,25 @@ DAG CreateLUSolver(const Matrix& L, const Matrix& U)
         rowNotEmpty[i] = std::any_of(L.cells[i].cbegin(), L.cells[i].cend(), [](const bool x){return x;});
 
     const int LOffset = 0;
-    const int UOffset = L.n;
-    const int xOffset = 2*L.n;
-    const int yOffset = 3*L.n;
-    const int zOffset = 4*U.n;
+    const int UOffset = LOffset+L.n*L.n;
+    const int xOffset = UOffset+U.n*U.n;
+    const int yOffset = xOffset+L.n;
+    const int zOffset = yOffset+L.n;
 
+    DAG G(zOffset + L.n);
+    string name="HyperDAG model of LUSolver operation: inv(U) . (inv(L) . b)\nL.desc: "
+        +L.desc + "\nU.desc: " + U.desc;
+    stringstream description;
+    description << "\
+        HyperDAG model of LUSolver operation: inv(U) . (inv(L) . b)\n"
+        << "L.desc: " << L.desc << "\n"
+        << "U.desc: " << U.desc << "\n"
+        << "Nodes of matrix L: [" + to_string(LOffset) << ";" << to_string(LOffset+L.n*L.n-1) << "] (row-wise)\n"
+        << "Nodes of matrix U: [" + to_string(UOffset) << ";" << to_string(UOffset+U.n*U.n-1) << "] (row-wise)\n"
+        << "Nodes of vector x: [" + to_string(xOffset) << ";" << to_string(xOffset+L.n-1) << "]\n"
+        << "Nodes of vector y: [" + to_string(yOffset) << ";" << to_string(yOffset+L.n-1) << "]\n"
+        << "Nodes of vector z: [" + to_string(zOffset) << ";" << to_string(zOffset+L.n-1) << "]\n";
+    G.desc.assign(description.str());
     // Forward substitution DAG
     for(int i=0; i<L.n; ++i) {
         if(!rowNotEmpty[i]) continue;
@@ -693,7 +721,7 @@ DAG CreateLUSolver(const Matrix& L, const Matrix& U)
         G.addEdge(x_i, y_i, x_i_str + " -> " + y_i_str );
 
         // Division by L[i][i]
-        int L_i_i = LOffset+i;
+        int L_i_i = LOffset+i*L.n+i;
         std::string L_i_i_str = "L["+to_string(i)+"]["+to_string(i)+"]";
         G.addEdge(L_i_i, y_i, L_i_i_str + " -> " + y_i_str );
 
@@ -701,8 +729,7 @@ DAG CreateLUSolver(const Matrix& L, const Matrix& U)
         for(int j=0; j<i; ++j) {
             if(not L.cells[i][j]) continue;
 
-            
-            int L_i_j = LOffset+j;
+            int L_i_j = LOffset+j*L.n+i;
             std::string L_i_j_str = "L["+to_string(i)+"]["+to_string(j)+"]";
             G.addEdge(L_i_j, y_i, L_i_j_str + " -> " + y_i_str );
 
@@ -734,7 +761,7 @@ DAG CreateLUSolver(const Matrix& L, const Matrix& U)
         G.addEdge(y_i, z_i, y_i_str + " -> " + z_i_str );
 
         // Division by U[i][i]
-        int U_i_i = UOffset+i;
+        int U_i_i = UOffset+i*U.n+i;
         std::string U_i_i_str = "U["+to_string(i)+"]["+to_string(i)+"]";
         G.addEdge(U_i_i, z_i, U_i_i_str + " -> " + z_i_str );
         if(DebugMode) cout << endl;
@@ -742,15 +769,15 @@ DAG CreateLUSolver(const Matrix& L, const Matrix& U)
         // Sum of U[i][j] * x[j]
         for(int j=i+1; j<U.n; ++j) {
             if(not U.cells[i][j]) continue;
-            
-            int U_i_j = UOffset+j;
+
+            int U_i_j = UOffset+i*U.n+j;
             std::string U_i_j_str = "U["+to_string(i)+"]["+to_string(j)+"]";
             G.addEdge(U_i_j, z_i, U_i_j_str + " -> " + z_i_str );
 
             int y_j = yOffset+j;
             std::string y_j_str = "y["+to_string(j)+"]";
             G.addEdge(y_j, z_i, y_j_str + " -> " + z_i_str );
-        
+
         }
         if(DebugMode) cout << endl;
     }
