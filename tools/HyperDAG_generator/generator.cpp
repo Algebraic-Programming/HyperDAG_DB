@@ -568,9 +568,6 @@ DAG CreateLLtSolver(const Matrix& L)
         << "Nodes of vector x: [" + to_string(xOffset) << ";" << to_string(xOffset+L.n-1) << "]\n"
         << "Nodes of vector y: [" + to_string(yOffset) << ";" << to_string(yOffset+L.n-1) << "]\n"
         << "Nodes of vector z: [" + to_string(zOffset) << ";" << to_string(zOffset+L.n-1) << "]\n";
-    description << "\n";
-    std::cout << description.str();
-    L.print( "L", description );
     G.desc.assign(description.str());
 
     // find empty rows in the matrix
