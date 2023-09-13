@@ -27,7 +27,7 @@ limitations under the License.
 
 using namespace std;
 
-bool DebugMode = true;
+bool DebugMode = false;
 
 // AUXILIARY FUNCTIONS
 
@@ -542,28 +542,30 @@ DAG CreateRandomSpMV(int N, double nonzero)
 }
 
 
-DAG CreateLLtSolver(const Matrix& M)
+DAG CreateLLtSolver(const Matrix& L)
 {
-    M.print( "LLtSolver" );
+    if( DebugMode )
+        L.print( "LLtSolver" );
 
-    DAG G(4*M.n);
-    string name="HyperDAG model of LLtSolver operation: inv(trans(L)) . (inv(L) . b)\n"+M.desc;
+    DAG G(4*L.n);
+    string name="HyperDAG model of LLtSolver operation: inv(trans(L)) . (inv(L) . b)\n"+L.desc;
     G.desc.assign(name);
 
     // find empty rows in the matrix
-    vector<bool> rowNotEmpty(M.n, false);
-    for(int i=0; i<M.n; ++i)
-        rowNotEmpty[i] = std::any_of(M.cells[i].cbegin(), M.cells[i].cend(), [](const bool x){return x;});
+    vector<bool> rowNotEmpty(L.n, false);
+    for(int i=0; i<L.n; ++i)
+        rowNotEmpty[i] = std::any_of(L.cells[i].cbegin(), L.cells[i].cend(), [](const bool x){return x;});
 
     cout << "rowNotEmpty: " << endl;
-    for(int i=0; i<M.n; ++i)
+    for(int i=0; i<L.n; ++i)
         cout << "Row " << i << ": " << rowNotEmpty[i] << endl;
 
     // Forward substitution DAG
     int LOffset = 0;
-    int xOffset = M.n;
-    int yOffset = 2*M.n;
-    for(int i=0; i<M.n; ++i) {
+    int xOffset = L.n;
+    int yOffset = 2*L.n;
+    for(int i=0; i<L.n; ++i) {
+
         if(!rowNotEmpty[i]) continue;
 
         int y_i = yOffset+i;
@@ -578,26 +580,25 @@ DAG CreateLLtSolver(const Matrix& M)
         std::string L_i_i_str = "L["+to_string(i)+"]["+to_string(i)+"]";
         G.addEdge(L_i_i, y_i, L_i_i_str + " -> " + y_i_str );
 
-        for(int j=0; j<=i; ++j) {
-            if(not M.cells[i][j]) continue;
+        // Sum of L[i][j] * x[j]
+        for(int j=0; j<i; ++j) {
+            if(not L.cells[i][j]) continue;
 
-            // Sum of L[i][k] * x[k]
-            for(int k=0; k<j; k++) {
-                int L_i_k = LOffset+k;
-                std::string L_i_k_str = "L["+to_string(i)+"]["+to_string(k)+"]";
-                G.addEdge(L_i_k, y_i, L_i_k_str + " -> " + y_i_str );
+            
+            int L_i_j = LOffset+j;
+            std::string L_i_j_str = "L["+to_string(i)+"]["+to_string(j)+"]";
+            G.addEdge(L_i_j, y_i, L_i_j_str + " -> " + y_i_str );
 
-                int x_k = xOffset+k;
-                std::string x_k_str = "x["+to_string(k)+"]";
-                G.addEdge(x_k, y_i, x_k_str + " -> " + y_i_str );
-            }
+            int x_j = xOffset+j;
+            std::string x_j_str = "x["+to_string(j)+"]";
+            G.addEdge(x_j, y_i, x_j_str + " -> " + y_i_str );
         }
     }
     if(DebugMode) cout << "-- Forward substitution DAG created." << endl;
 
     // Backward substitution DAG
-    int zOffset = 3*M.n;
-    for(int i=M.n-1; i>=0; --i) {
+    int zOffset = 3*L.n;
+    for(int i=L.n-1; i>=0; --i) {
         if(!rowNotEmpty[i]) continue;
 
         int y_i = yOffset+i;
@@ -612,19 +613,18 @@ DAG CreateLLtSolver(const Matrix& M)
         std::string L_i_i_str = "L["+to_string(i)+"]["+to_string(i)+"]";
         G.addEdge(L_i_i, z_i, L_i_i_str + " -> " + z_i_str );
 
-        for(int j=i+1; j<M.n; ++j) {
-            if(not M.cells[i][j]) continue;
+        // Sum of trans(L)[i][j] * x[j]
+        for(int j=i+1; j<L.n; ++j) {
+            if(not L.cells[i][j]) continue;
+            
+            int L_j_i = LOffset+i;
+            std::string L_j_i_str = "trans(L)["+to_string(i)+"]["+to_string(j)+"]";
+            G.addEdge(L_j_i, z_i, L_j_i_str + " -> " + z_i_str );
 
-            // Sum of trans(L)[i][k] * x[k]
-            for(int k=1; k<=j; k++) {
-                int L_k_i = LOffset+i;
-                std::string L_k_i_str = "L["+to_string(k)+"]["+to_string(i)+"]";
-                G.addEdge(L_k_i, z_i, L_k_i_str + " -> " + z_i_str );
-
-                int y_k = yOffset+k;
-                std::string y_k_str = "y["+to_string(k)+"]";
-                G.addEdge(y_k, z_i, y_k_str + " -> " + z_i_str );
-            }
+            int y_i = yOffset+i;
+            std::string y_i_str = "y["+to_string(i)+"]";
+            G.addEdge(y_i, z_i, y_i_str + " -> " + z_i_str );
+        
         }
         if(DebugMode) cout << endl;
     }
@@ -634,7 +634,7 @@ DAG CreateLLtSolver(const Matrix& M)
     // only keep components that are predecessors of the final nonzeros
     // (in particular, indeces corresponding to (i) empty columns in the original vector or (ii) emtpy rows in the result vector)
     vector<int> sinkNodes;
-    for(int i=0; i<M.n; ++i)
+    for(int i=0; i<L.n; ++i)
         if(rowNotEmpty[i])
             sinkNodes.push_back(yOffset + i);
 
@@ -651,8 +651,10 @@ DAG CreateRandomLLtSolver(int N, double nonzero)
 
 DAG CreateLUSolver(const Matrix& L, const Matrix& U)
 {
-    L.print( "LUSolver - L" );
-    U.print( "LUSolver - U" );
+    if( DebugMode ) {
+        L.print( "LUSolver - L" );
+        U.print( "LUSolver - U" );
+    }
 
     if( L.n != U.n ) {
         cerr << "Error: L and U matrices must have the same size." << endl;
@@ -695,19 +697,18 @@ DAG CreateLUSolver(const Matrix& L, const Matrix& U)
         std::string L_i_i_str = "L["+to_string(i)+"]["+to_string(i)+"]";
         G.addEdge(L_i_i, y_i, L_i_i_str + " -> " + y_i_str );
 
-        for(int j=0; j<=i; ++j) {
+        // Sum of L[i][j] * x[j]
+        for(int j=0; j<i; ++j) {
             if(not L.cells[i][j]) continue;
 
-            // Sum of L[i][k] * x[k]
-            for(int k=0; k<j; k++) {
-                int L_i_k = LOffset+k;
-                std::string L_i_k_str = "L["+to_string(i)+"]["+to_string(k)+"]";
-                G.addEdge(L_i_k, y_i, L_i_k_str + " -> " + y_i_str );
+            
+            int L_i_j = LOffset+j;
+            std::string L_i_j_str = "L["+to_string(i)+"]["+to_string(j)+"]";
+            G.addEdge(L_i_j, y_i, L_i_j_str + " -> " + y_i_str );
 
-                int x_k = xOffset+k;
-                std::string x_k_str = "x["+to_string(k)+"]";
-                G.addEdge(x_k, y_i, x_k_str + " -> " + y_i_str );
-            }
+            int x_j = xOffset+j;
+            std::string x_j_str = "x["+to_string(j)+"]";
+            G.addEdge(x_j, y_i, x_j_str + " -> " + y_i_str );
         }
     }
     if(DebugMode) cout << "-- Forward substitution DAG created." << endl;
@@ -736,20 +737,20 @@ DAG CreateLUSolver(const Matrix& L, const Matrix& U)
         int U_i_i = UOffset+i;
         std::string U_i_i_str = "U["+to_string(i)+"]["+to_string(i)+"]";
         G.addEdge(U_i_i, z_i, U_i_i_str + " -> " + z_i_str );
+        if(DebugMode) cout << endl;
 
+        // Sum of U[i][j] * x[j]
         for(int j=i+1; j<U.n; ++j) {
             if(not U.cells[i][j]) continue;
+            
+            int U_i_j = UOffset+j;
+            std::string U_i_j_str = "U["+to_string(i)+"]["+to_string(j)+"]";
+            G.addEdge(U_i_j, z_i, U_i_j_str + " -> " + z_i_str );
 
-            // Sum of U[i][k] * x[k]
-            for(int k=1; k<=j; k++) {
-                int U_i_k = UOffset+k;
-                std::string U_i_k_str = "U["+to_string(k)+"]["+to_string(i)+"]";
-                G.addEdge(U_i_k, z_i, U_i_k_str + " -> " + z_i_str );
-
-                int y_k = yOffset+k;
-                std::string y_k_str = "y["+to_string(k)+"]";
-                G.addEdge(y_k, z_i, y_k_str + " -> " + z_i_str );
-            }
+            int y_j = yOffset+j;
+            std::string y_j_str = "y["+to_string(j)+"]";
+            G.addEdge(y_j, z_i, y_j_str + " -> " + z_i_str );
+        
         }
         if(DebugMode) cout << endl;
     }
