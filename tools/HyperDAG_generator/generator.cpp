@@ -225,150 +225,75 @@ struct DAG {
     }
 };
 
-struct Matrix {
-    int n;
-    int NrNonzeros = 0;
-    vector<vector<bool> > cells;
+struct IMatrix {
+   private:
+    const int _m, _n;
+    const string _label = "";
+    string _desc = "";
 
-    string desc;
+   protected:
+    IMatrix(int M, int N, const string& label = "")
+        : _m(M), _n(N), _label(label) {}
 
-    Matrix(int N) {
-        n = N;
-        cells.resize(N, vector<bool>(N, false));
+   public:
+    int nrows() const noexcept { return _m; }
+    int ncols() const noexcept { return _n; }
+    int area() const noexcept { return nrows() * ncols(); }
+    virtual int nnz() const noexcept = 0;
+
+    void addDescription(const string& desc) noexcept {
+        _desc += '%' + desc + '\n';
+    }
+    std::string getDescription() const noexcept { return _desc; }
+
+    virtual bool at(int i, int j) const noexcept = 0;
+    virtual void set(int i, int j, bool value) noexcept = 0;
+
+    void setMainDiagonal() {
+        for (int i = 0; i < nrows(); ++i) {
+            set(i, i, true);
+        }
     }
 
-    void Dummy() {
-        cells.clear();
-        cells.resize(n, vector<bool>(n, false));
-        for (int i = 0; i < n; ++i) cells[i][i] = true;
-
-        NrNonzeros = n;
-
-        desc = "%%The matrix A is diagonal.";
-    }
-
-    // Randomized matrix where each cell is nonzero independently with a fixed
-    // probability (if the mainDiag flag is set to true, then the main diagonal
-    // is always set to 1)
-    void Randomize(double nonzero, bool mainDiag = false) {
-        for (int i = 0; i < n; ++i)
-            for (int j = 0; j < n; ++j) {
-                if ((i == j && mainDiag) ||
-                    (double)rand() / (double)RAND_MAX < nonzero) {
-                    cells[i][j] = true;
-                    ++NrNonzeros;
-
-                    if (DebugMode)
-                        cout << "nonzero (" << i << "," << j << ")\n";
-                }
+    /**
+     * Randomized matrix where each cell is nonzero independently with a fixed
+     * probability (if the mainDiag flag is set to true, then the main diagonal
+     * is always set to 1)
+     *
+     * @param nonzero Probability for having a nonzero in any cell of matrix A
+     */
+    void randomize(double nonzero) {
+        for (int i = 0; i < nrows(); ++i) {
+            for (int j = 0; j < ncols(); ++j) {
+                double rnd = (double)rand() / (double)RAND_MAX;
+                set(i, j, rnd < nonzero);
             }
+        }
 
         char name[200];
         sprintf(name,
-                "%%The probability for having a nonzero in any cell of matrix "
+                "The probability for having a nonzero in any cell of matrix "
                 "A is %.2lf",
                 nonzero);
-        desc = name;
-        if (mainDiag) desc += ", and the main diagonal is set to 1.";
+        addDescription(name);
 
-        if (DebugMode)
-            cout << "Nonzero count: " << NrNonzeros << " out of " << n * n
-                 << ", which is "
-                 << (double)NrNonzeros / ((double)n * (double)n)
+        if (DebugMode) {
+            cout << "Nonzero count: " << nnz() << " out of "
+                 << nrows() * ncols() << ", which is "
+                 << (double)nnz() / ((double)nrows() * (double)ncols())
                  << " instead of " << nonzero << endl;
-
-        // Fallback in case all entries happen to be zero: use a dummy
-        // (diagonal) matrix instead
-        if (NrNonzeros == 0) {
-            cout << "The random matrix is completely empty! Using dummy "
-                    "(diagonal) matrix instead.\n";
-            Dummy();
         }
-    }
-
-    // Reads matrix from file
-    bool read(string filename, bool IndexedFromOne = false) {
-        ifstream infile(filename);
-        if (!infile.is_open()) {
-            cout << "Unable to find/open input matrix file.\n";
-            Dummy();
-            return false;
-        }
-
-        string line;
-        getline(infile, line);
-        while (!infile.eof() && line.at(0) == '%') getline(infile, line);
-
-        int M;
-        sscanf(line.c_str(), "%d %d %d", &n, &M, &NrNonzeros);
-
-        if (n != M) {
-            cout << "Incorrect input file format: only square matrices are "
-                    "accepted!\n";
-            Dummy();
-            return false;
-        }
-
-        cells.clear();
-        cells.resize(n, vector<bool>(n, false));
-
-        // read nonzeros
-        int indexOffset = IndexedFromOne ? 1 : 0;
-        for (int i = 0; i < NrNonzeros; ++i) {
-            if (infile.eof()) {
-                cout << "Incorrect input file format (file terminated too "
-                        "early).\n";
-                Dummy();
-                return false;
-            }
-
-            int x, y;
-            getline(infile, line);
-            while (!infile.eof() && line.at(0) == '%') getline(infile, line);
-
-            sscanf(line.c_str(), "%d %d", &x, &y);
-
-            if (x < indexOffset || y < indexOffset || x >= n + indexOffset ||
-                y >= n + indexOffset) {
-                cout << "Incorrect input file format (index out of range).\n";
-                Dummy();
-                return false;
-            }
-
-            cells[x - indexOffset][y - indexOffset] = true;
-        }
-
-        desc = "%Matrix A is read from input file " + filename + ".";
-        infile.close();
-
-        // Check if input matrix is empty, since this can cause undesired
-        // behavior in some functions
-        if (NrNonzeros == 0) {
-            cout << "Input matrix is completely empty! Using dummy (diagonal) "
-                    "matrix instead.\n";
-            Dummy();
-        }
-
-        return true;
-    }
-
-    void SetMainDiagonal() {
-        for (int i = 0; i < n; ++i)
-            if (!cells[i][i]) {
-                cells[i][i] = true;
-                ++NrNonzeros;
-            }
     }
 
     void print(const string& label = "",
                std::ostream& os = std::cout) const noexcept {
-        os << "Matrix " << label << ": " << n << "x" << n << ", " << NrNonzeros
-           << " nonzeros\n";
+        os << "Matrix " << label << ": " << nrows() << "x" << ncols() << ", "
+           << nnz() << " nonzeros\n";
         os << "[\n";
-        for (int i = 0; i < n; ++i) {
+        for (int i = 0; i < nrows(); ++i) {
             os << "  ";
-            for (int j = 0; j < n; ++j) {
-                if (cells[i][j]) {
+            for (int j = 0; j < ncols(); ++j) {
+                if (at(i, j)) {
                     os << "X";
                 } else {
                     os << "_";
@@ -379,8 +304,160 @@ struct Matrix {
         }
         os << "]\n";
     }
+
+    virtual ~IMatrix() {}
+
+    template <typename MatrixType>
+    static MatrixType readFromFile(const string& filename,
+                                   bool IndexedFromOne = false) {
+        ifstream infile(filename);
+        if (!infile.is_open()) {
+            throw "Unable to find/open input matrix file.\n";
+        }
+
+        string line;
+        getline(infile, line);
+        while (!infile.eof() && line.at(0) == '%') getline(infile, line);
+
+        int M, N, NNZ;
+        sscanf(line.c_str(), "%d %d %d", &N, &M, &NNZ);
+
+        if (NNZ == 0) {
+            throw "Incorrect input file format: only non-empty matrices are "
+                    "accepted!\n";
+        }
+
+        MatrixType A(M, N, "Matrix from file <" + filename + ">");
+        // read nonzeros
+        int indexOffset = IndexedFromOne ? 1 : 0;
+        for (int i = 0; i < NNZ; ++i) {
+            if (infile.eof()) {
+                throw "Incorrect input file format (file terminated too "
+                        "early).\n";
+            }
+
+            int x, y;
+            getline(infile, line);
+            while (!infile.eof() && line.at(0) == '%') getline(infile, line);
+
+            sscanf(line.c_str(), "%d %d", &x, &y);
+
+            if (x < indexOffset || y < indexOffset || x >= N + indexOffset ||
+                y >= N + indexOffset) {
+                throw "Incorrect input file format (index out of range).\n";
+            }
+
+            A.set(x - indexOffset, y - indexOffset, true);
+        }
+
+        A.addDescription("Matrix A is read from input file " + filename + ".");
+        infile.close();
+
+        return A;
+    }
+
+    template <typename MatrixType>
+    static MatrixType Identity(int M, int N) {
+        MatrixType I(M, N);
+        I.setMainDiagonal();
+        return I;
+    }
 };
 
+struct SquareMatrix : public IMatrix {
+   private:
+    int _nnz = 0;
+    vector<vector<bool> > _cells;
+
+   public:
+    SquareMatrix(int N = 0, const string& label = "") : IMatrix(N, N, label) {
+        _cells.resize(N, vector<bool>(N, false));
+
+        addDescription("Matrix A is a square-matrix of size " + to_string(N) +
+                       "x" + to_string(N) + ".");
+    }
+
+    SquareMatrix(int _, int N, const string& label) : SquareMatrix(N, label) {}
+
+    SquareMatrix(const SquareMatrix& other) : IMatrix(other) {
+        _nnz = other._nnz;
+        _cells = other._cells;
+    }
+
+    SquareMatrix& operator=(const SquareMatrix& other) {
+        return *this = SquareMatrix(other);
+    }
+
+    int nnz() const noexcept override { return _nnz; }
+
+    bool at(int i, int j) const noexcept override { return _cells[i][j]; }
+
+    void set(int i, int j, bool value) noexcept override {
+        if (at(i, j) == value) return;
+        _cells[i][j] = value;
+        _nnz += value ? 1 : -1;
+    }
+};
+
+struct LowerTriangularSquareMatrix : public SquareMatrix {
+   public:
+    LowerTriangularSquareMatrix(int N = 0, const string& label = "")
+        : SquareMatrix(N, label) {
+        addDescription("Matrix A is a lower triangular square-matrix of size " +
+                       to_string(N) + "x" + to_string(N) + ".");
+    }
+
+    LowerTriangularSquareMatrix(int _, int N, const string& label)
+        : SquareMatrix(N, label) {}
+
+    LowerTriangularSquareMatrix(const LowerTriangularSquareMatrix& other)
+        : SquareMatrix(other) {}
+
+    LowerTriangularSquareMatrix& operator=(
+        const LowerTriangularSquareMatrix& other) {
+        return *this = LowerTriangularSquareMatrix(other);
+    }
+
+    bool at(int i, int j) const noexcept override {
+        if (i < j) return false;
+        return SquareMatrix::at(i, j);
+    }
+
+    void set(int i, int j, bool value) noexcept override {
+        if (i < j) return;
+        SquareMatrix::set(i, j, value);
+    }
+};
+
+struct UpperTriangularSquareMatrix : public SquareMatrix {
+   public:
+    UpperTriangularSquareMatrix(int N = 0, const string& label = "")
+        : SquareMatrix(N, label) {
+        addDescription("Matrix A is a upper triangular square-matrix of size " +
+                       to_string(N) + "x" + to_string(N) + ".");
+    }
+
+    UpperTriangularSquareMatrix(int _, int N, const string& label)
+        : SquareMatrix(N, label) {}
+
+    UpperTriangularSquareMatrix(const UpperTriangularSquareMatrix& other)
+        : SquareMatrix(other) {}
+
+    UpperTriangularSquareMatrix& operator=(
+        const UpperTriangularSquareMatrix& other) {
+        return *this = UpperTriangularSquareMatrix(other);
+    }
+
+    bool at(int i, int j) const noexcept override {
+        if (i > j) return false;
+        return SquareMatrix::at(i, j);
+    }
+
+    void set(int i, int j, bool value) noexcept override {
+        if (i > j) return;
+        SquareMatrix::set(i, j, value);
+    }
+};
 DAG CreateRandomIndegExpected(int N, double indeg, double sourceProb = 0.0) {
     DAG G(N);
 
@@ -466,10 +543,10 @@ DAG CreateRandomER(int N, int NrOfEdges) {
  * @param M        Matrix to multiply with vector v, which is
  *                 assumed to be of size M.n and dense.
  */
-void CreateSpMV(DAG& hyperdag, const Matrix& M) {
+void CreateSpMV(DAG& hyperdag, const SquareMatrix& M) {
     if (DebugMode) M.print("SpMV");
 
-    const int N = M.n;
+    const int N = M.nrows();
 
     // Offsets
     const int offset = hyperdag.size();
@@ -482,21 +559,21 @@ void CreateSpMV(DAG& hyperdag, const Matrix& M) {
     DAG G = hyperdag;
     const int nNodes = uOffset + N;
     G.resize(hyperdag.size() + nNodes);
-    string name = "HyperDAG model of SpMV operation.\n" + M.desc;
+    string name = "HyperDAG model of SpMV operation.\n" + M.getDescription();
     G.desc.assign(name);
 
     // find empty rows in the matrix
     vector<bool> rowNotEmpty(N, false);
     for (int i = 0; i < N; ++i)
         for (int j = 0; j < N; ++j)
-            if (M.cells[i][j]) rowNotEmpty[i] = true;
+            if (M.at(i, j)) rowNotEmpty[i] = true;
 
     // create SpMV DAG
     for (int i = 0; i < N; ++i) {
         if (!rowNotEmpty[i]) continue;
 
         for (int j = 0; j < N; ++j) {
-            if (not M.cells[i][j]) continue;
+            if (not M.at(i, j)) continue;
 
             // // Operation: u[j] += M[i][j] * v[i]
             // Nodes
@@ -529,18 +606,18 @@ void CreateSpMV(DAG& hyperdag, const Matrix& M) {
 }
 
 DAG CreateRandomSpMV(int N, double nonzero) {
-    Matrix M(N);
-    M.Randomize(nonzero);
+    SquareMatrix M(N);
+    M.randomize(nonzero);
 
     DAG G;
     CreateSpMV(G, M);
     return G;
 }
 
-void CreateLLtSolver(DAG& hyperdag, const Matrix& L) {
+void CreateLLtSolver(DAG& hyperdag, const SquareMatrix& L) {
     if (DebugMode) L.print("L");
 
-    const int n = L.n;
+    const int n = L.nrows();
     const int nSquared = n * n;
 
     // Offsets
@@ -563,7 +640,7 @@ void CreateLLtSolver(DAG& hyperdag, const Matrix& L) {
 
     description << "HyperDAG model of LLtSolver operation: inv(trans(L)) . "
                    "(inv(L) . b)\n"
-                << "L.desc: " << (L.desc) << "\n"
+                << "L.desc: " << (L.getDescription()) << "\n"
                 << "Nodes of matrix L: [" + to_string(LOffset) << ";"
                 << to_string(LOffset + nSquared - 1) << "] (row-wise)\n"
                 << "Nodes of vector x: [" + to_string(xOffset) << ";"
@@ -594,8 +671,11 @@ void CreateLLtSolver(DAG& hyperdag, const Matrix& L) {
     // find empty rows in the matrix L
     vector<bool> L_rowNotEmpty(n, false);
     for (int i = 0; i < n; ++i) {
-        L_rowNotEmpty[i] = std::any_of(L.cells[i].cbegin(), L.cells[i].cend(),
-                                       [](const bool x) { return x; });
+        for (int j = 0; j < n; ++j)
+            if (L.at(i, j)) {
+                L_rowNotEmpty[i] = true;
+                break;
+            }
     }
 
     // Forward substitution DAG
@@ -618,7 +698,7 @@ void CreateLLtSolver(DAG& hyperdag, const Matrix& L) {
             "(" + x_i_str + " - sum(y[j] * L[" + to_string(i) + "][j]))";
 
         for (int j = 0; j < i; ++j) {
-            if (not L.cells[i][j]) continue;
+            if (not L.at(i, j)) continue;
 
             const int L_i_j = LOffset + i * n + j;
             const string L_i_j_str =
@@ -651,7 +731,7 @@ void CreateLLtSolver(DAG& hyperdag, const Matrix& L) {
     vector<bool> L_colNotEmpty(n, false);
     for (int j = 0; j < n; ++j) {
         for (int i = 0; i < n; ++i) {
-            if (L.cells[i][j]) {
+            if (L.at(i, j)) {
                 L_colNotEmpty[j] = true;
                 break;
             }
@@ -678,7 +758,7 @@ void CreateLLtSolver(DAG& hyperdag, const Matrix& L) {
             "(" + y_i_str + " - sum(z[j] * Lt[" + to_string(i) + "][j]))";
 
         for (int j = n - 1; j > i; --j) {
-            if (not L.cells[i][j]) continue;
+            if (not L.at(j, i)) continue;
 
             const int Lt_i_j = LOffset + j * n + i;
             const string Lt_i_j_str =
@@ -719,41 +799,43 @@ void CreateLLtSolver(DAG& hyperdag, const Matrix& L) {
 }
 
 DAG CreateRandomLLtSolver(int N, double nonzero) {
-    Matrix L(N);
-    L.Randomize(nonzero);
+    LowerTriangularSquareMatrix L(N);
+    L.randomize(nonzero);
     DAG G;
     CreateLLtSolver(G, L);
     return G;
 }
 
-void CreateALLtSolver(DAG& G, const Matrix& L, const Matrix& A) {
+void CreateALLtSolver(DAG& G, const LowerTriangularSquareMatrix& L,
+                      const SquareMatrix& A) {
     throw std::runtime_error("Not implemented: ALLtSolver");
     if (DebugMode) L.print("ALLtSolver");
     return CreateLLtSolver(G, L);
 }
 
 DAG CreateRandomALLtSolver(int N, double nonzero) {
-    Matrix L(N);
-    L.Randomize(nonzero);
-    Matrix A(N);
-    A.Randomize(nonzero);
+    LowerTriangularSquareMatrix L(N);
+    L.randomize(nonzero);
+    SquareMatrix A(N);
+    A.randomize(nonzero);
     DAG G;
     CreateALLtSolver(G, L, A);
     return G;
 }
 
-void CreateLUSolver(DAG& hyperdag, const Matrix& L, const Matrix& U) {
+void CreateLUSolver(DAG& hyperdag, const LowerTriangularSquareMatrix& L,
+                    const UpperTriangularSquareMatrix& U) {
     if (DebugMode) {
         L.print("LUSolver - L");
         U.print("LUSolver - U");
     }
 
-    if (L.n != U.n) {
+    if (L.nrows() != U.nrows()) {
         cerr << "Error: L and U matrices must have the same size." << endl;
         abort();
     }
 
-    const int n = L.n;
+    const int n = L.nrows();
     const int nSquared = n * n;
 
     // Offsets
@@ -776,8 +858,8 @@ void CreateLUSolver(DAG& hyperdag, const Matrix& L, const Matrix& U) {
     stringstream description;
     description
         << "HyperDAG model of LLtSolver operation: inv(U) . (inv(L) . b)\n"
-        << "L.desc: " << (L.desc) << "\n"
-        << "U.desc: " << (U.desc) << "\n"
+        << "L.desc: " << (L.getDescription()) << "\n"
+        << "U.desc: " << (U.getDescription()) << "\n"
         << "Nodes of matrix L: [" + to_string(LOffset) << ";"
         << to_string(LOffset + nSquared - 1) << "] (row-wise)\n"
         << "Nodes of matrix U: [" + to_string(UOffset) << ";"
@@ -810,8 +892,11 @@ void CreateLUSolver(DAG& hyperdag, const Matrix& L, const Matrix& U) {
     // find empty rows in the matrix L
     vector<bool> L_rowNotEmpty(n, false);
     for (int i = 0; i < n; ++i) {
-        L_rowNotEmpty[i] = std::any_of(L.cells[i].cbegin(), L.cells[i].cend(),
-                                       [](const bool x) { return x; });
+        for (int j = 0; j < n; ++j)
+            if (L.at(i, j)) {
+                L_rowNotEmpty[i] = true;
+                break;
+            }
     }
 
     // Forward substitution DAG
@@ -834,7 +919,7 @@ void CreateLUSolver(DAG& hyperdag, const Matrix& L, const Matrix& U) {
             "(" + x_i_str + " - sum(y[j] * L[" + to_string(i) + "][j]))";
 
         for (int j = 0; j < i; ++j) {
-            if (not L.cells[i][j]) continue;
+            if (not L.at(i, j)) continue;
 
             const int L_i_j = LOffset + i * n + j;
             const string L_i_j_str =
@@ -867,7 +952,7 @@ void CreateLUSolver(DAG& hyperdag, const Matrix& L, const Matrix& U) {
     vector<bool> U_rowNotEmpty(n, false);
     for (int j = 0; j < n; ++j) {
         for (int i = 0; i < n; ++i) {
-            if (U.cells[i][j]) {
+            if (U.at(i, j)) {
                 U_rowNotEmpty[j] = true;
                 break;
             }
@@ -894,7 +979,7 @@ void CreateLUSolver(DAG& hyperdag, const Matrix& L, const Matrix& U) {
             "(" + y_i_str + " - sum(z[j] * U[" + to_string(i) + "][j]))";
 
         for (int j = n - 1; j > i; --j) {
-            if (not U.cells[i][j]) continue;
+            if (not U.at(i, j)) continue;
 
             const int U_i_j = UOffset + i * n + j;
             const string U_i_j_str =
@@ -934,41 +1019,44 @@ void CreateLUSolver(DAG& hyperdag, const Matrix& L, const Matrix& U) {
     }
     cout << endl;
 
-    hyperdag = G;//.keepGivenNodes(G.isReachable(sinkNodes));
+    hyperdag = G;  //.keepGivenNodes(G.isReachable(sinkNodes));
 }
 
 DAG CreateRandomLUSolver(int N, double nonzero) {
-    Matrix L(N), U(N);
-    L.Randomize(nonzero);
-    U.Randomize(nonzero);
+    LowerTriangularSquareMatrix L(N);
+    UpperTriangularSquareMatrix U(N);
+    L.randomize(nonzero);
+    U.randomize(nonzero);
     DAG G;
     CreateLUSolver(G, L, U);
     return G;
 }
 
-DAG CreateSpMVExp(const Matrix& M, int K) {
-    int N = M.n;
+DAG CreateSpMVExp(const SquareMatrix& M, int K) {
+    int N = M.nrows();
 
-    DAG G((K + 1) * (M.NrNonzeros + N));
-    string name = "HyperDAG model of naive implementation of A^" +
-                  to_string(K) +
-                  " *v with sparse matrix A and dense vector v.\n" + M.desc;
+    DAG G((K + 1) * (M.nnz() + N));
+    string name =
+        "HyperDAG model of naive implementation of A^" + to_string(K) +
+        " *v with sparse matrix A and dense vector v.\n" + M.getDescription();
     G.desc.assign(name);
 
     // Index of the nodes representing each nonzero of M
     vector<bool> rowValid(N, true), colValid(N, true);
     vector<vector<int> > originalCellIdx(N, vector<int>(N));
     int Idx = 0;
-    for (int i = 0; i < N; ++i)
-        for (int j = 0; j < N; ++j)
-            if (M.cells[i][j]) {
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            if (M.at(i, j)) {
                 originalCellIdx[i][j] = Idx;
                 ++Idx;
             }
+        }
+    }
 
     // Vbase is the starting point of the current vector v, base is the start
     // index for the next iteration
-    int Vbase = M.NrNonzeros, base = Vbase + N;
+    int Vbase = M.nnz(), base = Vbase + N;
 
     // ITERATIONS
     for (int k = 0; k < K; ++k) {
@@ -978,7 +1066,7 @@ DAG CreateSpMVExp(const Matrix& M, int K) {
         int usedCells = 0;
         for (int i = 0; i < N; ++i)
             for (int j = 0; j < N; ++j)
-                if (M.cells[i][j] && colValid[j]) ++usedCells;
+                if (M.at(i, j) && colValid[j]) ++usedCells;
 
         if (usedCells == 0) {
             cout << "Error: the whole matrix has vanished (we get a zero "
@@ -994,7 +1082,7 @@ DAG CreateSpMVExp(const Matrix& M, int K) {
         rowValid.assign(N, false);
         for (int i = 0; i < N; ++i)
             for (int j = 0; j < N; ++j)
-                if (M.cells[i][j] && colValid[j]) {
+                if (M.at(i, j) && colValid[j]) {
                     G.addEdge(Vbase + j, base + Idx);
                     G.addEdge(originalCellIdx[i][j], base + Idx);
                     G.addEdge(base + Idx, base + usedCells + i);
@@ -1017,20 +1105,21 @@ DAG CreateSpMVExp(const Matrix& M, int K) {
 }
 
 DAG CreateRandomSpMVExp(int N, double nonzero, int K) {
-    Matrix M(N);
-    M.Randomize(nonzero);
+    SquareMatrix M(N);
+    M.randomize(nonzero);
 
     DAG G = CreateSpMVExp(M, K);
 
     return G;
 }
 
-DAG CreateSparseCG(const Matrix& M, int K) {
-    int N = M.n;
+DAG CreateSparseCG(const SquareMatrix& M, int K) {
+    int N = M.nrows();
 
-    DAG G(3 * N - 1 + 2 * M.NrNonzeros + K * (M.NrNonzeros + 9 * N + 4));
+    DAG G(3 * N - 1 + 2 * M.nnz() + K * (M.nnz() + 9 * N + 4));
     string name = "HyperDAG model of naive implementation of " + to_string(K) +
-                  " iterations of the conjugate gradient method.\n" + M.desc;
+                  " iterations of the conjugate gradient method.\n" +
+                  M.getDescription();
     G.desc.assign(name);
 
     // Index of the nodes representing each nonzero of M
@@ -1040,7 +1129,7 @@ DAG CreateSparseCG(const Matrix& M, int K) {
     int Idx = 0;
     for (int i = 0; i < N; ++i)
         for (int j = 0; j < N; ++j)
-            if (M.cells[i][j]) {
+            if (M.at(i, j)) {
                 originalCellIdx[i][j] = Idx;
                 ++Idx;
             }
@@ -1051,23 +1140,22 @@ DAG CreateSparseCG(const Matrix& M, int K) {
     Idx = 0;
     for (int i = 0; i < N; ++i)
         for (int j = 0; j < N; ++j) {
-            if (M.cells[i][j]) {
-                G.addEdge(M.NrNonzeros + j, M.NrNonzeros + N + Idx);
-                G.addEdge(originalCellIdx[i][j], M.NrNonzeros + N + Idx);
-                G.addEdge(M.NrNonzeros + N + Idx, 2 * M.NrNonzeros + N + i);
+            if (M.at(i, j)) {
+                G.addEdge(M.nnz() + j, M.nnz() + N + Idx);
+                G.addEdge(originalCellIdx[i][j], M.nnz() + N + Idx);
+                G.addEdge(M.nnz() + N + Idx, 2 * M.nnz() + N + i);
                 Idx += 1;
             }
         }
 
     // Rbase, Pbase and Xbase points to the beginning of the current r, p and x
     // vectors
-    int Rbase = 2 * M.NrNonzeros + 3 * N, Pbase = Rbase + N,
-        Xbase = M.NrNonzeros;
+    int Rbase = 2 * M.nnz() + 3 * N, Pbase = Rbase + N, Xbase = M.nnz();
 
     // r_0 := b - A * x_0 ;  p_0 := r_0
     for (int i = 0; i < N; ++i) {
-        G.addEdge(2 * M.NrNonzeros + N + i, Rbase + i);
-        G.addEdge(2 * M.NrNonzeros + 2 * N + i, Rbase + i);
+        G.addEdge(2 * M.nnz() + N + i, Rbase + i);
+        G.addEdge(2 * M.nnz() + 2 * N + i, Rbase + i);
         G.addEdge(Rbase + i, Pbase + i);
     }
 
@@ -1088,27 +1176,27 @@ DAG CreateSparseCG(const Matrix& M, int K) {
         Idx = 0;
         for (int i = 0; i < N; ++i)
             for (int j = 0; j < N; ++j) {
-                if (M.cells[i][j]) {
+                if (M.at(i, j)) {
                     G.addEdge(Pbase + j, base + Idx);
                     G.addEdge(originalCellIdx[i][j], base + Idx);
-                    G.addEdge(base + Idx, base + M.NrNonzeros + i);
+                    G.addEdge(base + Idx, base + M.nnz() + i);
                     Idx += 1;
                 }
             }
 
         // compute p_k^T * A * p_k
         for (int i = 0; i < N; ++i) {
-            G.addEdge(Pbase + i, base + M.NrNonzeros + N + i);
-            G.addEdge(base + M.NrNonzeros + i, base + M.NrNonzeros + N + i);
-            G.addEdge(base + M.NrNonzeros + N + i, base + M.NrNonzeros + 2 * N);
+            G.addEdge(Pbase + i, base + M.nnz() + N + i);
+            G.addEdge(base + M.nnz() + i, base + M.nnz() + N + i);
+            G.addEdge(base + M.nnz() + N + i, base + M.nnz() + 2 * N);
         }
 
         // alpha_k := r_k^T * r_k / p_k^T * A * p_k
-        G.addEdge(base + M.NrNonzeros + 2 * N, base + M.NrNonzeros + 2 * N + 1);
-        G.addEdge(Rproduct, base + M.NrNonzeros + 2 * N + 1);
+        G.addEdge(base + M.nnz() + 2 * N, base + M.nnz() + 2 * N + 1);
+        G.addEdge(Rproduct, base + M.nnz() + 2 * N + 1);
 
         // index of alpha_k
-        int alpha = base + M.NrNonzeros + 2 * N + 1;
+        int alpha = base + M.nnz() + 2 * N + 1;
 
         // x_(k+1) := x_k + alpha_k * p_k
         for (int i = 0; i < N; ++i) {
@@ -1121,7 +1209,7 @@ DAG CreateSparseCG(const Matrix& M, int K) {
 
         // r_(k+1) := r_k - alpha_k * A * p_k
         for (int i = 0; i < N; ++i) {
-            G.addEdge(base + M.NrNonzeros + i, Xbase + N + i);
+            G.addEdge(base + M.nnz() + i, Xbase + N + i);
             G.addEdge(alpha, Xbase + N + i);
             G.addEdge(Xbase + N + i, Xbase + 2 * N + i);
             G.addEdge(Rbase + i, Xbase + 2 * N + i);
@@ -1160,22 +1248,22 @@ DAG CreateSparseCG(const Matrix& M, int K) {
 }
 
 DAG CreateRandomSparseCG(int N, double nonzero, int K) {
-    Matrix M(N);
-    M.Randomize(nonzero);
+    SquareMatrix M(N);
+    M.randomize(nonzero);
 
     DAG G = CreateSparseCG(M, K);
 
     return G;
 }
 
-DAG CreatekNN(const Matrix& M, int K, int source) {
-    int N = M.n;
+DAG CreatekNN(const SquareMatrix& M, int K, int source) {
+    int N = M.nrows();
 
-    DAG G((K + 1) * (M.NrNonzeros + N));
+    DAG G((K + 1) * (M.nnz() + N));
     string name = "HyperDAG model of naive implementation of " + to_string(K) +
                   " iterations of kNN, starting from node number " +
                   to_string(source) + " (i.e. sparse vector with 1 entry).\n" +
-                  M.desc;
+                  M.getDescription();
     G.desc.assign(name);
 
     // Index of the nodes representing each nonzero of M
@@ -1183,7 +1271,7 @@ DAG CreatekNN(const Matrix& M, int K, int source) {
     int Idx = 0;
     for (int i = 0; i < N; ++i)
         for (int j = 0; j < N; ++j)
-            if (M.cells[i][j]) {
+            if (M.at(i, j)) {
                 originalCellIdx[i][j] = Idx;
                 ++Idx;
             }
@@ -1208,14 +1296,14 @@ DAG CreatekNN(const Matrix& M, int K, int source) {
         int NrOfInternalNodes = 0;
         for (int i = 0; i < N; ++i)
             for (int j = 0; j < N; ++j)
-                if (reached[j] && M.cells[i][j]) ++NrOfInternalNodes;
+                if (reached[j] && M.at(i, j)) ++NrOfInternalNodes;
 
         // add DAG edges
         int rowIdx = 0, cellIdx = 0;
         vector<bool> rowNotEmpty(N, false);
         for (int i = 0; i < N; ++i) {
             for (int j = 0; j < N; ++j)
-                if (reached[j] && M.cells[i][j]) {
+                if (reached[j] && M.at(i, j)) {
                     G.addEdge(Vbase + newRowIdx[j], base + cellIdx);
                     G.addEdge(originalCellIdx[i][j], base + cellIdx);
                     G.addEdge(base + cellIdx,
@@ -1250,8 +1338,9 @@ DAG CreatekNN(const Matrix& M, int K, int source) {
 }
 
 DAG CreateRandomkNN(int N, double nonzero, int K) {
-    Matrix M(N);
-    M.Randomize(nonzero, true);
+    SquareMatrix M(N);
+    M.randomize(nonzero);
+    M.setMainDiagonal();
 
     int source = randInt(N);
 
@@ -1526,13 +1615,11 @@ int main(int argc, char* argv[]) {
 
     // INITIALIZE
     srand(0);
-    Matrix M(1);
+
+    SquareMatrix M;
     if (!infile.empty()) {
-        if (!M.read(infile, indexedFromOne)) {
-            cerr << "Error reading matrix from input file." << endl;
-            return 1;
-        }
-        N = M.n;
+        M = IMatrix::readFromFile<SquareMatrix>(infile, indexedFromOne);
+        N = M.nrows();
     }
 
     // last parameter check (has to be done after N is read from file)
@@ -1577,7 +1664,7 @@ int main(int argc, char* argv[]) {
         //     G = CreateRandomLLtSolverExp(N, nonzeroProb, K);
     } else if (mode == "ALLtSolver") {
         if (!infile.empty())
-            CreateALLtSolver(G, M, M);
+            throw runtime_error("ALLtSolver not supported for input file.");
         else
             G = CreateRandomALLtSolver(N, nonzeroProb);
     } else if (mode == "ALLtSolverExp") {
@@ -1589,7 +1676,7 @@ int main(int argc, char* argv[]) {
         //     G = CreateRandomLLtSolverExp(N, nonzeroProb, K);
     } else if (mode == "LUSolver") {
         if (!infile.empty())
-            CreateLUSolver(G, M, M);
+            throw runtime_error("LUSolver not supported for input file.");
         else
             G = CreateRandomLUSolver(N, nonzeroProb);
     } else if (mode == "LUSolverExp") {
@@ -1601,7 +1688,7 @@ int main(int argc, char* argv[]) {
         //     G = CreateRandomLUSolverExp(N, nonzeroProb, K);
     } else if (mode == "kNN") {
         if (!infile.empty()) {
-            M.SetMainDiagonal();
+            M.setMainDiagonal();
             G = CreatekNN(M, K, sourceNode);
         } else
             G = CreateRandomkNN(N, nonzeroProb, K);
