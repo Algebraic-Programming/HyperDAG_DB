@@ -561,7 +561,8 @@ void CreateLLtSolver(DAG& hyperdag, const Matrix& L) {
 
     stringstream description;
 
-    description << "HyperDAG model of LLtSolver operation: inv(trans(L)) . (inv(L) . b)\n"
+    description << "HyperDAG model of LLtSolver operation: inv(trans(L)) . "
+                   "(inv(L) . b)\n"
                 << "L.desc: " << (L.desc) << "\n"
                 << "Nodes of matrix L: [" + to_string(LOffset) << ";"
                 << to_string(LOffset + nSquared - 1) << "] (row-wise)\n"
@@ -600,7 +601,7 @@ void CreateLLtSolver(DAG& hyperdag, const Matrix& L) {
     // Forward substitution DAG
     for (int i = 0; i < n; ++i) {
         if (!L_rowNotEmpty[i]) continue;
-        if(DebugMode) cout << "-- row " << i << ":\n";
+        if (DebugMode) cout << "-- row " << i << ":\n";
 
         const int y_i = yOffset + i;
         const string y_i_str = "y[" + to_string(i) + "]";
@@ -660,7 +661,7 @@ void CreateLLtSolver(DAG& hyperdag, const Matrix& L) {
     // Backward substitution DAG
     for (int i = n - 1; i >= 0; --i) {
         if (!L_colNotEmpty[i]) continue;
-        if(DebugMode) cout << "-- row " << i << ":\n";
+        if (DebugMode) cout << "-- row " << i << ":\n";
 
         const int z_i = zOffset + i;
         const string z_i_str = "z[" + to_string(i) + "]";
@@ -683,7 +684,7 @@ void CreateLLtSolver(DAG& hyperdag, const Matrix& L) {
             const string Lt_i_j_str =
                 "Lt[" + to_string(i) + "][" + to_string(j) + "]";
 
-            const int z_j = yOffset + j;
+            const int z_j = zOffset + j;
             const string z_j_str = "z[" + to_string(j) + "]";
 
             const int mul_L_x = z_MulOffset + i * n + j;
@@ -773,35 +774,36 @@ void CreateLUSolver(DAG& hyperdag, const Matrix& L, const Matrix& U) {
     G.resize(hyperdag.size() + nNodes);
 
     stringstream description;
-    description << "HyperDAG model of LLtSolver operation: inv(U) . (inv(L) . b)\n"
-                << "L.desc: " << (L.desc) << "\n"
-                << "U.desc: " << (U.desc) << "\n"
-                << "Nodes of matrix L: [" + to_string(LOffset) << ";"
-                << to_string(LOffset + nSquared - 1) << "] (row-wise)\n"
-                << "Nodes of matrix U: [" + to_string(UOffset) << ";"
-                << to_string(UOffset + nSquared - 1) << "] (row-wise)\n"
-                << "Nodes of vector x: [" + to_string(xOffset) << ";"
-                << to_string(xOffset + n - 1) << "]\n"
-                << "Nodes of the multiplication in the forward substitution "
-                << "phase to compute y: L[i][j] * x[j], range: [" +
-                       to_string(y_MulOffset)
-                << ";" << to_string(y_MulOffset + nSquared - 1) << "]\n"
-                << "Nodes of the subtraction in the forward substitution "
-                << "phase to compute y: y[i] - sum(L[i][j] * y[j]), range: [" +
-                       to_string(y_SubOffset)
-                << ";" << to_string(y_SubOffset + n - 1) << "]\n"
-                << "Nodes of vector y: [" + to_string(yOffset) << ";"
-                << to_string(yOffset + n - 1) << "]\n"
-                << "Nodes of the multiplication in the backward substitution "
-                << "phase to compute z: U[i][j] * z[j], range: [" +
-                       to_string(z_MulOffset)
-                << ";" << to_string(z_MulOffset + nSquared - 1) << "]\n"
-                << "Nodes of the subtraction in the forward substitution "
-                << "phase to compute z: z[i] - sum(U[i][j] * z[j]), range: [" +
-                       to_string(z_SubOffset)
-                << ";" << to_string(z_SubOffset + n - 1) << "]\n"
-                << "Nodes of vector z: [" + to_string(zOffset) << ";"
-                << to_string(zOffset + n - 1) << "]\n";
+    description
+        << "HyperDAG model of LLtSolver operation: inv(U) . (inv(L) . b)\n"
+        << "L.desc: " << (L.desc) << "\n"
+        << "U.desc: " << (U.desc) << "\n"
+        << "Nodes of matrix L: [" + to_string(LOffset) << ";"
+        << to_string(LOffset + nSquared - 1) << "] (row-wise)\n"
+        << "Nodes of matrix U: [" + to_string(UOffset) << ";"
+        << to_string(UOffset + nSquared - 1) << "] (row-wise)\n"
+        << "Nodes of vector x: [" + to_string(xOffset) << ";"
+        << to_string(xOffset + n - 1) << "]\n"
+        << "Nodes of the multiplication in the forward substitution "
+        << "phase to compute y: L[i][j] * x[j], range: [" +
+               to_string(y_MulOffset)
+        << ";" << to_string(y_MulOffset + nSquared - 1) << "]\n"
+        << "Nodes of the subtraction in the forward substitution "
+        << "phase to compute y: y[i] - sum(L[i][j] * y[j]), range: [" +
+               to_string(y_SubOffset)
+        << ";" << to_string(y_SubOffset + n - 1) << "]\n"
+        << "Nodes of vector y: [" + to_string(yOffset) << ";"
+        << to_string(yOffset + n - 1) << "]\n"
+        << "Nodes of the multiplication in the backward substitution "
+        << "phase to compute z: U[i][j] * z[j], range: [" +
+               to_string(z_MulOffset)
+        << ";" << to_string(z_MulOffset + nSquared - 1) << "]\n"
+        << "Nodes of the subtraction in the forward substitution "
+        << "phase to compute z: z[i] - sum(U[i][j] * z[j]), range: [" +
+               to_string(z_SubOffset)
+        << ";" << to_string(z_SubOffset + n - 1) << "]\n"
+        << "Nodes of vector z: [" + to_string(zOffset) << ";"
+        << to_string(zOffset + n - 1) << "]\n";
     cerr << description.str() << endl;
     G.desc += (description.str());
 
@@ -815,7 +817,7 @@ void CreateLUSolver(DAG& hyperdag, const Matrix& L, const Matrix& U) {
     // Forward substitution DAG
     for (int i = 0; i < n; ++i) {
         if (!L_rowNotEmpty[i]) continue;
-        if(DebugMode) cout << "-- row " << i << ":\n";
+        if (DebugMode) cout << "-- row " << i << ":\n";
 
         const int y_i = yOffset + i;
         const string y_i_str = "y[" + to_string(i) + "]";
@@ -875,7 +877,7 @@ void CreateLUSolver(DAG& hyperdag, const Matrix& L, const Matrix& U) {
     // Backward substitution DAG
     for (int i = n - 1; i >= 0; --i) {
         if (!U_rowNotEmpty[i]) continue;
-        if(DebugMode) cout << "-- row " << i << ":\n";
+        if (DebugMode) cout << "-- row " << i << ":\n";
 
         const int z_i = zOffset + i;
         const string z_i_str = "z[" + to_string(i) + "]";
@@ -898,7 +900,7 @@ void CreateLUSolver(DAG& hyperdag, const Matrix& L, const Matrix& U) {
             const string U_i_j_str =
                 "U[" + to_string(i) + "][" + to_string(j) + "]";
 
-            const int z_j = yOffset + j;
+            const int z_j = zOffset + j;
             const string z_j_str = "z[" + to_string(j) + "]";
 
             const int mul_U_x = z_MulOffset + i * n + j;
@@ -910,11 +912,11 @@ void CreateLUSolver(DAG& hyperdag, const Matrix& L, const Matrix& U) {
             G.addEdge(mul_U_x, sub_x_Mul, mul_U_x_str + " -> " + sub_x_Mul_str);
         }
 
-        if (i < n - 1) {
-            G.addEdge(sub_x_Mul, z_i, sub_x_Mul_str + " -> " + z_i_str);
-            G.addEdge(y_i, sub_x_Mul, y_i_str + " -> " + sub_x_Mul_str);
-        } else {
+        if (i == n - 1) {
             G.addEdge(y_i, z_i, y_i_str + " -> " + z_i_str);
+        } else {
+            G.addEdge(y_i, sub_x_Mul, y_i_str + " -> " + sub_x_Mul_str);
+            G.addEdge(sub_x_Mul, z_i, sub_x_Mul_str + " -> " + z_i_str);
         }
 
         G.addEdge(U_i_i, z_i, U_i_i_str + " -> " + z_i_str);
@@ -924,12 +926,15 @@ void CreateLUSolver(DAG& hyperdag, const Matrix& L, const Matrix& U) {
     // only keep components that are predecessors of the final nonzeros
     // (in particular, indeces corresponding to (i) empty columns in the
     // original vector or (ii) emtpy rows in the result vector)
-    vector<int> sinkNodes;
-    for (int i = 0; i < n; ++i)
-        if (L_rowNotEmpty[i] || U_rowNotEmpty[i])
-            sinkNodes.push_back(zOffset + i);
+    vector<int> sinkNodes(n);
+    cout << "sinkNodes: ";
+    for (int i = 0; i < n; ++i) {
+        sinkNodes[i] = zOffset + i;
+        cout << sinkNodes[i] << " ";
+    }
+    cout << endl;
 
-    hyperdag = G.keepGivenNodes(G.isReachable(sinkNodes));
+    hyperdag = G;//.keepGivenNodes(G.isReachable(sinkNodes));
 }
 
 DAG CreateRandomLUSolver(int N, double nonzero) {
