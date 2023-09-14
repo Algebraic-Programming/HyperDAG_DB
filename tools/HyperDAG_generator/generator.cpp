@@ -18,6 +18,7 @@ limitations under the License.
 
 #include <algorithm>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <list>
 #include <sstream>
@@ -61,17 +62,22 @@ struct DAG {
         n = N;
     }
 
-    void addEdge(int v1, int v2, const std::string& description = "",
+    void addEdge(int v1, int v2, const string& description = "",
                  bool noPrint = false) {
+        if (DebugMode && !noPrint) {
+            cout << "New edge ( " << setw(3) << setfill('0') << v1 << " -> "
+                 << setw(3) << setfill('0') << v2 << " ) ";
+            cout << "{ note: " << description << " }\n" << flush;
+        }
         if (v1 == v2) {
             cerr << "Self-loop edge addition error: " << v1 << " -> " << v2
                  << endl;
             abort();
         }
-        if (v1 >= v2) {
-            cerr << "DAG edge addition error." << endl;
-            abort();
-        }
+        // if (v1 > v2) {
+        //     cerr << "DAG edge addition error: " << v1 << " > " << v2 << endl;
+        //     abort();
+        // }
 
         if (v1 >= Out.size() || v2 >= In.size()) {
             cerr << "DAG edge addition error: node index out of range." << endl;
@@ -81,11 +87,6 @@ struct DAG {
             abort();
         }
 
-        if (DebugMode && !noPrint)
-            cout << "Edge ( " << v1 << ", " << v2 << " ){ " << description
-                 << " }\n"
-                 << flush;
-
         In[v2].push_back(v1);
         Out[v1].push_back(v2);
     }
@@ -93,16 +94,18 @@ struct DAG {
     // Prints the hyperDAG corresponding to the DAG into a file
     void printHyperDAG(const string& filename) const noexcept {
         int sinks = 0, pins = 0;
-        for (int i = 0; i < n; ++i)
-            if (Out[i].size() > 0)
-                pins += 1 + Out[i].size();
-            else
+        for (int i = 0; i < n; ++i) {
+            if (Out[i].empty()) {
                 ++sinks;
+            } else {
+                pins += 1 + Out[i].size();
+            }
+        }
 
         ofstream outfile;
         outfile.open(filename);
         outfile << "%" << desc << "\n";
-        outfile << "% Hyperdeges: " << n - sinks << "\n";
+        outfile << "% Hyperedges: " << n - sinks << "\n";
         outfile << "% Nodes: " << n << "\n";
         outfile << "% Pins: " << pins << "\n";
         outfile << n - sinks << " " << n << " " << pins << "\n";
@@ -110,28 +113,31 @@ struct DAG {
         // Print communication weights of hyperedges - uniformly 1
         outfile << "% Hyperedges ( id, communication cost ):\n";
         int edgeIndex = 0;
-        for (int i = 0; i < n; ++i)
-            if (Out[i].size() > 0) {
-                outfile << edgeIndex << " " << 1 << "\n";
-                ++edgeIndex;
-            }
+        for (int i = 0; i < n; ++i) {
+            if (Out[i].empty()) continue;
+
+            outfile << edgeIndex << " " << 1 << "\n";
+            ++edgeIndex;
+        }
 
         // Print work weights of nodes - this is indegree-1
         outfile << "% Nodes ( id, work cost ):\n";
-        for (int i = 0; i < n; ++i)
+        for (int i = 0; i < n; ++i) {
             outfile << i << " " << max((int)In[i].size() - 1, 0) << "\n";
+        }
 
         // Print all pins
         outfile << "% Pins ( hyperdedge.id, node.id ):\n";
         edgeIndex = 0;
-        for (int i = 0; i < n; ++i)
-            if (Out[i].size() > 0) {
-                outfile << edgeIndex << " " << i << "\n";
-                for (int j = 0; j < Out[i].size(); ++j)
-                    outfile << edgeIndex << " " << Out[i][j] << "\n";
+        for (int i = 0; i < n; ++i) {
+            if (Out[i].empty()) continue;
 
-                ++edgeIndex;
-            }
+            outfile << edgeIndex << " " << i << "\n";
+            for (int j = 0; j < Out[i].size(); ++j)
+                outfile << edgeIndex << " " << Out[i][j] << "\n";
+
+            ++edgeIndex;
+        }
         outfile.close();
     }
 
@@ -354,7 +360,7 @@ struct Matrix {
             }
     }
 
-    void print(const std::string& label = "",
+    void print(const string& label = "",
                std::ostream& os = std::cout) const noexcept {
         os << "Matrix " << label << ": " << n << "x" << n << ", " << NrNonzeros
            << " nonzeros\n";
@@ -455,9 +461,9 @@ DAG CreateRandomER(int N, int NrOfEdges) {
 
 /**
  * @brief Complete a DAG with an out-of-place SpMV operation.
- * 
+ *
  * @param hyperdag DAG to extend, may be empty.
- * @param M        Matrix to multiply with vector v, which is 
+ * @param M        Matrix to multiply with vector v, which is
  *                 assumed to be of size M.n and dense.
  */
 void CreateSpMV(DAG& hyperdag, const Matrix& M) {
@@ -499,10 +505,10 @@ void CreateSpMV(DAG& hyperdag, const Matrix& M) {
             int node_mul_M_v = mulMvOffset + i * N + j;
             int node_u_j = uOffset + j;
             // Labels
-            std::string M_str = "M[" + to_string(i) + "][" + to_string(j) + "]";
-            std::string v_str = "v[" + to_string(i) + "]";
-            std::string mul_M_v_str = "(" + M_str + " * " + v_str + ")";
-            std::string u_str = "u[" + to_string(j) + "]";
+            string M_str = "M[" + to_string(i) + "][" + to_string(j) + "]";
+            string v_str = "v[" + to_string(i) + "]";
+            string mul_M_v_str = "(" + M_str + " * " + v_str + ")";
+            string u_str = "u[" + to_string(j) + "]";
             // Edges
             // M[i][j] * v[i] -> mul_M_v
             G.addEdge(node_M_i_j, node_mul_M_v, M_str + " -> " + mul_M_v_str);
@@ -531,17 +537,8 @@ DAG CreateRandomSpMV(int N, double nonzero) {
     return G;
 }
 
-void CreateLLtSolver(DAG& hyperdag, const Matrix& L,
-                     const Matrix* A = nullptr) {
-    if (A != nullptr && A->n != L.n) {
-        cerr << "Error: L and A matrices must have the same size." << endl;
-        abort();
-    }
-
-    if (DebugMode) {
-        L.print("L");
-        if (A != nullptr) A->print("A");
-    }
+void CreateLLtSolver(DAG& hyperdag, const Matrix& L) {
+    if (DebugMode) L.print("L");
 
     const int n = L.n;
     const int nSquared = n * n;
@@ -550,43 +547,49 @@ void CreateLLtSolver(DAG& hyperdag, const Matrix& L,
     const int offset = hyperdag.size();
     const int LOffset = offset;
     const int xOffset = LOffset + nSquared;
-    const int yOffset = xOffset + n;
-    const int zOffset = yOffset + n;
-    const int AOffset = zOffset + n;
-    const int wOffset = AOffset + nSquared;
+    const int y_MulOffset = xOffset + n;
+    const int y_SubOffset = y_MulOffset + nSquared;
+    const int yOffset = y_SubOffset + n;
+    const int z_MulOffset = yOffset + n;
+    const int z_SubOffset = z_MulOffset + nSquared;
+    const int zOffset = z_SubOffset + n;
 
-    const int nNodes = n + ((A == nullptr) ? zOffset : wOffset);
+    const int nNodes = zOffset + n;
     cout << "nNodes: " << nNodes << endl;
     DAG G = hyperdag;
     G.resize(hyperdag.size() + nNodes);
 
     stringstream description;
-    if (A == nullptr) {
-        description << "HyperDAG model of LLtSolver operation: inv(trans(L)) . "
-                       "(inv(L) . b)\n";
-    } else {
-        description
-            << "HyperDAG model of ALLtSolver operation: A . (inv(trans(L)) . "
-               "(inv(L) . b))\n";
-    }
-    description << "L.desc: " << (L.desc) << "\n"
+
+    description << "HyperDAG model of LLtSolver operation: inv(trans(L)) ."
+                << "(inv(L) . b)\n"
+                << "L.desc: " << (L.desc) << "\n"
                 << "Nodes of matrix L: [" + to_string(LOffset) << ";"
                 << to_string(LOffset + nSquared - 1) << "] (row-wise)\n"
                 << "Nodes of vector x: [" + to_string(xOffset) << ";"
                 << to_string(xOffset + n - 1) << "]\n"
+                << "Nodes of the multiplication in the forward substitution "
+                << "phase to compute y: L[i][j] * x[j], range: [" +
+                       to_string(y_MulOffset)
+                << ";" << to_string(y_MulOffset + nSquared - 1) << "]\n"
+                << "Nodes of the subtraction in the forward substitution "
+                << "phase to compute y: y[i] - sum(L[i][j] * y[j]), range: [" +
+                       to_string(y_SubOffset)
+                << ";" << to_string(y_SubOffset + n - 1) << "]\n"
                 << "Nodes of vector y: [" + to_string(yOffset) << ";"
                 << to_string(yOffset + n - 1) << "]\n"
+                << "Nodes of the multiplication in the backward substitution "
+                << "phase to compute z: Lt[i][j] * z[j], range: [" +
+                       to_string(z_MulOffset)
+                << ";" << to_string(z_MulOffset + nSquared - 1) << "]\n"
+                << "Nodes of the subtraction in the forward substitution "
+                << "phase to compute z: z[i] - sum(Lt[i][j] * z[j]), range: [" +
+                       to_string(z_SubOffset)
+                << ";" << to_string(z_SubOffset + n - 1) << "]\n"
                 << "Nodes of vector z: [" + to_string(zOffset) << ";"
                 << to_string(zOffset + n - 1) << "]\n";
-    if (A != nullptr) {
-        description << "A.desc: " << (A->desc) << "\n"
-                    << "Nodes of matrix A: [" + to_string(AOffset) << ";"
-                    << to_string(AOffset + nSquared - 1) << "] (row-wise)\n"
-                    << "Nodes of vector w: [" + to_string(wOffset) << ";"
-                    << to_string(wOffset + n - 1) << "]\n";
-    }
     cerr << description.str() << endl;
-    G.desc.assign(description.str());
+    G.desc += (description.str());
 
     // find empty rows in the matrix L
     vector<bool> L_rowNotEmpty(n, false);
@@ -594,95 +597,123 @@ void CreateLLtSolver(DAG& hyperdag, const Matrix& L,
         L_rowNotEmpty[i] = std::any_of(L.cells[i].cbegin(), L.cells[i].cend(),
                                        [](const bool x) { return x; });
     }
-    // find empty rows in the matrix A
-    vector<bool> A_rowNotEmpty(n, false);
-    if (A != nullptr) {
-        for (int i = 0; i < n; ++i) {
-            A_rowNotEmpty[i] =
-                std::any_of(A->cells[i].cbegin(), A->cells[i].cend(),
-                            [](const bool x) { return x; });
-        }
-    }
 
     // Forward substitution DAG
     for (int i = 0; i < n; ++i) {
         if (!L_rowNotEmpty[i]) continue;
+        if(DebugMode) cout << "-- row " << i << ":\n";
 
-        int y_i = yOffset + i;
-        std::string y_i_str = "y[" + to_string(i) + "]";
+        const int y_i = yOffset + i;
+        const string y_i_str = "y[" + to_string(i) + "]";
 
-        int x_i = xOffset + i;
-        std::string x_i_str = "x[" + to_string(i) + "]";
-        G.addEdge(x_i, y_i, x_i_str + " -> " + y_i_str);
+        const int x_i = xOffset + i;
+        const string x_i_str = "x[" + to_string(i) + "]";
 
-        // Division by L[i][i]
-        int L_i_i = LOffset + i * n + i;
-        std::string L_i_i_str = "L[" + to_string(i) + "][" + to_string(i) + "]";
-        G.addEdge(L_i_i, y_i, L_i_i_str + " -> " + y_i_str);
+        const int L_i_i = LOffset + i * n + i;
+        const string L_i_i_str =
+            "L[" + to_string(i) + "][" + to_string(i) + "]";
 
-        // Sum of L[i][j] * x[j]
+        const int sub_x_Mul = y_SubOffset + i;
+        const string sub_x_Mul_str =
+            "(" + x_i_str + " - sum(y[j] * L[" + to_string(i) + "][j]))";
+
         for (int j = 0; j < i; ++j) {
             if (not L.cells[i][j]) continue;
 
-            int L_i_j = LOffset + i * n + j;
-            std::string L_i_j_str =
+            const int L_i_j = LOffset + i * n + j;
+            const string L_i_j_str =
                 "L[" + to_string(i) + "][" + to_string(j) + "]";
-            G.addEdge(L_i_j, y_i, L_i_j_str + " -> " + y_i_str);
 
-            int x_j = xOffset + j;
-            std::string x_j_str = "x[" + to_string(j) + "]";
-            G.addEdge(x_j, y_i, x_j_str + " -> " + y_i_str);
+            const int y_j = yOffset + j;
+            const string y_j_str = "y[" + to_string(j) + "]";
+
+            const int mul_L_x = y_MulOffset + i * n + j;
+            const string mul_L_x_str = "(" + L_i_j_str + " * " + y_j_str + ")";
+
+            G.addEdge(L_i_j, mul_L_x, L_i_j_str + " -> " + mul_L_x_str);
+            G.addEdge(y_j, mul_L_x, y_j_str + " -> " + mul_L_x_str);
+
+            G.addEdge(mul_L_x, sub_x_Mul, mul_L_x_str + " -> " + sub_x_Mul_str);
         }
+
+        if (i > 0) {
+            G.addEdge(sub_x_Mul, y_i, sub_x_Mul_str + " -> " + y_i_str);
+            G.addEdge(x_i, sub_x_Mul, x_i_str + " -> " + sub_x_Mul_str);
+        } else {
+            G.addEdge(x_i, y_i, x_i_str + " -> " + y_i_str);
+        }
+
+        G.addEdge(L_i_i, y_i, L_i_i_str + " -> " + y_i_str);
     }
     if (DebugMode) cout << "-- Forward substitution DAG created." << endl;
 
+    // find empty rows in the matrix L
+    vector<bool> L_colNotEmpty(n, false);
+    for (int j = 0; j < n; ++j) {
+        for (int i = 0; i < n; ++i) {
+            if (L.cells[i][j]) {
+                L_colNotEmpty[j] = true;
+                break;
+            }
+        }
+    }
+
     // Backward substitution DAG
     for (int i = n - 1; i >= 0; --i) {
-        if (!L_rowNotEmpty[i]) continue;
+        if (!L_colNotEmpty[i]) continue;
+        if(DebugMode) cout << "-- row " << i << ":\n";
 
-        int y_i = yOffset + i;
-        std::string y_i_str = "y[" + to_string(i) + "]";
+        const int z_i = zOffset + i;
+        const string z_i_str = "z[" + to_string(i) + "]";
 
-        int z_i = zOffset + i;
-        std::string z_i_str = "z[" + to_string(i) + "]";
-        G.addEdge(y_i, z_i, y_i_str + " -> " + z_i_str);
+        const int y_i = yOffset + i;
+        const string y_i_str = "y[" + to_string(i) + "]";
 
-        // Division by L[i][i]
-        int L_i_i = LOffset + i * n + i;
-        std::string L_i_i_str = "L[" + to_string(i) + "][" + to_string(i) + "]";
-        G.addEdge(L_i_i, z_i, L_i_i_str + " -> " + z_i_str);
+        const int Lt_i_i = LOffset + i * n + i;
+        const string Lt_i_i_str =
+            "Lt[" + to_string(i) + "][" + to_string(i) + "]";
 
-        // Sum of trans(L)[i][j] * x[j]
-        for (int j = i + 1; j < n; ++j) {
+        const int sub_x_Mul = z_SubOffset + i;
+        const string sub_x_Mul_str =
+            "(" + y_i_str + " - sum(z[j] * L[" + to_string(i) + "][j]))";
+
+        for (int j = n - 1; j > i; --j) {
             if (not L.cells[i][j]) continue;
 
-            int L_j_i = LOffset + j * n + i;
-            std::string L_j_i_str =
-                "trans(L)[" + to_string(i) + "][" + to_string(j) + "]";
-            G.addEdge(L_j_i, z_i, L_j_i_str + " -> " + z_i_str);
+            const int Lt_i_j = LOffset + j * n + i;
+            const string Lt_i_j_str =
+                "Lt[" + to_string(i) + "][" + to_string(j) + "]";
 
-            int y_i = yOffset + i;
-            std::string y_i_str = "y[" + to_string(i) + "]";
+            const int z_j = yOffset + j;
+            const string z_j_str = "z[" + to_string(j) + "]";
+
+            const int mul_L_x = z_MulOffset + i * n + j;
+            const string mul_L_x_str = "(" + Lt_i_j_str + " * " + z_j_str + ")";
+
+            G.addEdge(Lt_i_j, mul_L_x, Lt_i_j_str + " -> " + mul_L_x_str);
+            G.addEdge(z_j, mul_L_x, z_j_str + " -> " + mul_L_x_str);
+
+            G.addEdge(mul_L_x, sub_x_Mul, mul_L_x_str + " -> " + sub_x_Mul_str);
+        }
+
+        if (i < n - 1) {
+            G.addEdge(sub_x_Mul, z_i, sub_x_Mul_str + " -> " + z_i_str);
+            G.addEdge(y_i, sub_x_Mul, y_i_str + " -> " + sub_x_Mul_str);
+        } else {
             G.addEdge(y_i, z_i, y_i_str + " -> " + z_i_str);
         }
-        if (DebugMode) cout << endl;
+
+        G.addEdge(Lt_i_i, z_i, Lt_i_i_str + " -> " + z_i_str);
     }
     if (DebugMode) cout << "-- Backward substitution DAG created." << endl;
-
-    const int destinationOffset = (A == nullptr) ? zOffset : wOffset;
-
-    // If computing w
-    if (A != nullptr) {
-        CreateSpMV(G, *A);
-    }
 
     // only keep components that are predecessors of the final nonzeros
     // (in particular, indeces corresponding to (i) empty columns in the
     // original vector or (ii) emtpy rows in the result vector)
     vector<int> sinkNodes;
     for (int i = 0; i < n; ++i)
-        if (L_rowNotEmpty[i] || A_rowNotEmpty[i])
-            sinkNodes.push_back(destinationOffset + i);
+        if (L_rowNotEmpty[i] || L_colNotEmpty[i])
+            sinkNodes.push_back(zOffset + i);
 
     hyperdag = G.keepGivenNodes(G.isReachable(sinkNodes));
 }
@@ -696,8 +727,9 @@ DAG CreateRandomLLtSolver(int N, double nonzero) {
 }
 
 void CreateALLtSolver(DAG& G, const Matrix& L, const Matrix& A) {
+    throw std::runtime_error("Not implemented: ALLtSolver");
     if (DebugMode) L.print("ALLtSolver");
-    return CreateLLtSolver(G, L, &A);
+    return CreateLLtSolver(G, L);
 }
 
 DAG CreateRandomALLtSolver(int N, double nonzero) {
@@ -764,15 +796,15 @@ DAG CreateLUSolver(const Matrix& L, const Matrix& U) {
         if (!rowNotEmpty[i]) continue;
 
         int y_i = yOffset + i;
-        std::string y_i_str = "y[" + to_string(i) + "]";
+        string y_i_str = "y[" + to_string(i) + "]";
 
         int x_i = xOffset + i;
-        std::string x_i_str = "x[" + to_string(i) + "]";
+        string x_i_str = "x[" + to_string(i) + "]";
         G.addEdge(x_i, y_i, x_i_str + " -> " + y_i_str);
 
         // Division by L[i][i]
         int L_i_i = LOffset + i * L.n + i;
-        std::string L_i_i_str = "L[" + to_string(i) + "][" + to_string(i) + "]";
+        string L_i_i_str = "L[" + to_string(i) + "][" + to_string(i) + "]";
         G.addEdge(L_i_i, y_i, L_i_i_str + " -> " + y_i_str);
 
         // Sum of L[i][j] * x[j]
@@ -780,12 +812,11 @@ DAG CreateLUSolver(const Matrix& L, const Matrix& U) {
             if (not L.cells[i][j]) continue;
 
             int L_i_j = LOffset + j * L.n + i;
-            std::string L_i_j_str =
-                "L[" + to_string(i) + "][" + to_string(j) + "]";
+            string L_i_j_str = "L[" + to_string(i) + "][" + to_string(j) + "]";
             G.addEdge(L_i_j, y_i, L_i_j_str + " -> " + y_i_str);
 
             int x_j = xOffset + j;
-            std::string x_j_str = "x[" + to_string(j) + "]";
+            string x_j_str = "x[" + to_string(j) + "]";
             G.addEdge(x_j, y_i, x_j_str + " -> " + y_i_str);
         }
     }
@@ -805,15 +836,15 @@ DAG CreateLUSolver(const Matrix& L, const Matrix& U) {
         if (!rowNotEmpty[i]) continue;
 
         int y_i = yOffset + i;
-        std::string y_i_str = "y[" + to_string(i) + "]";
+        string y_i_str = "y[" + to_string(i) + "]";
 
         int z_i = zOffset + i;
-        std::string z_i_str = "z[" + to_string(i) + "]";
+        string z_i_str = "z[" + to_string(i) + "]";
         G.addEdge(y_i, z_i, y_i_str + " -> " + z_i_str);
 
         // Division by U[i][i]
         int U_i_i = UOffset + i * U.n + i;
-        std::string U_i_i_str = "U[" + to_string(i) + "][" + to_string(i) + "]";
+        string U_i_i_str = "U[" + to_string(i) + "][" + to_string(i) + "]";
         G.addEdge(U_i_i, z_i, U_i_i_str + " -> " + z_i_str);
         if (DebugMode) cout << endl;
 
@@ -822,12 +853,11 @@ DAG CreateLUSolver(const Matrix& L, const Matrix& U) {
             if (not U.cells[i][j]) continue;
 
             int U_i_j = UOffset + i * U.n + j;
-            std::string U_i_j_str =
-                "U[" + to_string(i) + "][" + to_string(j) + "]";
+            string U_i_j_str = "U[" + to_string(i) + "][" + to_string(j) + "]";
             G.addEdge(U_i_j, z_i, U_i_j_str + " -> " + z_i_str);
 
             int y_j = yOffset + j;
-            std::string y_j_str = "y[" + to_string(j) + "]";
+            string y_j_str = "y[" + to_string(j) + "]";
             G.addEdge(y_j, z_i, y_j_str + " -> " + z_i_str);
         }
         if (DebugMode) cout << endl;
