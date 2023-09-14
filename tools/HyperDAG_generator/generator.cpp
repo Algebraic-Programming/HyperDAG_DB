@@ -46,10 +46,12 @@ bool contains(const vector<string>& vec, const string& s) {
 // MAIN DATA STRUCTURES
 
 struct DAG {
+   private:
     int n;
     vector<vector<int> > In, Out;
-    string desc;
+    vector<string> descriptions;
 
+   public:
     DAG(int N = 0) : n(N), In(N), Out(N) {}
 
     int size() const noexcept { return n; }
@@ -60,6 +62,13 @@ struct DAG {
         In.resize(N);
         Out.resize(N);
         n = N;
+    }
+
+    void addDescriptionLine(const string& line) noexcept {
+        // Split the line using the character '\n'
+        stringstream ss(line);
+        string token;
+        while (getline(ss, token, '\n')) descriptions.push_back(token);
     }
 
     void addEdge(int v1, int v2, const string& description = "",
@@ -104,7 +113,8 @@ struct DAG {
 
         ofstream outfile;
         outfile.open(filename);
-        outfile << "%" << desc << "\n";
+        for (const auto& each : descriptions) outfile << "% " << each << "\n";
+        outfile << "%\n";
         outfile << "% Hyperedges: " << n - sinks << "\n";
         outfile << "% Nodes: " << n << "\n";
         outfile << "% Pins: " << pins << "\n";
@@ -200,7 +210,9 @@ struct DAG {
             }
 
         DAG cleaned(NrOfNodes);
-        cleaned.desc = desc;
+        for (int i = 0; i < descriptions.size(); ++i)
+            cleaned.addDescriptionLine(descriptions[i]);
+
         for (int i = 0; i < n; ++i)
             if (keepNode[i])
                 for (int j = 0; j < Out[i].size(); ++j)
@@ -242,9 +254,10 @@ struct IMatrix {
     virtual int nnz() const noexcept = 0;
 
     void addDescription(const string& desc) noexcept {
-        _desc += '%' + desc + '\n';
+        _desc += desc + "\n";
     }
     std::string getDescription() const noexcept { return _desc; }
+    std::string getLabel() const noexcept { return _label; }
 
     virtual bool at(int i, int j) const noexcept = 0;
     virtual void set(int i, int j, bool value) noexcept = 0;
@@ -270,12 +283,9 @@ struct IMatrix {
             }
         }
 
-        char name[200];
-        sprintf(name,
-                "The probability for having a nonzero in any cell of matrix "
-                "A is %.2lf",
-                nonzero);
-        addDescription(name);
+        addDescription(
+            "The probability for having a nonzero in any cell of matrix " +
+            getLabel() + " is " + to_string(nonzero) + ".");
 
         if (DebugMode) {
             cout << "Nonzero count: " << nnz() << " out of "
@@ -461,12 +471,10 @@ struct UpperTriangularSquareMatrix : public SquareMatrix {
 DAG CreateRandomIndegExpected(int N, double indeg, double sourceProb = 0.0) {
     DAG G(N);
 
-    char name[200];
-    sprintf(name,
-            "HyperDAG from a random DAG with expected indegree %.2lf.\n%%Each "
-            "node is chosen as a source with probability %.2lf",
-            indeg, sourceProb);
-    G.desc.assign(name);
+    G.addDescriptionLine("HyperDAG from a random DAG with expected indegree " +
+                         to_string(indeg) + ".");
+    G.addDescriptionLine("Each node is chosen as a source with probability " +
+                         to_string(sourceProb) + ".");
 
     for (int i = 1; i < N; ++i) {
         if ((double)rand() / (double)RAND_MAX < sourceProb) continue;
@@ -483,12 +491,10 @@ DAG CreateRandomIndegExpected(int N, double indeg, double sourceProb = 0.0) {
 DAG CreateRandomIndegFixed(int N, int indeg, double sourceProb = 0.0) {
     DAG G(N);
 
-    char name[200];
-    sprintf(name,
-            "HyperDAG from a random DAG with fixed indegree %d.\n%%Each node "
-            "is chosen as a source with probability %.2lf",
-            indeg, sourceProb);
-    G.desc.assign(name);
+    G.addDescriptionLine("HyperDAG from a random DAG with fixed indegree " +
+                         to_string(indeg) + ".");
+    G.addDescriptionLine("Each node is chosen as a source with probability " +
+                         to_string(sourceProb) + ".");
 
     for (int i = 1; i < N; ++i) {
         if ((double)rand() / (double)RAND_MAX < sourceProb) continue;
@@ -520,12 +526,10 @@ DAG CreateRandomIndegFixed(int N, int indeg, double sourceProb = 0.0) {
 DAG CreateRandomER(int N, int NrOfEdges) {
     DAG G(N);
 
-    char name[150];
-    sprintf(name,
-            "HyperDAG from a random DAG with expected number of edges %d, with "
-            "uniform edge probabilities on all forward edges",
-            NrOfEdges);
-    G.desc.assign(name);
+    G.addDescriptionLine(
+        "HyperDAG from a random DAG with expected number of edges " +
+        to_string(NrOfEdges) +
+        ", with uniform edge probabilities on all forward edges");
 
     double p = 2.0 * (double)NrOfEdges / ((double)N * ((double)N - 1));
 
@@ -559,8 +563,7 @@ void CreateSpMV(DAG& hyperdag, const SquareMatrix& M) {
     DAG G = hyperdag;
     const int nNodes = uOffset + N;
     G.resize(hyperdag.size() + nNodes);
-    string name = "HyperDAG model of SpMV operation.\n" + M.getDescription();
-    G.desc.assign(name);
+    G.addDescriptionLine("HyperDAG model of SpMV operation.");
 
     // find empty rows in the matrix
     vector<bool> rowNotEmpty(N, false);
@@ -636,37 +639,37 @@ void CreateLLtSolver(DAG& hyperdag, const SquareMatrix& L) {
     DAG G = hyperdag;
     G.resize(hyperdag.size() + nNodes);
 
-    stringstream description;
-
-    description << "HyperDAG model of LLtSolver operation: inv(trans(L)) . "
-                   "(inv(L) . b)\n"
-                << "L.desc: " << (L.getDescription()) << "\n"
-                << "Nodes of matrix L: [" + to_string(LOffset) << ";"
-                << to_string(LOffset + nSquared - 1) << "] (row-wise)\n"
-                << "Nodes of vector x: [" + to_string(xOffset) << ";"
-                << to_string(xOffset + n - 1) << "]\n"
-                << "Nodes of the multiplication in the forward substitution "
-                << "phase to compute y: L[i][j] * x[j], range: [" +
-                       to_string(y_MulOffset)
-                << ";" << to_string(y_MulOffset + nSquared - 1) << "]\n"
-                << "Nodes of the subtraction in the forward substitution "
-                << "phase to compute y: y[i] - sum(L[i][j] * y[j]), range: [" +
-                       to_string(y_SubOffset)
-                << ";" << to_string(y_SubOffset + n - 1) << "]\n"
-                << "Nodes of vector y: [" + to_string(yOffset) << ";"
-                << to_string(yOffset + n - 1) << "]\n"
-                << "Nodes of the multiplication in the backward substitution "
-                << "phase to compute z: Lt[i][j] * z[j], range: [" +
-                       to_string(z_MulOffset)
-                << ";" << to_string(z_MulOffset + nSquared - 1) << "]\n"
-                << "Nodes of the subtraction in the forward substitution "
-                << "phase to compute z: z[i] - sum(Lt[i][j] * z[j]), range: [" +
-                       to_string(z_SubOffset)
-                << ";" << to_string(z_SubOffset + n - 1) << "]\n"
-                << "Nodes of vector z: [" + to_string(zOffset) << ";"
-                << to_string(zOffset + n - 1) << "]\n";
-    cerr << description.str() << endl;
-    G.desc += (description.str());
+    G.addDescriptionLine(
+        "HyperDAG model of LLtSolver operation: inv(trans(L)) . (inv(L) . b)");
+    G.addDescriptionLine("L.desc: " + L.getDescription());
+    G.addDescriptionLine("Nodes of matrix L: [" + to_string(LOffset) + ";" +
+                         to_string(LOffset + nSquared - 1) + "] (row-wise)");
+    G.addDescriptionLine("Nodes of vector x: [" + to_string(xOffset) + ";" +
+                         to_string(xOffset + n - 1) + "]");
+    G.addDescriptionLine(
+        "Nodes of the multiplication in the forward substitution "
+        "phase to compute y: L[i][j] * x[j], range: [" +
+        to_string(y_MulOffset) + ";" + to_string(y_MulOffset + nSquared - 1) +
+        "]");
+    G.addDescriptionLine(
+        "Nodes of the subtraction in the forward substitution "
+        "phase to compute y: y[i] - sum(L[i][j] * y[j]), range: [" +
+        to_string(y_SubOffset) + ";" + to_string(y_SubOffset + n - 1) + "]");
+    G.addDescriptionLine("Nodes of vector y: [" + to_string(yOffset) + ";" +
+                         to_string(yOffset + n - 1) + "]");
+    G.addDescriptionLine(
+        "Nodes of the multiplication in the backward substitution "
+        "phase to compute z: Lt[i][j] * z[j], range: [" +
+        to_string(z_MulOffset) + ";" + to_string(z_MulOffset + nSquared - 1) +
+        "]");
+    G.addDescriptionLine(
+        "Nodes of the subtraction in the forward substitution "
+        "phase to compute z: z[i] - sum(Lt[i][j] * z[j]), range: [" +
+        to_string(z_SubOffset) + ";" + to_string(z_SubOffset + n - 1) + "]");
+    G.addDescriptionLine("Nodes of vector z: [" + to_string(zOffset) + ";" +
+                         to_string(zOffset + n - 1) + "]");
+    G.addDescriptionLine("Nodes of the final result z: [" + to_string(zOffset) +
+                         ";" + to_string(zOffset + n - 1) + "]");
 
     // find empty rows in the matrix L
     vector<bool> L_rowNotEmpty(n, false);
@@ -855,39 +858,40 @@ void CreateLUSolver(DAG& hyperdag, const LowerTriangularSquareMatrix& L,
     DAG G = hyperdag;
     G.resize(hyperdag.size() + nNodes);
 
-    stringstream description;
-    description
-        << "HyperDAG model of LLtSolver operation: inv(U) . (inv(L) . b)\n"
-        << "L.desc: " << (L.getDescription()) << "\n"
-        << "U.desc: " << (U.getDescription()) << "\n"
-        << "Nodes of matrix L: [" + to_string(LOffset) << ";"
-        << to_string(LOffset + nSquared - 1) << "] (row-wise)\n"
-        << "Nodes of matrix U: [" + to_string(UOffset) << ";"
-        << to_string(UOffset + nSquared - 1) << "] (row-wise)\n"
-        << "Nodes of vector x: [" + to_string(xOffset) << ";"
-        << to_string(xOffset + n - 1) << "]\n"
-        << "Nodes of the multiplication in the forward substitution "
-        << "phase to compute y: L[i][j] * x[j], range: [" +
-               to_string(y_MulOffset)
-        << ";" << to_string(y_MulOffset + nSquared - 1) << "]\n"
-        << "Nodes of the subtraction in the forward substitution "
-        << "phase to compute y: y[i] - sum(L[i][j] * y[j]), range: [" +
-               to_string(y_SubOffset)
-        << ";" << to_string(y_SubOffset + n - 1) << "]\n"
-        << "Nodes of vector y: [" + to_string(yOffset) << ";"
-        << to_string(yOffset + n - 1) << "]\n"
-        << "Nodes of the multiplication in the backward substitution "
-        << "phase to compute z: U[i][j] * z[j], range: [" +
-               to_string(z_MulOffset)
-        << ";" << to_string(z_MulOffset + nSquared - 1) << "]\n"
-        << "Nodes of the subtraction in the forward substitution "
-        << "phase to compute z: z[i] - sum(U[i][j] * z[j]), range: [" +
-               to_string(z_SubOffset)
-        << ";" << to_string(z_SubOffset + n - 1) << "]\n"
-        << "Nodes of vector z: [" + to_string(zOffset) << ";"
-        << to_string(zOffset + n - 1) << "]\n";
-    cerr << description.str() << endl;
-    G.desc += (description.str());
+    G.addDescriptionLine(
+        "HyperDAG model of LUSolver operation: inv(U) . (inv(L) . b)");
+    G.addDescriptionLine("L.desc: " + L.getDescription());
+    G.addDescriptionLine("U.desc: " + U.getDescription());
+    G.addDescriptionLine("Nodes of matrix L: [" + to_string(LOffset) + ";" +
+                         to_string(LOffset + nSquared - 1) + "] (row-wise)");
+    G.addDescriptionLine("Nodes of matrix U: [" + to_string(UOffset) + ";" +
+                         to_string(UOffset + nSquared - 1) + "] (row-wise)");
+    G.addDescriptionLine("Nodes of vector x: [" + to_string(xOffset) + ";" +
+                         to_string(xOffset + n - 1) + "]");
+    G.addDescriptionLine(
+        "Nodes of the multiplication in the forward substitution "
+        "phase to compute y: L[i][j] * x[j], range: [" +
+        to_string(y_MulOffset) + ";" + to_string(y_MulOffset + nSquared - 1) +
+        "]");
+    G.addDescriptionLine(
+        "Nodes of the subtraction in the forward substitution "
+        "phase to compute y: y[i] - sum(L[i][j] * y[j]), range: [" +
+        to_string(y_SubOffset) + ";" + to_string(y_SubOffset + n - 1) + "]");
+    G.addDescriptionLine("Nodes of vector y: [" + to_string(yOffset) + ";" +
+                         to_string(yOffset + n - 1) + "]");
+    G.addDescriptionLine(
+        "Nodes of the multiplication in the backward substitution "
+        "phase to compute z: U[i][j] * z[j], range: [" +
+        to_string(z_MulOffset) + ";" + to_string(z_MulOffset + nSquared - 1) +
+        "]");
+    G.addDescriptionLine(
+        "Nodes of the subtraction in the forward substitution "
+        "phase to compute z: z[i] - sum(U[i][j] * z[j]), range: [" +
+        to_string(z_SubOffset) + ";" + to_string(z_SubOffset + n - 1) + "]");
+    G.addDescriptionLine("Nodes of vector z: [" + to_string(zOffset) + ";" +
+                         to_string(zOffset + n - 1) + "]");
+    G.addDescriptionLine("Nodes of the final result z: [" + to_string(zOffset) +
+                         ";" + to_string(zOffset + n - 1) + "]");
 
     // find empty rows in the matrix L
     vector<bool> L_rowNotEmpty(n, false);
@@ -1036,10 +1040,10 @@ DAG CreateSpMVExp(const SquareMatrix& M, int K) {
     int N = M.nrows();
 
     DAG G((K + 1) * (M.nnz() + N));
-    string name =
-        "HyperDAG model of naive implementation of A^" + to_string(K) +
-        " *v with sparse matrix A and dense vector v.\n" + M.getDescription();
-    G.desc.assign(name);
+    G.addDescriptionLine("HyperDAG model of naive implementation of A^" +
+                         to_string(K) +
+                         " *v with sparse matrix A and dense vector v.");
+    G.addDescriptionLine(M.getDescription());
 
     // Index of the nodes representing each nonzero of M
     vector<bool> rowValid(N, true), colValid(N, true);
@@ -1117,10 +1121,10 @@ DAG CreateSparseCG(const SquareMatrix& M, int K) {
     int N = M.nrows();
 
     DAG G(3 * N - 1 + 2 * M.nnz() + K * (M.nnz() + 9 * N + 4));
-    string name = "HyperDAG model of naive implementation of " + to_string(K) +
-                  " iterations of the conjugate gradient method.\n" +
-                  M.getDescription();
-    G.desc.assign(name);
+    G.addDescriptionLine("HyperDAG model of naive implementation of " +
+                         to_string(K) +
+                         " iterations of the conjugate gradient method.");
+    G.addDescriptionLine(M.getDescription());
 
     // Index of the nodes representing each nonzero of M
     // (we will denote the matrix M by "A" in the comment pseudocodes, since it
@@ -1260,11 +1264,11 @@ DAG CreatekNN(const SquareMatrix& M, int K, int source) {
     int N = M.nrows();
 
     DAG G((K + 1) * (M.nnz() + N));
-    string name = "HyperDAG model of naive implementation of " + to_string(K) +
-                  " iterations of kNN, starting from node number " +
-                  to_string(source) + " (i.e. sparse vector with 1 entry).\n" +
-                  M.getDescription();
-    G.desc.assign(name);
+    G.addDescriptionLine(
+        "HyperDAG model of naive implementation of " + to_string(K) +
+        " iterations of kNN, starting from node number " + to_string(source) +
+        " (i.e. sparse vector with 1 entry).");
+    G.addDescriptionLine(M.getDescription());
 
     // Index of the nodes representing each nonzero of M
     vector<vector<int> > originalCellIdx(N, vector<int>(N));
