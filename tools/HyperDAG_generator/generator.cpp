@@ -133,6 +133,8 @@ struct DAG {
         // Print work weights of nodes - this is indegree-1
         outfile << "% Nodes ( id, work cost ):\n";
         for (int i = 0; i < n; ++i) {
+            if( Out[i].empty() && In[i].empty() ) continue;
+
             outfile << i << " " << max((int)In[i].size() - 1, 0) << "\n";
         }
 
@@ -205,11 +207,11 @@ struct DAG {
         vector<int> newIdx(n);
         for (int i = 0; i < n; ++i)
             if (keepNode[i]) {
-                newIdx[i] = NrOfNodes;
+                newIdx[i] = i; //NrOfNodes;
                 ++NrOfNodes;
             }
 
-        DAG cleaned(NrOfNodes);
+        DAG cleaned(n);
         for (int i = 0; i < descriptions.size(); ++i)
             cleaned.addDescriptionLine(descriptions[i]);
 
