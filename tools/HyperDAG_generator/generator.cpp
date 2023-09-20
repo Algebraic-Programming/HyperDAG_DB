@@ -19,11 +19,11 @@ limitations under the License.
 #include <algorithm>
 #include <cassert>
 #include <cmath>
-#include <numeric>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <list>
+#include <numeric>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -125,7 +125,9 @@ struct DAG {
             // Print edges (directed)
             for (int i = 0; i < n; ++i) {
                 for (int j = 0; j < Out[i].size(); ++j) {
-                    outfile << i << " " << Out[i][j] << " " << "1" << "\n";
+                    outfile << i << " " << Out[i][j] << " "
+                            << "1"
+                            << "\n";
                 }
             }
         }
@@ -657,7 +659,9 @@ DAG CreateRandomSpMV(int N, double nonzero) {
 }
 
 void CreateLLtSolver(DAG& hyperdag, const SquareMatrix& L) {
-    if (DebugMode) L.print("L");
+    if (DebugMode) {
+        L.print("L");
+    }
 
     const int n = L.nrows();
     const int nSquared = n * n;
@@ -710,19 +714,25 @@ void CreateLLtSolver(DAG& hyperdag, const SquareMatrix& L) {
     G.addDescriptionLine("Nodes of the final result z: [" + to_string(zOffset) +
                          ";" + to_string(zOffset + n - 1) + "]");
 
+    std::stringstream strtream;
+    L.print("L", strtream);
+    G.addDescriptionLine(" ");
+    G.addDescriptionLine(strtream.str());
+
     // find empty rows in the matrix L
-    vector<bool> L_rowNotEmpty(n, false);
+    vector<bool> L_rowEmpty(n, true);
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < n; ++j)
             if (L.at(i, j)) {
-                L_rowNotEmpty[i] = true;
+                L_rowEmpty[i] = false;
                 break;
             }
     }
 
     // Forward substitution DAG
     for (int i = 0; i < n; ++i) {
-        if (!L_rowNotEmpty[i]) continue;
+        if (L_rowEmpty[i]) continue;
+        if (not L.at(i, i)) continue;
         if (DebugMode) cout << "-- row " << i << ":\n";
 
         const int y_i = yOffset + i;
@@ -770,11 +780,11 @@ void CreateLLtSolver(DAG& hyperdag, const SquareMatrix& L) {
     if (DebugMode) cout << "-- Forward substitution DAG created." << endl;
 
     // find empty rows in the matrix L
-    vector<bool> L_colNotEmpty(n, false);
+    vector<bool> L_colEmpty(n, true);
     for (int j = 0; j < n; ++j) {
         for (int i = 0; i < n; ++i) {
             if (L.at(i, j)) {
-                L_colNotEmpty[j] = true;
+                L_colEmpty[j] = false;
                 break;
             }
         }
@@ -782,8 +792,9 @@ void CreateLLtSolver(DAG& hyperdag, const SquareMatrix& L) {
 
     // Backward substitution DAG
     for (int i = n - 1; i >= 0; --i) {
-        if (!L_colNotEmpty[i]) continue;
-        if (DebugMode) cout << "-- row " << i << ":\n";
+        if (L_colEmpty[i]) continue;
+        if (not L.at(i, i)) continue;
+        if (DebugMode) cout << "-- column " << i << ":\n";
 
         const int z_i = zOffset + i;
         const string z_i_str = "z[" + to_string(i) + "]";
