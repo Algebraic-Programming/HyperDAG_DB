@@ -17,6 +17,9 @@ limitations under the License.
 */
 
 #include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <numeric>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -100,6 +103,34 @@ struct DAG {
         Out[v1].push_back(v2);
     }
 
+    void printDAG(const string& filename) const noexcept {
+        // Replace filename extension by .dag.mtx (if any otherwise add it)
+        string filename_ext = filename.substr(filename.find_last_of(".") + 1);
+        string filename_noext = filename.substr(0, filename.find_last_of("."));
+        string filename_dag = filename_noext + ".dag.mtx";
+
+        size_t nnz = std::accumulate(
+            Out.cbegin(), Out.cend(), 0,
+            [](int sum, const vector<int>& v) { return sum + v.size(); });
+
+        {
+            ofstream outfile(filename_dag, ios::out);
+            outfile << "%%MatrixMarket matrix coordinate real general\n";
+            outfile << "%\n";
+            for (const auto& each : descriptions)
+                outfile << "% " << each << "\n";
+            outfile << "%\n";
+            // Print MM header
+            outfile << n << " " << n << " " << nnz << "\n";
+            // Print edges (directed)
+            for (int i = 0; i < n; ++i) {
+                for (int j = 0; j < Out[i].size(); ++j) {
+                    outfile << i << " " << Out[i][j] << " " << "1" << "\n";
+                }
+            }
+        }
+    }
+
     // Prints the hyperDAG corresponding to the DAG into a file
     void printHyperDAG(const string& filename) const noexcept {
         int sinks = 0, pins = 0;
@@ -133,7 +164,7 @@ struct DAG {
         // Print work weights of nodes - this is indegree-1
         outfile << "% Nodes ( id, work cost ):\n";
         for (int i = 0; i < n; ++i) {
-            if( Out[i].empty() && In[i].empty() ) continue;
+            if (Out[i].empty() && In[i].empty()) continue;
 
             outfile << i << " " << max((int)In[i].size() - 1, 0) << "\n";
         }
@@ -142,7 +173,15 @@ struct DAG {
         outfile << "% Pins ( hyperdedge.id, node.id ):\n";
         edgeIndex = 0;
         for (int i = 0; i < n; ++i) {
-            if (Out[i].empty()) continue;
+            if (Out[i].empty()) {
+                continue;
+            }
+
+            cout << "Out of node " << i << ": ";
+            for (int j = 0; j < Out[i].size(); ++j) {
+                cout << Out[i][j] << " ";
+            }
+            cout << endl;
 
             outfile << edgeIndex << " " << i << "\n";
             for (int j = 0; j < Out[i].size(); ++j)
@@ -207,7 +246,7 @@ struct DAG {
         vector<int> newIdx(n);
         for (int i = 0; i < n; ++i)
             if (keepNode[i]) {
-                newIdx[i] = i; //NrOfNodes;
+                newIdx[i] = i;  // NrOfNodes;
                 ++NrOfNodes;
             }
 
@@ -255,9 +294,7 @@ struct IMatrix {
     int area() const noexcept { return nrows() * ncols(); }
     virtual int nnz() const noexcept = 0;
 
-    void addDescription(const string& desc) noexcept {
-        _desc += desc + "\n";
-    }
+    void addDescription(const string& desc) noexcept { _desc += desc + "\n"; }
     std::string getDescription() const noexcept { return _desc; }
     std::string getLabel() const noexcept { return _label; }
 
@@ -795,12 +832,14 @@ void CreateLLtSolver(DAG& hyperdag, const SquareMatrix& L) {
     // only keep components that are predecessors of the final nonzeros
     // (in particular, indeces corresponding to (i) empty columns in the
     // original vector or (ii) emtpy rows in the result vector)
-    vector<int> sinkNodes;
-    for (int i = 0; i < n; ++i)
-        if (L_rowNotEmpty[i] || L_colNotEmpty[i])
-            sinkNodes.push_back(zOffset + i);
+    // vector<int> sinkNodes;
+    // for (int i = 0; i < n; ++i)
+    //     if (L_rowNotEmpty[i] || L_colNotEmpty[i])
+    //         sinkNodes.push_back(zOffset + i);
 
-    hyperdag = G.keepGivenNodes(G.isReachable(sinkNodes));
+    // hyperdag = G.keepGivenNodes(G.isReachable(sinkNodes));
+
+    hyperdag = G;
 }
 
 DAG CreateRandomLLtSolver(int N, double nonzero) {
@@ -1707,6 +1746,7 @@ int main(int argc, char* argv[]) {
 
     if (DebugMode) G.printConnected();
 
+    G.printDAG(outfile);
     G.printHyperDAG(outfile);
     return 0;
 }
