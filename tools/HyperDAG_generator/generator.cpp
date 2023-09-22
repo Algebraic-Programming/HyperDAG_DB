@@ -109,6 +109,8 @@ struct DAG {
         string filename_noext = filename.substr(0, filename.find_last_of("."));
         string filename_dag = filename_noext + ".dag.mtx";
 
+        cout << "Printing DAG to file " << filename_dag << endl;
+
         size_t nnz = std::accumulate(
             Out.cbegin(), Out.cend(), 0,
             [](int sum, const vector<int>& v) { return sum + v.size(); });
@@ -146,6 +148,7 @@ struct DAG {
 
         ofstream outfile;
         outfile.open(filename);
+        cout << "Printing HyperDAG to file " << filename << endl;
         for (const auto& each : descriptions) outfile << "% " << each << "\n";
         outfile << "%\n";
         outfile << "% Hyperedges: " << n - sinks << "\n";
@@ -1546,13 +1549,7 @@ int main(int argc, char* argv[]) {
              << endl;
         return 1;
     }
-    if (outfile.empty()) {
-        outfile = "output.txt";
-        if (DebugMode)
-            cout << "Output file not specified; using default output filename "
-                    "(output.txt)."
-                 << endl;
-    }
+
     if (infile.empty() && indexedFromOne) {
         cerr << "Parameter error: cannot use parameter \"indexedFromOne\" "
                 "without an input file."
@@ -1572,6 +1569,14 @@ int main(int argc, char* argv[]) {
     // If not set, use 10 as default value
     else if (N == -1)
         N = 10;
+
+    if (outfile.empty()) {
+        outfile = mode + "_N" + to_string(N) + "_nzProb" +
+                  to_string((int)round(100l * nonzeroProb)) + ".mtx";
+        if (DebugMode)
+            cout << "Output file not specified; using default output filename: "
+                 << outfile << endl;
+    }
 
     // K
     if (mode == "ER" || mode == "fixedIn" || mode == "expectedIn" ||
