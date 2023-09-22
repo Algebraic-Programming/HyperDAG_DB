@@ -19,6 +19,7 @@ limitations under the License.
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <execution>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -60,7 +61,7 @@ struct DAG {
     int size() const noexcept { return n; }
 
     void resize(int N) {
-        cout << "Resizing DAG from " << n << " to " << N << endl;
+        if (DebugMode) cout << "Resizing DAG from " << n << " to " << N << endl;
         if (N <= n) return;
         In.resize(N);
         Out.resize(N);
@@ -99,6 +100,9 @@ struct DAG {
             abort();
         }
 
+        bool found = std::any_of(
+            std::execution::par, Out[v1].cbegin(), Out[v1].cend(),
+            [v2](int i) { return i == v2; });  // check if edge already exists
         In[v2].push_back(v1);
         Out[v1].push_back(v2);
     }
@@ -181,12 +185,6 @@ struct DAG {
             if (Out[i].empty()) {
                 continue;
             }
-
-            cout << "Out of node " << i << ": ";
-            for (int j = 0; j < Out[i].size(); ++j) {
-                cout << Out[i][j] << " ";
-            }
-            cout << endl;
 
             outfile << edgeIndex << " " << i << "\n";
             for (int j = 0; j < Out[i].size(); ++j)
@@ -344,6 +342,11 @@ struct IMatrix {
         os << "Matrix " << label << ": " << nrows() << "x" << ncols() << ", "
            << nnz() << " nonzeros\n";
         os << "[\n";
+        if (nrows() > 10 || ncols() > 01) {
+            os << "  ... (matrix too large to print)\n";
+            os << "]\n";
+            return;
+        }
         for (int i = 0; i < nrows(); ++i) {
             os << "  ";
             for (int j = 0; j < ncols(); ++j) {
@@ -591,14 +594,13 @@ DAG CreateRandomER(int N, int NrOfEdges) {
  * @param M        Matrix to multiply with vector v, which is
  *                 assumed to be of size M.n and dense.
  */
-void CreateSpMV(DAG& hyperdag, const SquareMatrix& M,
-                int vector_node_begin = -1) {
+void CreateSpMV(DAG& G, const SquareMatrix& M, int vector_node_begin = -1) {
     if (DebugMode) M.print("SpMV");
 
     const int N = M.nrows();
 
     // Offsets
-    const int source_dag_offset = hyperdag.size();
+    const int source_dag_offset = G.size();
     const int v_offset_begin =
         vector_node_begin < 0 ? source_dag_offset : vector_node_begin;
     const int v_offset_end = v_offset_begin + N;
@@ -610,9 +612,8 @@ void CreateSpMV(DAG& hyperdag, const SquareMatrix& M,
     const int u_offset_end = u_offset_begin + N;
 
     // Create hyperDAG locally
-    DAG G = hyperdag;
     const int nNodes = u_offset_end;
-    G.resize(hyperdag.size() + nNodes);
+    G.resize(G.size() + nNodes);
     G.addDescriptionLine("HyperDAG model of SpMV operation.");
     G.addDescriptionLine("Nodes of vector v: [" + to_string(v_offset_begin) +
                          ";" + to_string(v_offset_end - 1) + "]");
@@ -668,8 +669,6 @@ void CreateSpMV(DAG& hyperdag, const SquareMatrix& M,
     vector<int> sinkNodes;
     for (int i = 0; i < N; ++i)
         if (rowNotEmpty[i]) sinkNodes.push_back(u_offset_begin + i);
-
-    hyperdag = G.keepGivenNodes(G.isReachable(sinkNodes));
 }
 
 DAG CreateRandomSpMV(int N, double nonzero) {
@@ -681,7 +680,7 @@ DAG CreateRandomSpMV(int N, double nonzero) {
     return G;
 }
 
-void CreateLLtSolver(DAG& hyperdag, const SquareMatrix& L) {
+void CreateLLtSolver(DAG& G, const SquareMatrix& L) {
     if (DebugMode) {
         L.print("L");
     }
@@ -690,7 +689,7 @@ void CreateLLtSolver(DAG& hyperdag, const SquareMatrix& L) {
     const int nSquared = n * n;
 
     // Offsets
-    const int offset = hyperdag.size();
+    const int offset = G.size();
     const int LOffset = offset;
     const int xOffset = LOffset + nSquared;
     const int y_MulOffset = xOffset + n;
@@ -701,9 +700,7 @@ void CreateLLtSolver(DAG& hyperdag, const SquareMatrix& L) {
     const int zOffset = z_SubOffset + n;
 
     const int nNodes = zOffset + n;
-    cout << "nNodes: " << nNodes << endl;
-    DAG G = hyperdag;
-    G.resize(hyperdag.size() + nNodes);
+    G.resize(G.size() + nNodes);
 
     G.addDescriptionLine(
         "HyperDAG model of LLtSolver operation: inv(trans(L)) . (inv(L) . b)");
@@ -862,8 +859,6 @@ void CreateLLtSolver(DAG& hyperdag, const SquareMatrix& L) {
         G.addEdge(Lt_i_i, z_i, Lt_i_i_str + " -> " + z_i_str);
     }
     if (DebugMode) cout << "-- Backward substitution DAG created." << endl;
-
-    hyperdag = G;
 }
 
 DAG CreateRandomLLtSolver(int N, double nonzero) {
@@ -894,7 +889,7 @@ DAG CreateRandomALLtSolver(int N, double nonzero) {
     return G;
 }
 
-void CreateLUSolver(DAG& hyperdag, const LowerTriangularSquareMatrix& L,
+void CreateLUSolver(DAG& G, const LowerTriangularSquareMatrix& L,
                     const UpperTriangularSquareMatrix& U) {
     if (DebugMode) {
         L.print("LUSolver: L");
@@ -910,7 +905,7 @@ void CreateLUSolver(DAG& hyperdag, const LowerTriangularSquareMatrix& L,
     const int nSquared = n * n;
 
     // Offsets
-    const int offset = hyperdag.size();
+    const int offset = G.size();
     const int LOffset = offset;
     const int UOffset = LOffset + nSquared;
     const int xOffset = UOffset + nSquared;
@@ -922,9 +917,7 @@ void CreateLUSolver(DAG& hyperdag, const LowerTriangularSquareMatrix& L,
     const int zOffset = z_SubOffset + n;
 
     const int nNodes = zOffset + n;
-    cout << "nNodes: " << nNodes << endl;
-    DAG G = hyperdag;
-    G.resize(hyperdag.size() + nNodes);
+    G.resize(G.size() + nNodes);
 
     G.addDescriptionLine(
         "HyperDAG model of LUSolver operation: inv(U) . (inv(L) . b)");
@@ -1076,8 +1069,6 @@ void CreateLUSolver(DAG& hyperdag, const LowerTriangularSquareMatrix& L,
         G.addEdge(U_i_i, z_i, U_i_i_str + " -> " + z_i_str);
     }
     if (DebugMode) cout << "-- Backward substitution DAG created." << endl;
-
-    hyperdag = G;
 }
 
 DAG CreateRandomLUSolver(int N, double nonzero) {
@@ -1571,11 +1562,11 @@ int main(int argc, char* argv[]) {
         N = 10;
 
     if (outfile.empty()) {
-        outfile = mode + "_N" + to_string(N) + "_nzProb" +
-                  to_string((int)round(100l * nonzeroProb)) + ".mtx";
-        if (DebugMode)
-            cout << "Output file not specified; using default output filename: "
-                 << outfile << endl;
+        std::string probStr = to_string((float)100 * nonzeroProb);
+        probStr.replace(probStr.find('.'), 1, ",");
+        outfile = mode + "_N" + to_string(N) + "_nzProb" + probStr + ".mtx";
+        cout << "Output file not specified; using default output filename: "
+             << outfile << endl;
     }
 
     // K
