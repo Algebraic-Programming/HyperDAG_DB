@@ -873,7 +873,10 @@ DAG CreateRandomLLtSolver(int N, double nonzero) {
 
 void CreateALLtSolver(DAG& G, const LowerTriangularSquareMatrix& L,
                       const SquareMatrix& A) {
-    if (DebugMode) L.print("ALLtSolver");
+    if (DebugMode) {
+        L.print("ALLtSolver: L");
+        A.print("ALLtSolver: A");
+    }
     CreateLLtSolver(G, L);
     CreateSpMV(G, A, G.size() - L.nrows());
 }
@@ -891,8 +894,8 @@ DAG CreateRandomALLtSolver(int N, double nonzero) {
 void CreateLUSolver(DAG& hyperdag, const LowerTriangularSquareMatrix& L,
                     const UpperTriangularSquareMatrix& U) {
     if (DebugMode) {
-        L.print("LUSolver - L");
-        U.print("LUSolver - U");
+        L.print("LUSolver: L");
+        U.print("LUSolver: U");
     }
 
     if (L.nrows() != U.nrows()) {
@@ -1081,6 +1084,30 @@ DAG CreateRandomLUSolver(int N, double nonzero) {
     U.randomize(nonzero);
     DAG G;
     CreateLUSolver(G, L, U);
+    return G;
+}
+
+void CreateALUSolver(DAG& G, const LowerTriangularSquareMatrix& L,
+                     const UpperTriangularSquareMatrix& U,
+                     const SquareMatrix& A) {
+    if (DebugMode) {
+        L.print("ALUSolver: L");
+        U.print("ALUSolver: U");
+        A.print("ALUSolver: A");
+    }
+    CreateLUSolver(G, L, U);
+    CreateSpMV(G, A, G.size() - L.nrows());
+}
+
+DAG CreateRandomALUSolver(int N, double nonzero) {
+    SquareMatrix A(N);
+    LowerTriangularSquareMatrix L(N);
+    UpperTriangularSquareMatrix U(N);
+    A.randomize(nonzero);
+    L.randomize(nonzero);
+    U.randomize(nonzero);
+    DAG G;
+    CreateALUSolver(G, L, U, A);
     return G;
 }
 
@@ -1412,19 +1439,11 @@ int main(int argc, char* argv[]) {
     vector<string> params{
         "-output", "-input",    "-mode",       "-N",           "-K",
         "-edges",  "-indegree", "-sourceProb", "-nonzeroProb", "-sourceNode"};
-    vector<string> modes{"ER",
-                         "fixedIn",
-                         "expectedIn",
-                         "SpMV",
-                         "SpMVExp",
-                         "ALLtSolver",
-                         "ALLtSolverExp",
-                         "LLtSolver",
-                         "LLtSolverExp",
-                         "LUSolver",
-                         "LUSolverExp",
-                         "kNN",
-                         "CG"};
+    vector<string> modes{"ER",           "fixedIn",     "expectedIn",
+                         "SpMV",         "SpMVExp",     "LLtSolver",
+                         "LLtSolverExp", "ALLtSolver",  "ALLtSolverExp",
+                         "LUSolver",     "LUSolverExp", "ALUSolver",
+                         "ALUSolverExp", "kNN",         "CG"};
 
     for (int i = 1; i < argc; ++i) {
         // Check parameters that require an argument afterwards
@@ -1557,7 +1576,7 @@ int main(int argc, char* argv[]) {
     // K
     if (mode == "ER" || mode == "fixedIn" || mode == "expectedIn" ||
         mode == "SpMV" || mode == "LLtSolver" || mode == "ALLtSolver" ||
-        mode == "LUSolver") {
+        mode == "LUSolver" || mode == "ALUSolver") {
         if (K >= 0) {
             cerr << "Parameter error: cannot use parameter \"K\" for this mode."
                  << endl;
@@ -1738,6 +1757,18 @@ int main(int argc, char* argv[]) {
         //     G = CreateLUSolverExp(M, K);
         // else
         //     G = CreateRandomLUSolverExp(N, nonzeroProb, K);
+    } else if (mode == "ALUSolver") {
+        if (!infile.empty())
+            throw runtime_error("ALUSolver not supported for input file.");
+        else
+            G = CreateRandomALUSolver(N, nonzeroProb);
+    } else if (mode == "ALUSolverExp") {
+        // Not supported yet
+        throw std::runtime_error("ALUSolverExp not supported yet.");
+        // if(!infile.empty())
+        //     G = CreateLLtSolverExp(M, K);
+        // else
+        //     G = CreateRandomLLtSolverExp(N, nonzeroProb, K);
     } else if (mode == "kNN") {
         if (!infile.empty()) {
             M.setMainDiagonal();
