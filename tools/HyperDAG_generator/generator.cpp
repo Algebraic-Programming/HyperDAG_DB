@@ -588,23 +588,43 @@ DAG CreateRandomER(int N, int NrOfEdges) {
  * @param M        Matrix to multiply with vector v, which is
  *                 assumed to be of size M.n and dense.
  */
-void CreateSpMV(DAG& hyperdag, const SquareMatrix& M) {
+void CreateSpMV(DAG& hyperdag, const SquareMatrix& M,
+                int vector_node_begin = -1) {
     if (DebugMode) M.print("SpMV");
 
     const int N = M.nrows();
 
     // Offsets
-    const int offset = hyperdag.size();
-    const int MOffset = offset;
-    const int vOffset = MOffset + N * N;
-    const int mulMvOffset = vOffset + N;
-    const int uOffset = mulMvOffset + N * N;
+    const int source_dag_offset = hyperdag.size();
+    const int v_offset_begin =
+        vector_node_begin < 0 ? source_dag_offset : vector_node_begin;
+    const int v_offset_end = v_offset_begin + N;
+    const int M_offset_begin = v_offset_end;
+    const int M_offset_end = M_offset_begin + N * N;
+    const int mul_Mv_offset_begin = M_offset_end;
+    const int mul_Mv_offset_end = mul_Mv_offset_begin + N * N;
+    const int u_offset_begin = mul_Mv_offset_end;
+    const int u_offset_end = u_offset_begin + N;
 
     // Create hyperDAG locally
     DAG G = hyperdag;
-    const int nNodes = uOffset + N;
+    const int nNodes = u_offset_end;
     G.resize(hyperdag.size() + nNodes);
     G.addDescriptionLine("HyperDAG model of SpMV operation.");
+    G.addDescriptionLine("Nodes of vector v: [" + to_string(v_offset_begin) +
+                         ";" + to_string(v_offset_end - 1) + "]");
+    G.addDescriptionLine("Nodes of matrix M: [" + to_string(M_offset_begin) +
+                         ";" + to_string(M_offset_end - 1) + "] (row-wise)");
+    G.addDescriptionLine("Nodes of the multiplication M * v: [" +
+                         to_string(mul_Mv_offset_begin) + ";" +
+                         to_string(mul_Mv_offset_end - 1) + "]");
+    G.addDescriptionLine("Nodes of the final result u: [" +
+                         to_string(u_offset_begin) + ";" +
+                         to_string(u_offset_end - 1) + "]");
+    std::stringstream strtream;
+    M.print("M", strtream);
+    G.addDescriptionLine(" ");
+    G.addDescriptionLine(strtream.str());
 
     // find empty rows in the matrix
     vector<bool> rowNotEmpty(N, false);
@@ -621,10 +641,10 @@ void CreateSpMV(DAG& hyperdag, const SquareMatrix& M) {
 
             // // Operation: u[j] += M[i][j] * v[i]
             // Nodes
-            int node_M_i_j = MOffset + i * N + j;
-            int node_v_i = vOffset + i;
-            int node_mul_M_v = mulMvOffset + i * N + j;
-            int node_u_j = uOffset + j;
+            int node_M_i_j = M_offset_begin + i * N + j;
+            int node_v_i = v_offset_begin + i;
+            int node_mul_M_v = mul_Mv_offset_begin + i * N + j;
+            int node_u_j = u_offset_begin + j;
             // Labels
             string M_str = "M[" + to_string(i) + "][" + to_string(j) + "]";
             string v_str = "v[" + to_string(i) + "]";
@@ -644,7 +664,7 @@ void CreateSpMV(DAG& hyperdag, const SquareMatrix& M) {
     // original vector or (ii) emtpy rows in the result vector)
     vector<int> sinkNodes;
     for (int i = 0; i < N; ++i)
-        if (rowNotEmpty[i]) sinkNodes.push_back(uOffset + i);
+        if (rowNotEmpty[i]) sinkNodes.push_back(u_offset_begin + i);
 
     hyperdag = G.keepGivenNodes(G.isReachable(sinkNodes));
 }
