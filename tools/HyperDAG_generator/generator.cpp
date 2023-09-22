@@ -840,16 +840,6 @@ void CreateLLtSolver(DAG& hyperdag, const SquareMatrix& L) {
     }
     if (DebugMode) cout << "-- Backward substitution DAG created." << endl;
 
-    // only keep components that are predecessors of the final nonzeros
-    // (in particular, indeces corresponding to (i) empty columns in the
-    // original vector or (ii) emtpy rows in the result vector)
-    // vector<int> sinkNodes;
-    // for (int i = 0; i < n; ++i)
-    //     if (L_rowNotEmpty[i] || L_colNotEmpty[i])
-    //         sinkNodes.push_back(zOffset + i);
-
-    // hyperdag = G.keepGivenNodes(G.isReachable(sinkNodes));
-
     hyperdag = G;
 }
 
@@ -863,9 +853,9 @@ DAG CreateRandomLLtSolver(int N, double nonzero) {
 
 void CreateALLtSolver(DAG& G, const LowerTriangularSquareMatrix& L,
                       const SquareMatrix& A) {
-    throw std::runtime_error("Not implemented: ALLtSolver");
     if (DebugMode) L.print("ALLtSolver");
-    return CreateLLtSolver(G, L);
+    CreateLLtSolver(G, L);
+    CreateSpMV(G, A, G.size() - L.nrows());
 }
 
 DAG CreateRandomALLtSolver(int N, double nonzero) {
@@ -945,19 +935,27 @@ void CreateLUSolver(DAG& hyperdag, const LowerTriangularSquareMatrix& L,
     G.addDescriptionLine("Nodes of the final result z: [" + to_string(zOffset) +
                          ";" + to_string(zOffset + n - 1) + "]");
 
-    // find empty rows in the matrix L
-    vector<bool> L_rowNotEmpty(n, false);
+    // find empty rows in the matrix L and U
+    vector<bool> L_rowEmpty(n, true), U_rowEmpty(n, true);
     for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < n; ++j)
+        for (int j = 0; j < n; ++j) {
             if (L.at(i, j)) {
-                L_rowNotEmpty[i] = true;
+                L_rowEmpty[i] = false;
                 break;
             }
+        }
+        for (int j = 0; j < n; ++j) {
+            if (U.at(i, j)) {
+                U_rowEmpty[i] = false;
+                break;
+            }
+        }
     }
 
     // Forward substitution DAG
     for (int i = 0; i < n; ++i) {
-        if (!L_rowNotEmpty[i]) continue;
+        if (L_rowEmpty[i]) continue;
+        if (not L.at(i, i)) continue;
         if (DebugMode) cout << "-- row " << i << ":\n";
 
         const int y_i = yOffset + i;
@@ -1004,20 +1002,9 @@ void CreateLUSolver(DAG& hyperdag, const LowerTriangularSquareMatrix& L,
     }
     if (DebugMode) cout << "-- Forward substitution DAG created." << endl;
 
-    // find empty rows in the matrix L
-    vector<bool> U_rowNotEmpty(n, false);
-    for (int j = 0; j < n; ++j) {
-        for (int i = 0; i < n; ++i) {
-            if (U.at(i, j)) {
-                U_rowNotEmpty[j] = true;
-                break;
-            }
-        }
-    }
-
     // Backward substitution DAG
     for (int i = n - 1; i >= 0; --i) {
-        if (!U_rowNotEmpty[i]) continue;
+        if (U_rowEmpty[i]) continue;
         if (DebugMode) cout << "-- row " << i << ":\n";
 
         const int z_i = zOffset + i;
@@ -1064,18 +1051,7 @@ void CreateLUSolver(DAG& hyperdag, const LowerTriangularSquareMatrix& L,
     }
     if (DebugMode) cout << "-- Backward substitution DAG created." << endl;
 
-    // only keep components that are predecessors of the final nonzeros
-    // (in particular, indeces corresponding to (i) empty columns in the
-    // original vector or (ii) emtpy rows in the result vector)
-    vector<int> sinkNodes(n);
-    cout << "sinkNodes: ";
-    for (int i = 0; i < n; ++i) {
-        sinkNodes[i] = zOffset + i;
-        cout << sinkNodes[i] << " ";
-    }
-    cout << endl;
-
-    hyperdag = G;  //.keepGivenNodes(G.isReachable(sinkNodes));
+    hyperdag = G;
 }
 
 DAG CreateRandomLUSolver(int N, double nonzero) {
