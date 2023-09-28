@@ -53,11 +53,23 @@ bool contains(const vector<string>& vec, const string& s) {
 struct DAG {
    private:
     num_t n;
-    vector<vector<num_t> > In, Out;
+    vector<vector<num_t> > _In, _Out;
     vector<string> descriptions;
 
+    vector<num_t>& In(const num_t i) noexcept { return _In[i]; }
+    vector<num_t>& Out(const num_t i) noexcept { return _Out[i]; }
+
+    const vector<num_t>& In(const num_t i) const noexcept { return In(i); }
+    const vector<num_t>& Out(const num_t i) const noexcept { return Out(i); }
+
+    num_t nnz() const noexcept {
+        return accumulate(
+            _Out.cbegin(), _Out.cend(), static_cast<num_t>(0),
+            [](num_t sum, const vector<num_t>& v) { return sum + v.size(); });
+    }
+
    public:
-    DAG(num_t N = 0) : n(N), In(N), Out(N) {}
+    DAG(num_t N = 0) : n(N), _In(N), _Out(N) {}
 
     num_t size() const noexcept { return n; }
 
@@ -67,8 +79,8 @@ struct DAG {
              << endl;
 
         if (N <= n) return;
-        In.resize(N);
-        Out.resize(N);
+        _In.resize(N);
+        _Out.resize(N);
         n = N;
     }
 
@@ -96,19 +108,15 @@ struct DAG {
         //     abort();
         // }
 
-        if (v1 >= Out.size() || v2 >= In.size()) {
+        if (v1 >= n || v2 >= n) {
             cerr << "DAG edge addition error: node index out of range." << endl;
             cerr << "v1: " << v1 << ", v2: " << v2 << endl;
-            cerr << "n: " << n << ", Out.size(): " << Out.size()
-                 << ", In.size(): " << In.size() << endl;
+            cerr << "n: " << n << endl;
             abort();
         }
 
-        bool found = std::any_of(
-            std::execution::par, Out[v1].cbegin(), Out[v1].cend(),
-            [v2](num_t i) { return i == v2; });  // check if edge already exists
-        In[v2].push_back(v1);
-        Out[v1].push_back(v2);
+        In(v2).push_back(v1);
+        Out(v1).push_back(v2);
     }
 
     void printDAG(const string& filename) const noexcept {
@@ -120,7 +128,7 @@ struct DAG {
         cout << "Printing DAG to file " << filename_dag << endl;
 
         size_t nnz = std::accumulate(
-            Out.cbegin(), Out.cend(), 0,
+            _Out.cbegin(), _Out.cend(), 0,
             [](num_t sum, const vector<num_t>& v) { return sum + v.size(); });
 
         {
@@ -134,8 +142,8 @@ struct DAG {
             outfile << n << " " << n << " " << nnz << "\n";
             // Print edges (directed)
             for (num_t i = 0; i < n; ++i) {
-                for (num_t j = 0; j < Out[i].size(); ++j) {
-                    outfile << i << " " << Out[i][j] << " "
+                for (num_t j = 0; j < Out(i).size(); ++j) {
+                    outfile << i << " " << Out(i)[j] << " "
                             << "1"
                             << "\n";
                 }
@@ -147,10 +155,10 @@ struct DAG {
     void printHyperDAG(const string& filename) const noexcept {
         num_t sinks = 0, pins = 0;
         for (num_t i = 0; i < n; ++i) {
-            if (Out[i].empty()) {
+            if (Out(i).empty()) {
                 ++sinks;
             } else {
-                pins += 1 + Out[i].size();
+                pins += 1 + Out(i).size();
             }
         }
 
@@ -168,7 +176,7 @@ struct DAG {
         outfile << "% Hyperedges ( id, communication cost ):\n";
         num_t edgeIndex = 0;
         for (num_t i = 0; i < n; ++i) {
-            if (Out[i].empty()) continue;
+            if (Out(i).empty()) continue;
 
             outfile << edgeIndex << " " << 1 << "\n";
             ++edgeIndex;
@@ -177,9 +185,9 @@ struct DAG {
         // Print work weights of nodes - this is indegree-1
         outfile << "% Nodes ( id, work cost ):\n";
         for (num_t i = 0; i < n; ++i) {
-            if (Out[i].empty() && In[i].empty()) continue;
+            if (Out(i).empty() && In(i).empty()) continue;
 
-            outfile << i << " " << (In[i].size() == 0 ? 0 : In[i].size() - 1)
+            outfile << i << " " << (In(i).size() == 0 ? 0 : In(i).size() - 1)
                     << "\n";
         }
 
@@ -187,13 +195,13 @@ struct DAG {
         outfile << "% Pins ( hyperdedge.id, node.id ):\n";
         edgeIndex = 0;
         for (num_t i = 0; i < n; ++i) {
-            if (Out[i].empty()) {
+            if (Out(i).empty()) {
                 continue;
             }
 
             outfile << edgeIndex << " " << i << "\n";
-            for (num_t j = 0; j < Out[i].size(); ++j)
-                outfile << edgeIndex << " " << Out[i][j] << "\n";
+            for (num_t j = 0; j < Out(i).size(); ++j)
+                outfile << edgeIndex << " " << Out(i)[j] << "\n";
 
             ++edgeIndex;
         }
@@ -219,18 +227,18 @@ struct DAG {
             num_t node = next.front();
             next.pop_front();
 
-            for (num_t i = 0; i < In[node].size(); ++i)
-                if (!visited[In[node][i]]) {
-                    next.push_back(In[node][i]);
-                    visited[In[node][i]] = true;
+            for (num_t i = 0; i < In(node).size(); ++i)
+                if (!visited[In(node)[i]]) {
+                    next.push_back(In(node)[i]);
+                    visited[In(node)[i]] = true;
                 }
 
             if (onlyBack) continue;
 
-            for (num_t i = 0; i < Out[node].size(); ++i)
-                if (!visited[Out[node][i]]) {
-                    next.push_back(Out[node][i]);
-                    visited[Out[node][i]] = true;
+            for (num_t i = 0; i < Out(node).size(); ++i)
+                if (!visited[Out(node)[i]]) {
+                    next.push_back(Out(node)[i]);
+                    visited[Out(node)[i]] = true;
                 }
         }
 
@@ -264,9 +272,9 @@ struct DAG {
 
         for (num_t i = 0; i < n; ++i)
             if (keepNode[i])
-                for (num_t j = 0; j < Out[i].size(); ++j)
-                    if (keepNode[Out[i][j]])
-                        cleaned.addEdge(newIdx[i], newIdx[Out[i][j]], "", true);
+                for (num_t j = 0; j < Out(i).size(); ++j)
+                    if (keepNode[Out(i)[j]])
+                        cleaned.addEdge(newIdx[i], newIdx[Out(i)[j]], "", true);
 
         if (DebugMode) {
             cout << "Only the following nodes are kept: ";
