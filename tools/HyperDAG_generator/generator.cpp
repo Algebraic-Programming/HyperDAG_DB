@@ -27,6 +27,8 @@ limitations under the License.
 #include <numeric>
 #include <sstream>
 #include <string>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 using namespace std;
@@ -53,19 +55,44 @@ bool contains(const vector<string>& vec, const string& s) {
 struct DAG {
    private:
     num_t n;
-    vector<vector<num_t> > _In, _Out;
+    unordered_map<num_t, vector<num_t>> _In, _Out;
     vector<string> descriptions;
 
-    vector<num_t>& In(const num_t i) noexcept { return _In[i]; }
-    vector<num_t>& Out(const num_t i) noexcept { return _Out[i]; }
+    vector<num_t>& In(const num_t i) noexcept {
+        // Return a reference to the vector of predecessors of node i (only if
+        // it exists)
+        _In.try_emplace(i, vector<num_t>());
+        return _In[i];
+    }
+    vector<num_t>& Out(const num_t i) noexcept {
+        // Return a reference to the vector of successors of node i (only if it
+        // exists)
+        _Out.try_emplace(i, vector<num_t>());
+        return _Out[i];
+    }
 
-    const vector<num_t>& In(const num_t i) const noexcept { return In(i); }
-    const vector<num_t>& Out(const num_t i) const noexcept { return Out(i); }
+    const vector<num_t>& In(const num_t i) const noexcept {
+        static const vector<num_t> empty(0);
+        return _In.find(i) != _In.cend() ? _In.at(i) : empty;
+    }
 
-    num_t nnz() const noexcept {
-        return accumulate(
-            _Out.cbegin(), _Out.cend(), static_cast<num_t>(0),
-            [](num_t sum, const vector<num_t>& v) { return sum + v.size(); });
+    const vector<num_t>& Out(const num_t i) const noexcept {
+        static const vector<num_t> empty(0);
+        return _Out.find(i) != _Out.cend() ? _Out.at(i) : empty;
+    }
+
+    // num_t getNnz() const noexcept {
+    //     return accumulate(
+    //         _Out.cbegin(), _Out.cend(), static_cast<num_t>(0),
+    //         [](num_t sum, const vector<num_t>& v) { return sum + v.size();
+    //         });
+    // }
+
+    num_t getNnz() const noexcept {
+        return accumulate(_Out.cbegin(), _Out.cend(), static_cast<num_t>(0),
+                          [](num_t sum, const pair<num_t, vector<num_t>>& p) {
+                              return sum + p.second.size();
+                          });
     }
 
    public:
@@ -74,13 +101,11 @@ struct DAG {
     num_t size() const noexcept { return n; }
 
     void resize(num_t N) {
-        cout << "Resizing DAG from " << n << " to " << N
-             << " (GB: " << (N * N * 8) / 1024.0 / 1024.0 / 1024.0 << ")"
-             << endl;
+        cout << "Resizing DAG from " << n << " to " << N << endl;
 
         if (N <= n) return;
-        _In.resize(N);
-        _Out.resize(N);
+        // _In.resize(N);
+        // _Out.resize(N);
         n = N;
     }
 
@@ -127,9 +152,7 @@ struct DAG {
 
         cout << "Printing DAG to file " << filename_dag << endl;
 
-        size_t nnz = std::accumulate(
-            _Out.cbegin(), _Out.cend(), 0,
-            [](num_t sum, const vector<num_t>& v) { return sum + v.size(); });
+        size_t nnz = getNnz();
 
         {
             ofstream outfile(filename_dag, ios::out);
@@ -437,7 +460,7 @@ struct IMatrix {
 struct SquareMatrix : public IMatrix {
    private:
     num_t _nnz = 0;
-    vector<vector<bool> > _cells;
+    vector<vector<bool>> _cells;
 
    public:
     SquareMatrix(num_t N = 0, const string& label = "") : IMatrix(N, N, label) {
@@ -1138,7 +1161,7 @@ DAG CreateSpMVExp(const SquareMatrix& M, num_t K) {
 
     // Index of the nodes representing each nonzero of M
     vector<bool> rowValid(N, true), colValid(N, true);
-    vector<vector<num_t> > originalCellIdx(N, vector<num_t>(N));
+    vector<vector<num_t>> originalCellIdx(N, vector<num_t>(N));
     num_t Idx = 0;
     for (num_t i = 0; i < N; ++i) {
         for (num_t j = 0; j < N; ++j) {
@@ -1220,7 +1243,7 @@ DAG CreateSparseCG(const SquareMatrix& M, num_t K) {
     // Index of the nodes representing each nonzero of M
     // (we will denote the matrix M by "A" in the comment pseudocodes, since it
     // is more standard)
-    vector<vector<num_t> > originalCellIdx(N, vector<num_t>(N));
+    vector<vector<num_t>> originalCellIdx(N, vector<num_t>(N));
     num_t Idx = 0;
     for (num_t i = 0; i < N; ++i)
         for (num_t j = 0; j < N; ++j)
@@ -1362,7 +1385,7 @@ DAG CreatekNN(const SquareMatrix& M, num_t K, num_t source) {
     G.addDescriptionLine(M.getDescription());
 
     // Index of the nodes representing each nonzero of M
-    vector<vector<num_t> > originalCellIdx(N, vector<num_t>(N));
+    vector<vector<num_t>> originalCellIdx(N, vector<num_t>(N));
     num_t Idx = 0;
     for (num_t i = 0; i < N; ++i)
         for (num_t j = 0; j < N; ++j)
