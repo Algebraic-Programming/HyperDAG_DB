@@ -18,12 +18,14 @@ limitations under the License.
 
 #include <algorithm>
 #include <cassert>
+#include <cctype>
 #include <cmath>
 #include <execution>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <list>
+#include <map>
 #include <numeric>
 #include <sstream>
 #include <string>
@@ -35,6 +37,61 @@ using namespace std;
 using num_t = size_t;
 
 bool DebugMode = false;
+
+static const map<string, string> modes_usage = {
+    {"help", "<mode>"},
+    {"ER", "Undescribed usage"},
+    {"fixedIn", "Undescribed usage"},
+    {"expectedIn", "Undescribed usage"},
+    {"SpMV",
+     "{-N <n> -nonzeroProb <nonzeroProb>} | {-inputs <matrix_filename>}"},
+    {"SpMVExp",
+     "-K <k> {-N <n> -nonzeroProb <nonzeroProb>} | {-inputs "
+     "<matrix_filename>}"},
+    {"LLtSolver",
+     "{-N <n> -nonzeroProb <nonzeroProb>} | {-inputs <matrix_filename>}"},
+    {"LLtSolverExp",
+     "-K <k> {-N <n> -nonzeroProb <nonzeroProb>} | {-inputs "
+     "<matrix_filename>}"},
+    {"ALLtSolver",
+     "{-N <n> -nonzeroProb <nonzeroProb>} | {-inputs <matrix_A_filename> "
+     "<matrix_L_filename>}"},
+    {"ALLtSolverExp",
+     "-K <k> -nonzeroProb <nonzeroProb>} | {-inputs <matrix_A_filename> "
+     "<matrix_L_filename>}"},
+    {"LUSolver",
+     "{-N <n> -nonzeroProb <nonzeroProb>} | {-inputs <matrix_L_filename> "
+     "<matrix_U_filename>}"},
+    {"LUSolverExp",
+     "-K <k> {-N <n> -nonzeroProb <nonzeroProb>} | {-inputs "
+     "<matrix_L_filename> <matrix_U_filename>}"},
+    {"ALUSolver",
+     "{-N <n> -nonzeroProb <nonzeroProb>} | {-inputs <matrix_A_filename> "
+     "<matrix_L_filename> <matrix_U_filename>}"},
+    {"ALUSolverExp",
+     "-K <k> {-N <n> -nonzeroProb <nonzeroProb>} | {-inputs "
+     "<matrix_A_filename> <matrix_L_filename> <matrix_U_filename>}"},
+    {"kNN", "Undescribed usage"},
+    {"CG", "Undescribed usage"}};
+
+static string str_tolower(const string& s_init) {
+    string s = s_init;
+    std::transform(s_init.cbegin(), s_init.cend(), s.begin(),
+                   [](unsigned char c) { return std::tolower(c); }  // correct
+    );
+    return s;
+}
+
+static vector<string>& getModes() {
+    static vector<string> modes;
+    if (modes.empty()) {
+        modes.reserve(modes_usage.size());
+        for (const auto& entry : modes_usage) {
+            modes.push_back(str_tolower(entry.first));
+        }
+    }
+    return modes;
+}
 
 // AUXILIARY FUNCTIONS
 
@@ -58,37 +115,30 @@ struct DAG {
     unordered_map<num_t, vector<num_t>> _In, _Out;
     vector<string> descriptions;
 
-    vector<num_t>& In(const num_t i) noexcept {
+    vector<num_t>& In(const num_t i) {
         // Return a reference to the vector of predecessors of node i (only if
         // it exists)
         _In.try_emplace(i, vector<num_t>());
         return _In[i];
     }
-    vector<num_t>& Out(const num_t i) noexcept {
+    vector<num_t>& Out(const num_t i) {
         // Return a reference to the vector of successors of node i (only if it
         // exists)
         _Out.try_emplace(i, vector<num_t>());
         return _Out[i];
     }
 
-    const vector<num_t>& In(const num_t i) const noexcept {
+    const vector<num_t>& In(const num_t i) const {
         static const vector<num_t> empty(0);
         return _In.find(i) != _In.cend() ? _In.at(i) : empty;
     }
 
-    const vector<num_t>& Out(const num_t i) const noexcept {
+    const vector<num_t>& Out(const num_t i) const {
         static const vector<num_t> empty(0);
         return _Out.find(i) != _Out.cend() ? _Out.at(i) : empty;
     }
 
-    // num_t getNnz() const noexcept {
-    //     return accumulate(
-    //         _Out.cbegin(), _Out.cend(), static_cast<num_t>(0),
-    //         [](num_t sum, const vector<num_t>& v) { return sum + v.size();
-    //         });
-    // }
-
-    num_t getNnz() const noexcept {
+    num_t getNnz() const {
         return accumulate(_Out.cbegin(), _Out.cend(), static_cast<num_t>(0),
                           [](num_t sum, const pair<num_t, vector<num_t>>& p) {
                               return sum + p.second.size();
@@ -98,18 +148,15 @@ struct DAG {
    public:
     DAG(num_t N = 0) : n(N), _In(N), _Out(N) {}
 
-    num_t size() const noexcept { return n; }
+    num_t size() const { return n; }
 
     void resize(num_t N) {
         cout << "Resizing DAG from " << n << " to " << N << endl;
-
         if (N <= n) return;
-        // _In.resize(N);
-        // _Out.resize(N);
         n = N;
     }
 
-    void addDescriptionLine(const string& line) noexcept {
+    void addDescriptionLine(const string& line) {
         // Split the line using the character '\n'
         stringstream ss(line);
         string token;
@@ -128,10 +175,6 @@ struct DAG {
                  << endl;
             abort();
         }
-        // if (v1 > v2) {
-        //     cerr << "DAG edge addition error: " << v1 << " > " << v2 << endl;
-        //     abort();
-        // }
 
         if (v1 >= n || v2 >= n) {
             cerr << "DAG edge addition error: node index out of range." << endl;
@@ -144,38 +187,31 @@ struct DAG {
         Out(v1).push_back(v2);
     }
 
-    void printDAG(const string& filename) const noexcept {
-        // Replace filename extension by .dag.mtx (if any otherwise add it)
-        string filename_ext = filename.substr(filename.find_last_of(".") + 1);
-        string filename_noext = filename.substr(0, filename.find_last_of("."));
-        string filename_dag = filename_noext + ".dag.mtx";
+    void printDAG(const string& filename) const {
+        cout << "Printing DAG to file: " << filename << endl
+             << "  # Header: (n=" << n << ", m=" << n << ", nnz=" << getNnz()
+             << ")" << endl;
 
-        cout << "Printing DAG to file " << filename_dag << endl;
-
-        size_t nnz = getNnz();
-
-        {
-            ofstream outfile(filename_dag, ios::out);
-            outfile << "%%MatrixMarket matrix coordinate real general\n";
-            outfile << "%\n";
-            for (const auto& each : descriptions)
-                outfile << "% " << each << "\n";
-            outfile << "%\n";
-            // Print MM header
-            outfile << n << " " << n << " " << nnz << "\n";
-            // Print edges (directed)
-            for (num_t i = 0; i < n; ++i) {
-                for (num_t j = 0; j < Out(i).size(); ++j) {
-                    outfile << i << " " << Out(i)[j] << " "
-                            << "1"
-                            << "\n";
-                }
+        ofstream outfile(filename, ios::out);
+        outfile << "%%MatrixMarket matrix coordinate real general\n";
+        outfile << "%\n";
+        for (const auto& each : descriptions) outfile << "% " << each << "\n";
+        outfile << "%\n";
+        // Print MM header
+        outfile << n << " " << n << " " << getNnz() << "\n";
+        // Print edges (directed)
+        for (num_t i = 0; i < n; ++i) {
+            for (num_t j = 0; j < Out(i).size(); ++j) {
+                outfile << i << " " << Out(i)[j] << " "
+                        << "1"
+                        << "\n";
             }
         }
     }
 
     // Prints the hyperDAG corresponding to the DAG into a file
-    void printHyperDAG(const string& filename) const noexcept {
+    void printHyperDAG(const string& filename) const {
+        cout << "Printing HyperDAG to file: " << filename << endl;
         num_t sinks = 0, pins = 0;
         for (num_t i = 0; i < n; ++i) {
             if (Out(i).empty()) {
@@ -187,7 +223,6 @@ struct DAG {
 
         ofstream outfile;
         outfile.open(filename);
-        cout << "Printing HyperDAG to file " << filename << endl;
         for (const auto& each : descriptions) outfile << "% " << each << "\n";
         outfile << "%\n";
         outfile << "% Hyperedges: " << n - sinks << "\n";
@@ -235,7 +270,7 @@ struct DAG {
     // the set of source nodes (using a BFS) (if the onlyBack flag is set, then
     // we only search for the predecessors of the given nodes)
     vector<bool> isReachable(const vector<num_t>& sources,
-                             bool onlyBack = false) const noexcept {
+                             bool onlyBack = false) const {
         vector<bool> visited(n, false);
         list<num_t> next;
 
@@ -269,7 +304,7 @@ struct DAG {
     }
 
     // Checks if the DAG is a single connected component
-    bool isConnected() const noexcept {
+    bool isConnected() const {
         vector<num_t> sources(1, 0);
         vector<bool> reachable = isReachable(sources);
 
@@ -309,7 +344,7 @@ struct DAG {
         return (cleaned);
     }
 
-    void printConnected() const noexcept {
+    void printConnected() const {
         if (isConnected())
             cout << "The DAG is connected.\n";
         else
@@ -320,25 +355,34 @@ struct DAG {
 struct IMatrix {
    private:
     const num_t _m, _n;
-    const string _label = "";
+    string _label = "";
     string _desc = "";
 
    protected:
     IMatrix(num_t M, num_t N, const string& label = "")
-        : _m(M), _n(N), _label(label) {}
+        : _m(M), _n(N), _label(label) {
+        std::cout << "IMatrix(" << M << ", " << N << ", " << label << ")\n";
+    }
+
+    IMatrix& operator=(const IMatrix& other) {
+        assert(_m == other._m && _n == other._n);
+        _label = other._label;
+        _desc = other._desc;
+        return *this;
+    }
 
    public:
-    num_t nrows() const noexcept { return _m; }
-    num_t ncols() const noexcept { return _n; }
-    num_t area() const noexcept { return nrows() * ncols(); }
-    virtual num_t nnz() const noexcept = 0;
+    num_t nrows() const { return _m; }
+    num_t ncols() const { return _n; }
+    num_t area() const { return nrows() * ncols(); }
+    virtual num_t nnz() const = 0;
 
-    void addDescription(const string& desc) noexcept { _desc += desc + "\n"; }
-    std::string getDescription() const noexcept { return _desc; }
-    std::string getLabel() const noexcept { return _label; }
+    void addDescription(const string& desc) { _desc += desc + "\n"; }
+    std::string getDescription() const { return _desc; }
+    std::string getLabel() const { return _label; }
 
-    virtual bool at(num_t i, num_t j) const noexcept = 0;
-    virtual void set(num_t i, num_t j, bool value) noexcept = 0;
+    virtual bool at(num_t i, num_t j) const = 0;
+    virtual void set(num_t i, num_t j, bool value) = 0;
 
     void setMainDiagonal() {
         for (num_t i = 0; i < nrows(); ++i) {
@@ -373,8 +417,7 @@ struct IMatrix {
         }
     }
 
-    void print(const string& label = "",
-               std::ostream& os = std::cout) const noexcept {
+    void print(const string& label = "", std::ostream& os = std::cout) const {
         os << "Matrix " << label << ": " << nrows() << "x" << ncols() << ", "
            << nnz() << " nonzeros\n";
         os << "[\n";
@@ -402,7 +445,7 @@ struct IMatrix {
 
     template <typename MatrixType>
     static MatrixType readFromFile(const string& filename,
-                                   bool IndexedFromOne = false) {
+                                   bool IndexedFromOne = true) {
         ifstream infile(filename);
         if (!infile.is_open()) {
             throw "Unable to find/open input matrix file.\n";
@@ -416,8 +459,9 @@ struct IMatrix {
         sscanf(line.c_str(), "%ld %ld %ld", &N, &M, &NNZ);
 
         if (NNZ == 0) {
-            throw "Incorrect input file format: only non-empty matrices are "
-                    "accepted!\n";
+            throw runtime_error(
+                "Incorrect input file format: only non-empty matrices are "
+                "accepted!\n");
         }
 
         MatrixType A(M, N, "Matrix from file <" + filename + ">");
@@ -425,8 +469,9 @@ struct IMatrix {
         num_t indexOffset = IndexedFromOne ? 1 : 0;
         for (num_t i = 0; i < NNZ; ++i) {
             if (infile.eof()) {
-                throw "Incorrect input file format (file terminated too "
-                        "early).\n";
+                throw runtime_error(
+                    "Incorrect input file format (file terminated too "
+                    "early).\n");
             }
 
             num_t x, y;
@@ -437,7 +482,8 @@ struct IMatrix {
 
             if (x < indexOffset || y < indexOffset || x >= N + indexOffset ||
                 y >= N + indexOffset) {
-                throw "Incorrect input file format (index out of range).\n";
+                throw runtime_error(
+                    "Incorrect input file format (index out of range).\n");
             }
 
             A.set(x - indexOffset, y - indexOffset, true);
@@ -479,14 +525,17 @@ struct SquareMatrix : public IMatrix {
     }
 
     SquareMatrix& operator=(const SquareMatrix& other) {
-        return *this = SquareMatrix(other);
+        IMatrix::operator=(other);
+        _nnz = other._nnz;
+        _cells = std::move(other._cells);
+        return *this;
     }
 
-    num_t nnz() const noexcept override { return _nnz; }
+    num_t nnz() const override { return _nnz; }
 
-    bool at(num_t i, num_t j) const noexcept override { return _cells[i][j]; }
+    bool at(num_t i, num_t j) const override { return _cells[i][j]; }
 
-    void set(num_t i, num_t j, bool value) noexcept override {
+    void set(num_t i, num_t j, bool value) override {
         if (at(i, j) == value) return;
         _cells[i][j] = value;
 
@@ -513,15 +562,16 @@ struct LowerTriangularSquareMatrix : public SquareMatrix {
 
     LowerTriangularSquareMatrix& operator=(
         const LowerTriangularSquareMatrix& other) {
-        return *this = LowerTriangularSquareMatrix(other);
+        SquareMatrix::operator=(other);
+        return *this;
     }
 
-    bool at(num_t i, num_t j) const noexcept override {
+    bool at(num_t i, num_t j) const override {
         if (i < j) return false;
         return SquareMatrix::at(i, j);
     }
 
-    void set(num_t i, num_t j, bool value) noexcept override {
+    void set(num_t i, num_t j, bool value) override {
         if (i < j) return;
         SquareMatrix::set(i, j, value);
     }
@@ -543,15 +593,16 @@ struct UpperTriangularSquareMatrix : public SquareMatrix {
 
     UpperTriangularSquareMatrix& operator=(
         const UpperTriangularSquareMatrix& other) {
-        return *this = UpperTriangularSquareMatrix(other);
+        SquareMatrix::operator=(other);
+        return *this;
     }
 
-    bool at(num_t i, num_t j) const noexcept override {
+    bool at(num_t i, num_t j) const override {
         if (i > j) return false;
         return SquareMatrix::at(i, j);
     }
 
-    void set(num_t i, num_t j, bool value) noexcept override {
+    void set(num_t i, num_t j, bool value) override {
         if (i > j) return;
         SquareMatrix::set(i, j, value);
     }
@@ -611,9 +662,8 @@ DAG CreateRandomIndegFixed(num_t N, num_t indeg, double sourceProb = 0.0) {
     return G;
 }
 
-DAG CreateRandomER(num_t N, num_t NrOfEdges) {
-    DAG G(N);
-
+void CreateRandomER(DAG& G, num_t N, num_t NrOfEdges) {
+    G.resize(N);
     G.addDescriptionLine(
         "HyperDAG from a random DAG with expected number of edges " +
         to_string(NrOfEdges) +
@@ -624,8 +674,6 @@ DAG CreateRandomER(num_t N, num_t NrOfEdges) {
     for (num_t i = 0; i < N; ++i)
         for (num_t j = i + 1; j < N; ++j)
             if ((double)rand() / (double)RAND_MAX < p) G.addEdge(i, j);
-
-    return G;
 }
 
 /**
@@ -721,7 +769,9 @@ DAG CreateRandomSpMV(num_t N, double nonzero) {
     return G;
 }
 
-void CreateLLtSolver(DAG& G, const SquareMatrix& L) {
+void CreateLLtSolver(DAG& G, const LowerTriangularSquareMatrix& L) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+
     if (DebugMode) {
         L.print("L");
     }
@@ -904,32 +954,14 @@ void CreateLLtSolver(DAG& G, const SquareMatrix& L) {
     if (DebugMode) cout << "-- Backward substitution DAG created." << endl;
 }
 
-DAG CreateRandomLLtSolver(num_t N, double nonzero) {
-    LowerTriangularSquareMatrix L(N);
-    L.randomize(nonzero);
-    DAG G;
-    CreateLLtSolver(G, L);
-    return G;
-}
-
-void CreateALLtSolver(DAG& G, const LowerTriangularSquareMatrix& L,
-                      const SquareMatrix& A) {
+void CreateALLtSolver(DAG& G, const SquareMatrix& A,
+                      const LowerTriangularSquareMatrix& L) {
     if (DebugMode) {
-        L.print("ALLtSolver: L");
         A.print("ALLtSolver: A");
+        L.print("ALLtSolver: L");
     }
     CreateLLtSolver(G, L);
     CreateSpMV(G, A, G.size() - L.nrows());
-}
-
-DAG CreateRandomALLtSolver(num_t N, double nonzero) {
-    LowerTriangularSquareMatrix L(N);
-    L.randomize(nonzero);
-    SquareMatrix A(N);
-    A.randomize(nonzero);
-    DAG G;
-    CreateALLtSolver(G, L, A);
-    return G;
 }
 
 void CreateLUSolver(DAG& G, const LowerTriangularSquareMatrix& L,
@@ -1126,9 +1158,9 @@ DAG CreateRandomLUSolver(num_t N, double nonzero) {
     return G;
 }
 
-void CreateALUSolver(DAG& G, const LowerTriangularSquareMatrix& L,
-                     const UpperTriangularSquareMatrix& U,
-                     const SquareMatrix& A) {
+void CreateALUSolver(DAG& G, const SquareMatrix& A,
+                     const LowerTriangularSquareMatrix& L,
+                     const UpperTriangularSquareMatrix& U) {
     if (DebugMode) {
         L.print("ALUSolver: L");
         U.print("ALUSolver: U");
@@ -1146,7 +1178,7 @@ DAG CreateRandomALUSolver(num_t N, double nonzero) {
     L.randomize(nonzero);
     U.randomize(nonzero);
     DAG G;
-    CreateALUSolver(G, L, U, A);
+    CreateALUSolver(G, A, L, U);
     return G;
 }
 
@@ -1467,365 +1499,413 @@ DAG CreateRandomkNN(num_t N, double nonzero, num_t K) {
     return G;
 }
 
-int main(int argc, char* argv[]) {
-    int N = -1, edges = -1, K = -1, sourceNode = -1, indegFix = -1;
-    double sourceProb = -1.0, nonzeroProb = -1.0, indegExp = -1.0;
-    string infile, outfile, mode, indegreeString;
-    bool indexedFromOne = false;
+class Parser {
+   public:
+    string mode = "";
 
-    // PROCESS COMMAND LINE ARGUMENTS
+    bool has_N = false;
+    size_t N = 0;
 
-    vector<string> params{
-        "-output", "-input",    "-mode",       "-N",           "-K",
-        "-edges",  "-indegree", "-sourceProb", "-nonzeroProb", "-sourceNode"};
-    vector<string> modes{"ER",           "fixedIn",     "expectedIn",
-                         "SpMV",         "SpMVExp",     "LLtSolver",
-                         "LLtSolverExp", "ALLtSolver",  "ALLtSolverExp",
-                         "LUSolver",     "LUSolverExp", "ALUSolver",
-                         "ALUSolverExp", "kNN",         "CG"};
+    bool has_nonzeroProb = false;
+    double nonzeroProb = 0.0;
 
-    for (int i = 1; i < argc; ++i) {
-        // Check parameters that require an argument afterwards
-        if (contains(params, string(argv[i])) && i + 1 >= argc) {
-            cerr << "Parameter error: no parameter value after the \""
-                 << string(argv[i]) << "\" option." << endl;
-            return 1;
+    bool has_K = false;
+    size_t K = 0;
+
+    bool has_edges = false;
+    size_t edges = 0;
+
+    bool has_indegree = false;
+    double indegree = .0;
+
+    bool has_sourceProb = false;
+    double sourceProb = 0.0;
+
+    bool has_sourceNode = true;
+    size_t sourceNode = 0;
+
+    bool has_inputs = false;
+    vector<string> inputs;
+
+    bool has_output = false;
+    string output = "output.mtx";
+
+    Parser(int argc, char** argv) {
+        if (argc <= 1) {
+            showUsage();
+            exit(1);
         }
-
-        if (string(argv[i]) == "-output")
-            outfile = argv[++i];
-
-        else if (string(argv[i]) == "-input")
-            infile = argv[++i];
-
-        else if (string(argv[i]) == "-mode") {
-            mode = argv[++i];
-            if (!contains(modes, mode)) {
-                cerr << "Parameter error: invalid mode parameter. Please check "
-                        "the readme for possible modes."
-                     << endl;
-                return 1;
+        mode = str_tolower(argv[1]);
+        for (int i = 2; i < argc; ++i) {
+            const string arg = argv[i];
+            // Check for: -debug
+            if (arg == "-debug") {
+                DebugMode = true;
+                continue;
+            }
+            // Check for: -N <value>
+            if (arg == "-N") {
+                if (i + 1 < argc) {
+                    has_N = true;
+                    N = stoul(argv[++i]);
+                }
+                continue;
+            }
+            // Check for: -nonzeroProb <value>
+            if (arg == "-nonzeroProb") {
+                if (i + 1 < argc) {
+                    has_nonzeroProb = true;
+                    nonzeroProb = stod(argv[++i]);
+                }
+                continue;
+            }
+            // Check for: -K <value>
+            if (arg == "-K") {
+                if (i + 1 < argc) {
+                    has_K = true;
+                    K = stoul(argv[++i]);
+                }
+                continue;
+            }
+            // Check for: -edges <value>
+            if (arg == "-edges") {
+                if (i + 1 < argc) {
+                    has_edges = true;
+                    edges = stoul(argv[++i]);
+                }
+                continue;
+            }
+            // Check for: -indegree <value>
+            if (arg == "-indegree") {
+                if (i + 1 < argc) {
+                    has_indegree = true;
+                    indegree = stod(argv[++i]);
+                }
+                continue;
+            }
+            // Check for: -sourceProb <value>
+            if (arg == "-sourceProb") {
+                if (i + 1 < argc) {
+                    has_sourceProb = true;
+                    sourceProb = stod(argv[++i]);
+                }
+                continue;
+            }
+            // Check for: -sourceNode <value>
+            if (arg == "-sourceNode") {
+                if (i + 1 < argc) {
+                    has_sourceNode = true;
+                    sourceNode = stoul(argv[++i]);
+                }
+                continue;
+            }
+            // Check for: -output <filename>
+            if (arg == "-output") {
+                if (i + 1 < argc) {
+                    has_output = true;
+                    output = argv[++i];
+                }
+                continue;
+            }
+            // Check for: -inputs <value1> <value2> ...
+            if (arg == "-inputs") {
+                while (i + 1 < argc && argv[i + 1][0] != '-') {
+                    has_inputs = true;
+                    inputs.push_back(argv[++i]);
+                }
+                continue;
             }
         }
 
-        else if (string(argv[i]) == "-N") {
-            N = stoi(argv[++i]);
-            if (N <= 1) {
-                cerr << "Parameter error: N has to be at least 2." << endl;
-                return 1;
-            }
+        // Check that a mode was provided
+        if (mode.empty() || std::find(getModes().cbegin(), getModes().cend(),
+                                      mode) == getModes().cend()) {
+            showUsage("No or invalid mode provided: " + mode + "\n");
+            exit(1);
         }
-
-        else if (string(argv[i]) == "-K") {
-            K = stoi(argv[++i]);
-            if (K <= 0) {
-                cerr << "Parameter error: K has to be at least 1." << endl;
-                return 1;
-            }
+        // Check that N (if provided) is higher than 1
+        if (has_N && N <= 1) {
+            showUsage("<N> must be >= 2.\n");
+            exit(1);
         }
-
-        else if (string(argv[i]) == "-edges")
-            edges = stoi(argv[++i]);
-
-        else if (string(argv[i]) == "-indegree")
-            indegreeString = argv[++i];
-
-        else if (string(argv[i]) == "-sourceProb") {
-            sourceProb = stod(argv[++i]);
-            if (sourceProb < -0.0001 || sourceProb > 1.0001) {
-                cerr << "Parameter error: parameter \"sourceProb\" has to be "
-                        "between 0 and 1."
-                     << endl;
-                return 1;
-            }
+        // Check that N is provided for modes that require it, if not provided
+        // set to default
+        if (not has_N &&
+            (mode == "er" || mode == "fixedin" || mode == "expectedin")) {
+            showUsage("No <N> provided, required by this mode: -N <value>\n");
+            exit(1);
+        } else if (not has_N) {
+            has_N = true;
+            N = 10;
         }
-
-        else if (string(argv[i]) == "-nonzeroProb") {
-            nonzeroProb = stod(argv[++i]);
-            if (nonzeroProb < -0.0001 || nonzeroProb > 1.0001) {
-                cerr << "Parameter error: parameter \"nonzeroProb\" has to be "
-                        "between 0 and 1."
-                     << endl;
-                return 1;
-            }
+        // Check that nonzeroProb (if provided) is between 0 and 1, if not
+        // provided set to default
+        if (has_nonzeroProb && (nonzeroProb < 0.0 || nonzeroProb > 1.0)) {
+            showUsage("<nonzeroProb> must be in the range [0.0;1.0]\n");
+            exit(1);
+        } else if (not has_nonzeroProb) {
+            has_nonzeroProb = true;
+            nonzeroProb = .5;
         }
-
-        else if (string(argv[i]) == "-sourceNode") {
-            sourceNode = stoi(argv[++i]);
-            if (sourceNode < 0) {
-                cerr << "Parameter error: sourceNode cannot be negative."
-                     << endl;
-                return 1;
-            }
+        // Check that K (if provided) is higher than 0, or if not provided set
+        // to default
+        if (has_K && K <= 0) {
+            showUsage("<K> must be >= 1.\n");
+            exit(1);
+        } else if (not has_K) {
+            has_K = true;
+            K = 3;
         }
-
-        else if (string(argv[i]) == "-debugMode")
-            DebugMode = true;
-
-        else if (string(argv[i]) == "-indexedFromOne")
-            indexedFromOne = true;
-
-        else {
-            cerr << "Parameter error: unknown parameter/option "
-                 << string(argv[i]) << endl;
-            return 1;
+        // Check that edges (if provided) is higher than 0, if not provided set
+        // to default
+        if (has_edges && edges <= 0) {
+            showUsage("<edges> must be >= 1.\n");
+            exit(1);
+        } else if (not has_edges) {
+            has_edges = true;
+            edges = N * (N - 1) / 5;
         }
-    }
-
-    // CHECK PARAMETER CONSISTENCY
-
-    // mode, infile, outfile
-    if (mode.empty()) {
-        cerr << "Parameter error: no mode specified." << endl;
-        return 1;
-    }
-    if (!infile.empty() &&
-        (mode == "ER" || mode == "fixedIn" || mode == "expectedIn")) {
-        cerr << "Parameter error: cannot use input matrix file for this mode."
-             << endl;
-        return 1;
-    }
-
-    if (infile.empty() && indexedFromOne) {
-        cerr << "Parameter error: cannot use parameter \"indexedFromOne\" "
-                "without an input file."
-             << endl;
-        return 1;
-    }
-
-    // N
-    if (!infile.empty()) {
-        if (N != -1) {
-            cerr << "Parameter error: cannot use parameter \"N\" if input file "
-                    "is specified."
-                 << endl;
-            return 1;
+        // Check that sourceProb (if provided) is between 0 and 1, if not
+        // provided set to default
+        if (has_sourceProb && (sourceProb < 0.0 || sourceProb > 1.0)) {
+            showUsage("<sourceProb> must be in the range [0.0;1.0]\n");
+            exit(1);
+        } else if (not has_sourceProb) {
+            has_sourceProb = true;
+            sourceProb = .0;
+        }
+        // Check that has_indegree (if provided) is higher than 0, if not
+        // provided set to default
+        if (has_indegree && has_N && (indegree < 1 || indegree > N - 1)) {
+            showUsage("<indegree> must be in the range [1;N-1]\n");
+            exit(1);
+        } else if (not has_indegree) {
+            has_indegree = true;
+            indegree = 4;
+        }
+        // Check that output (if provided) is not empty
+        if (has_output && output.empty()) {
+            showUsage("<output> must be a valid filename.\n");
+            exit(1);
+        }
+        // Check that inputs (if provided) is not empty
+        if (has_inputs &&
+            (inputs.empty() ||
+             std::any_of(inputs.cbegin(), inputs.cend(),
+                         [](const string& s) { return s.empty(); }))) {
+            showUsage("<inputs> must contain valid filenames.\n");
+            exit(1);
         }
     }
-    // If not set, use 10 as default value
-    else if (N == -1)
-        N = 10;
 
-    if (outfile.empty()) {
-        std::string probStr = to_string((float)100 * nonzeroProb);
-        probStr.replace(probStr.find('.'), 1, ",");
-        outfile = mode + "_N" + to_string(N) + "_nzProb" + probStr + ".mtx";
-        cout << "Output file not specified; using default output filename: "
-             << outfile << endl;
-    }
-
-    // K
-    if (mode == "ER" || mode == "fixedIn" || mode == "expectedIn" ||
-        mode == "SpMV" || mode == "LLtSolver" || mode == "ALLtSolver" ||
-        mode == "LUSolver" || mode == "ALUSolver") {
-        if (K >= 0) {
-            cerr << "Parameter error: cannot use parameter \"K\" for this mode."
-                 << endl;
-            return 1;
+    void showUsage(string message = "") const {
+        if (!message.empty()) {
+            cerr << "Error: " << message << endl;
         }
+        cerr << "Usage: " << endl;
+        cerr << "  "
+             << "help <mode>" << endl;
+        for (const auto& entry : modes_usage) {
+            cerr << "  " << entry.first << " " << entry.second << endl;
+        }
+    }
+};
+
+namespace command {
+
+static void help(const Parser& arguments, DAG& G) {
+    if (arguments.mode.empty())
+        cerr << "Unknown mode\n";
+    else
+        cerr << "Usage of mode " << arguments.mode << ": "
+             << modes_usage.at(arguments.mode) << " <mode> <mode_args>\n";
+    exit(0);
+}
+
+static void ER(const Parser& arguments, DAG& G) {
+    assert(arguments.has_N);
+    assert(arguments.has_edges);
+
+    CreateRandomER(G, arguments.N, arguments.edges);
+}
+
+static void SpMV(const Parser& arguments, DAG& G) {
+    std::unique_ptr<SquareMatrix> A = nullptr;
+    if (arguments.has_inputs) {
+        A = make_unique<SquareMatrix>(
+            IMatrix::readFromFile<SquareMatrix>(arguments.inputs[0]));
     } else {
-        // If not set, use 3 as default value
-        if (K < 0) K = 3;
+        assert(arguments.has_N);
+        assert(arguments.has_nonzeroProb);
+        A = make_unique<SquareMatrix>(arguments.N);
+        A->randomize(arguments.nonzeroProb);
     }
+    CreateSpMV(G, *A);
+}
 
-    // edges
-    if (mode != "ER") {
-        if (edges >= 0) {
-            cerr << "Parameter error: cannot use parameter \"edges\" for this "
-                    "mode."
-                 << endl;
-            return 1;
-        }
-    }
-    // If not set, use 5*N as default value
-    else if (edges < 0)
-        edges = N * (N - 1) / 5;
-
-    // indegree
-    if (mode != "fixedIn" && mode != "expectedIn") {
-        if (!indegreeString.empty()) {
-            cerr << "Parameter error: cannot use parameter \"indegree\" for "
-                    "this mode."
-                 << endl;
-            return 1;
-        }
-    } else if (mode == "fixedIn") {
-        // If not set, use 4 as default value
-        if (indegreeString.empty())
-            indegFix = 4;
-        else
-            indegFix = stoi(indegreeString);
-
-        if (indegFix <= 0 || indegFix >= N) {
-            cerr << "Parameter error: parameter \"indegree\" has to be between "
-                    "1 and (N-1)."
-                 << endl;
-            return 1;
-        }
-    } else if (mode == "expectedIn") {
-        // If not set, use 4 as default value
-        if (indegreeString.empty())
-            indegExp = 4.0;
-        else
-            indegExp = stod(indegreeString);
-
-        if (indegExp <= -0.0001 || indegExp >= N - 0.0009) {
-            cerr << "Parameter error: parameter \"indegree\" has to be between "
-                    "0 and (N-1)."
-                 << endl;
-            return 1;
-        }
-    }
-
-    // sourceProb
-    if (mode != "fixedIn" && mode != "expectedIn") {
-        if (sourceProb > -0.5) {
-            cerr << "Parameter error: cannot use \"sourceProb\" parameter for "
-                    "this mode."
-                 << endl;
-            return 1;
-        }
-    }
-    // If not set, use 0 as default value
-    else if (sourceProb < -0.5)
-        sourceProb = 0.0;
-
-    // nonzeroProb
-    if (mode == "ER" || mode == "fixedIn" || mode == "expectedIn") {
-        if (nonzeroProb > -0.5) {
-            cerr << "Parameter error: cannot use parameter \"nonzeroProb\" for "
-                    "this mode."
-                 << endl;
-            return 1;
-        }
+static void LLtSolver(const Parser& arguments, DAG& G) {
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+    std::unique_ptr<LowerTriangularSquareMatrix> L;
+    if (arguments.has_inputs) {
+        L = make_unique<LowerTriangularSquareMatrix>(
+            IMatrix::readFromFile<LowerTriangularSquareMatrix>(
+                arguments.inputs[0]));
     } else {
-        if (nonzeroProb > -0.5 && !infile.empty()) {
-            cerr << "Parameter error: parameter \"nonzeroProb\" has no use if "
-                    "input file is specified."
-                 << endl;
-            return 1;
-        }
-        // If not set, use 0.25 as default value
-        if (nonzeroProb < -0.5) nonzeroProb = 0.25;
+        assert(arguments.has_N);
+        assert(arguments.has_nonzeroProb);
+        L = make_unique<LowerTriangularSquareMatrix>(arguments.N);
+        L->randomize(arguments.nonzeroProb);
     }
+    CreateLLtSolver(G, *L);
+}
 
-    // sourceNode
-    if (sourceNode >= 0 && mode != "kNN") {
-        cerr << "Parameter error: \"sourceNode\" parameter can only be used in "
-                "kNN mode."
-             << endl;
-        return 1;
-    } else if (sourceNode >= 0 && infile.empty()) {
-        cerr << "Parameter error: \"sourceNode\" parameter is only used when "
-                "the matrix is read from a file."
-             << endl;
-        return 1;
+static void LLtSolverExp(const Parser& arguments, DAG& G) {
+    throw runtime_error("Not implemented yet");
+    assert(arguments.has_K);
+}
+
+static void ALLtSolver(const Parser& arguments, DAG& G) {
+    unique_ptr<SquareMatrix> A;
+    unique_ptr<LowerTriangularSquareMatrix> L;
+    if (arguments.has_inputs) {
+        A = make_unique<SquareMatrix>(
+            IMatrix::readFromFile<SquareMatrix>(arguments.inputs[0]));
+        L = make_unique<LowerTriangularSquareMatrix>(
+            IMatrix::readFromFile<LowerTriangularSquareMatrix>(
+                arguments.inputs[1]));
+    } else {
+        A = make_unique<SquareMatrix>(arguments.N);
+        A->randomize(arguments.nonzeroProb);
+        L = make_unique<LowerTriangularSquareMatrix>(arguments.N);
+        L->randomize(arguments.nonzeroProb);
     }
-    // Use 0 as default value
-    else if (mode == "kNN" && sourceNode == -1)
-        sourceNode = 0;
+    CreateALLtSolver(G, *A, *L);
+}
 
-    // INITIALIZE
+static void ALLtSolverExp(const Parser& arguments, DAG& G) {
+    throw runtime_error("Not implemented yet");
+    assert(arguments.has_K);
+}
+
+static void LUSolver(const Parser& arguments, DAG& G) {
+    unique_ptr<LowerTriangularSquareMatrix> L;
+    unique_ptr<UpperTriangularSquareMatrix> U;
+    if (arguments.has_inputs) {
+        L = make_unique<LowerTriangularSquareMatrix>(
+            IMatrix::readFromFile<LowerTriangularSquareMatrix>(
+                arguments.inputs[0]));
+        U = make_unique<UpperTriangularSquareMatrix>(
+            IMatrix::readFromFile<UpperTriangularSquareMatrix>(
+                arguments.inputs[1]));
+    } else {
+        L = make_unique<LowerTriangularSquareMatrix>(arguments.N);
+        L->randomize(arguments.nonzeroProb);
+        U = make_unique<UpperTriangularSquareMatrix>(arguments.N);
+        U->randomize(arguments.nonzeroProb);
+    }
+    CreateLUSolver(G, *L, *U);
+}
+
+static void LUSolverExp(const Parser& arguments, DAG& G) {
+    throw runtime_error("Not implemented yet");
+    assert(arguments.has_K);
+}
+
+static void ALUSolver(const Parser& arguments, DAG& G) {
+    unique_ptr<SquareMatrix> A;
+    unique_ptr<LowerTriangularSquareMatrix> L;
+    unique_ptr<UpperTriangularSquareMatrix> U;
+    if (arguments.has_inputs) {
+        A = make_unique<SquareMatrix>(
+            IMatrix::readFromFile<SquareMatrix>(arguments.inputs[0]));
+        L = make_unique<LowerTriangularSquareMatrix>(
+            IMatrix::readFromFile<LowerTriangularSquareMatrix>(
+                arguments.inputs[1]));
+        U = make_unique<UpperTriangularSquareMatrix>(
+            IMatrix::readFromFile<UpperTriangularSquareMatrix>(
+                arguments.inputs[2]));
+    } else {
+        A = make_unique<SquareMatrix>(arguments.N);
+        A->randomize(arguments.nonzeroProb);
+        L = make_unique<LowerTriangularSquareMatrix>(arguments.N);
+        L->randomize(arguments.nonzeroProb);
+        U = make_unique<UpperTriangularSquareMatrix>(arguments.N);
+        U->randomize(arguments.nonzeroProb);
+    }
+    CreateALUSolver(G, *A, *L, *U);
+}
+
+static void ALUSolverExp(const Parser& arguments, DAG& G) {
+    throw runtime_error("Not implemented yet");
+    assert(arguments.has_K);
+}
+
+static void fixedIn(const Parser& arguments, DAG& G) {
+    assert(arguments.has_indegree);
+    assert(arguments.indegree >= 1.0);
+}
+
+static void expectedIn(const Parser& arguments, DAG& G) {
+    assert(arguments.has_indegree);
+    assert(arguments.indegree >= .0);
+}
+
+static void kNN(const Parser& arguments, DAG& G) {
+    assert(arguments.has_sourceNode);
+    assert(arguments.sourceNode >= 0);
+    assert(arguments.sourceNode < arguments.N);
+}
+
+static void CG(const Parser& arguments, DAG& G) {
+    assert(arguments.has_sourceNode);
+    assert(arguments.sourceNode >= 0);
+    assert(arguments.sourceNode < arguments.N);
+}
+
+}  // namespace command
+
+int main(int argc, char** argv) {
     srand(0);
+    const Parser arguments(argc, argv);
 
-    SquareMatrix M;
-    if (!infile.empty()) {
-        M = IMatrix::readFromFile<SquareMatrix>(infile, indexedFromOne);
-        N = M.nrows();
-    }
-
-    // last parameter check (has to be done after N is read from file)
-    if (mode == "kNN" && sourceNode >= N) {
-        cout << "Parameter error: sourceNode is a node index, it cannot be "
-                "larger than (N-1)."
-             << endl;
+    DAG G;
+    if (arguments.mode == "help") {
+        command::help(arguments, G);
+        return 0;
+    } else if (arguments.mode == "er") {
+        command::ER(arguments, G);
+    } else if (arguments.mode == "spmv") {
+        command::SpMV(arguments, G);
+    } else if (arguments.mode == "lltsolver") {
+        command::LLtSolver(arguments, G);
+    } else if (arguments.mode == "lltsolverexp") {
+        command::LLtSolverExp(arguments, G);
+    } else if (arguments.mode == "alltsolver") {
+        command::ALLtSolver(arguments, G);
+    } else if (arguments.mode == "alltsolverexp") {
+        command::ALLtSolverExp(arguments, G);
+    } else if (arguments.mode == "lusolver") {
+        command::LUSolver(arguments, G);
+    } else if (arguments.mode == "lusolverexp") {
+        command::LUSolverExp(arguments, G);
+    } else if (arguments.mode == "alusolver") {
+        command::ALUSolver(arguments, G);
+    } else if (arguments.mode == "alusolverexp") {
+        command::ALUSolverExp(arguments, G);
+    } else if (arguments.mode == "fixedin") {
+        command::fixedIn(arguments, G);
+    } else if (arguments.mode == "expectedin") {
+        command::expectedIn(arguments, G);
+    } else if (arguments.mode == "knn") {
+        command::kNN(arguments, G);
+    } else if (arguments.mode == "cg") {
+        command::CG(arguments, G);
+    } else {
+        cerr << "Unknown mode: " << arguments.mode << endl;
         return 1;
     }
 
-    // GENERATE HYPERDAG
-
-    DAG G(1);
-
-    if (mode == "ER") {
-        G = CreateRandomER(N, edges);
-    } else if (mode == "fixedIn") {
-        G = CreateRandomIndegFixed(N, indegFix, sourceProb);
-    } else if (mode == "expectedIn") {
-        G = CreateRandomIndegExpected(N, indegExp, sourceProb);
-    } else if (mode == "SpMV") {
-        if (!infile.empty())
-            CreateSpMV(G, M);
-        else
-            G = CreateRandomSpMV(N, nonzeroProb);
-    } else if (mode == "SpMVExp") {
-        if (!infile.empty())
-            G = CreateSpMVExp(M, K);
-        else
-            G = CreateRandomSpMVExp(N, nonzeroProb, K);
-    } else if (mode == "LLtSolver") {
-        if (!infile.empty())
-            CreateLLtSolver(G, M);
-        else
-            G = CreateRandomLLtSolver(N, nonzeroProb);
-    } else if (mode == "LLtSolverExp") {
-        // Not supported yet
-        throw std::runtime_error("LLtSolverExp not supported yet.");
-        // if(!infile.empty())
-        //     G = CreateLLtSolverExp(M, K);
-        // else
-        //     G = CreateRandomLLtSolverExp(N, nonzeroProb, K);
-    } else if (mode == "ALLtSolver") {
-        if (!infile.empty())
-            throw runtime_error("ALLtSolver not supported for input file.");
-        else
-            G = CreateRandomALLtSolver(N, nonzeroProb);
-    } else if (mode == "ALLtSolverExp") {
-        // Not supported yet
-        throw std::runtime_error("ALLtSolverExp not supported yet.");
-        // if(!infile.empty())
-        //     G = CreateLLtSolverExp(M, K);
-        // else
-        //     G = CreateRandomLLtSolverExp(N, nonzeroProb, K);
-    } else if (mode == "LUSolver") {
-        if (!infile.empty())
-            throw runtime_error("LUSolver not supported for input file.");
-        else
-            G = CreateRandomLUSolver(N, nonzeroProb);
-    } else if (mode == "LUSolverExp") {
-        // Not supported yet
-        throw std::runtime_error("LUSolverExp not supported yet.");
-        // if(!infile.empty())
-        //     G = CreateLUSolverExp(M, K);
-        // else
-        //     G = CreateRandomLUSolverExp(N, nonzeroProb, K);
-    } else if (mode == "ALUSolver") {
-        if (!infile.empty())
-            throw runtime_error("ALUSolver not supported for input file.");
-        else
-            G = CreateRandomALUSolver(N, nonzeroProb);
-    } else if (mode == "ALUSolverExp") {
-        // Not supported yet
-        throw std::runtime_error("ALUSolverExp not supported yet.");
-        // if(!infile.empty())
-        //     G = CreateLLtSolverExp(M, K);
-        // else
-        //     G = CreateRandomLLtSolverExp(N, nonzeroProb, K);
-    } else if (mode == "kNN") {
-        if (!infile.empty()) {
-            M.setMainDiagonal();
-            G = CreatekNN(M, K, sourceNode);
-        } else
-            G = CreateRandomkNN(N, nonzeroProb, K);
-    } else if (mode == "CG") {
-        if (!infile.empty())
-            G = CreateSparseCG(M, K);
-        else
-            G = CreateRandomSparseCG(N, nonzeroProb, K);
-    }
-
-    if (DebugMode) G.printConnected();
-
-    G.printDAG(outfile);
-    G.printHyperDAG(outfile);
+    G.printDAG(arguments.output + ".dag");
+    G.printHyperDAG(arguments.output);
     return 0;
 }
