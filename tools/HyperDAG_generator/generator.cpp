@@ -76,8 +76,8 @@ static const map<string, string> modes_usage = {
 
 static string str_tolower(const string& s_init) {
     string s = s_init;
-    std::transform(s_init.cbegin(), s_init.cend(), s.begin(),
-                   [](unsigned char c) { return std::tolower(c); }  // correct
+    transform(s_init.cbegin(), s_init.cend(), s.begin(),
+              [](unsigned char c) { return tolower(c); }  // correct
     );
     return s;
 }
@@ -104,7 +104,7 @@ num_t randInt(num_t lim) {
 
 // check if vector contains a specific element
 bool contains(const vector<string>& vec, const string& s) {
-    return std::find(vec.begin(), vec.end(), s) != vec.end();
+    return find(vec.begin(), vec.end(), s) != vec.end();
 }
 
 // MAIN DATA STRUCTURES
@@ -113,6 +113,7 @@ struct DAG {
    private:
     num_t n;
     unordered_map<num_t, vector<num_t>> _In, _Out;
+    vector<num_t> _sinks;
     vector<string> descriptions;
 
     vector<num_t>& In(const num_t i) {
@@ -266,6 +267,17 @@ struct DAG {
         outfile.close();
     }
 
+    void setSinkNodes(const vector<num_t>& new_sinks) {
+        _sinks.clear();
+        _sinks = new_sinks;
+    }
+
+    void setSinkNodes(num_t start_id, num_t end_id) {
+        vector<num_t> new_sinks(end_id - start_id);
+        iota(new_sinks.begin(), new_sinks.end(), start_id);
+        setSinkNodes(new_sinks);
+    }
+
     // Checks for each node whether it is connected (in an undirected sense) to
     // the set of source nodes (using a BFS) (if the onlyBack flag is set, then
     // we only search for the predecessors of the given nodes)
@@ -344,6 +356,65 @@ struct DAG {
         return (cleaned);
     }
 
+    void removeNonSinkNodes(bool reindexIds) {
+        // From here _Out is not required anymore
+        _Out.clear();
+        _Out.rehash(0);
+
+        cout << "Removing non-sink nodes...\n";
+        vector<num_t> toKeep(_sinks);
+
+        {  // Complete toKeep with nodes to be kept
+            vector<num_t> reachable;
+            for (const num_t sink : _sinks) {
+                reachable = In(sink);
+                while (!reachable.empty()) {
+                    const num_t node = reachable.back();
+                    reachable.pop_back();
+                    if (find(execution::par, toKeep.cbegin(), toKeep.cend(),
+                             node) != toKeep.cend())
+                        continue;
+                    toKeep.push_back(node);
+                    for (const num_t next : In(node)) {
+                        reachable.push_back(next);
+                    }
+                }
+            }
+        }
+
+        cout << toKeep.size() << " nodes are kept. " << n - toKeep.size()
+             << " nodes are removed.\n";
+
+        unordered_map<num_t, num_t> id_association_map;
+        if (reindexIds) {
+            // Complete id_association_map with the new nodes' ids
+            id_association_map.reserve(toKeep.size());
+            num_t current = 0;
+            for (const auto& kept : toKeep) {
+                id_association_map[kept] = current++;
+            }
+        }
+
+        // Create a new DAG using only the nodes to keep
+        DAG G;
+        G.resize(toKeep.size());
+        for (const num_t node : toKeep) {
+            const num_t id = (reindexIds) ? id_association_map[node] : node;
+            for (const num_t next : In(node)) {
+                if (id_association_map.find(next) ==
+                    id_association_map.cend()) {
+                    continue;
+                }
+                const num_t next_id =
+                    (reindexIds) ? id_association_map[next] : next;
+                G.addEdge(id, next_id);
+            }
+        }
+
+        // Update the current DAG
+        *this = std::move(G);
+    }
+
     void printConnected() const {
         if (isConnected())
             cout << "The DAG is connected.\n";
@@ -361,7 +432,7 @@ struct IMatrix {
    protected:
     IMatrix(num_t M, num_t N, const string& label = "")
         : _m(M), _n(N), _label(label) {
-        std::cout << "IMatrix(" << M << ", " << N << ", " << label << ")\n";
+        cout << "IMatrix(" << M << ", " << N << ", " << label << ")\n";
     }
 
     IMatrix& operator=(const IMatrix& other) {
@@ -378,8 +449,8 @@ struct IMatrix {
     virtual num_t nnz() const = 0;
 
     void addDescription(const string& desc) { _desc += desc + "\n"; }
-    std::string getDescription() const { return _desc; }
-    std::string getLabel() const { return _label; }
+    string getDescription() const { return _desc; }
+    string getLabel() const { return _label; }
 
     virtual bool at(num_t i, num_t j) const = 0;
     virtual void set(num_t i, num_t j, bool value) = 0;
@@ -417,7 +488,7 @@ struct IMatrix {
         }
     }
 
-    void print(const string& label = "", std::ostream& os = std::cout) const {
+    void print(const string& label = "", ostream& os = cout) const {
         os << "Matrix " << label << ": " << nrows() << "x" << ncols() << ", "
            << nnz() << " nonzeros\n";
         os << "[\n";
@@ -445,10 +516,10 @@ struct IMatrix {
 
     template <typename MatrixType>
     static MatrixType readFromFile(const string& filename,
-                                   bool IndexedFromOne = true) {
+                                   bool IndexedFromOne) {
         ifstream infile(filename);
         if (!infile.is_open()) {
-            throw "Unable to find/open input matrix file.\n";
+            throw runtime_error("Unable to find/open input matrix file.\n");
         }
 
         string line;
@@ -527,7 +598,7 @@ struct SquareMatrix : public IMatrix {
     SquareMatrix& operator=(const SquareMatrix& other) {
         IMatrix::operator=(other);
         _nnz = other._nnz;
-        _cells = std::move(other._cells);
+        _cells = move(other._cells);
         return *this;
     }
 
@@ -714,10 +785,12 @@ void CreateSpMV(DAG& G, const SquareMatrix& M, num_t vector_node_begin = 0) {
     G.addDescriptionLine("Nodes of the final result u: [" +
                          to_string(u_offset_begin) + ";" +
                          to_string(u_offset_end - 1) + "]");
-    std::stringstream strtream;
+    stringstream strtream;
     M.print("M", strtream);
     G.addDescriptionLine(" ");
     G.addDescriptionLine(strtream.str());
+
+    G.setSinkNodes(u_offset_begin, u_offset_end);
 
     // find empty rows in the matrix
     vector<bool> rowNotEmpty(N, false);
@@ -760,17 +833,8 @@ void CreateSpMV(DAG& G, const SquareMatrix& M, num_t vector_node_begin = 0) {
         if (rowNotEmpty[i]) sinkNodes.push_back(u_offset_begin + i);
 }
 
-DAG CreateRandomSpMV(num_t N, double nonzero) {
-    SquareMatrix M(N);
-    M.randomize(nonzero);
-
-    DAG G;
-    CreateSpMV(G, M);
-    return G;
-}
-
 void CreateLLtSolver(DAG& G, const LowerTriangularSquareMatrix& L) {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
+    cout << __PRETTY_FUNCTION__ << endl;
 
     if (DebugMode) {
         L.print("L");
@@ -825,10 +889,12 @@ void CreateLLtSolver(DAG& G, const LowerTriangularSquareMatrix& L) {
     G.addDescriptionLine("Nodes of the final result z: [" + to_string(zOffset) +
                          ";" + to_string(zOffset + n - 1) + "]");
 
-    std::stringstream strtream;
+    stringstream strtream;
     L.print("L", strtream);
     G.addDescriptionLine(" ");
     G.addDescriptionLine(strtream.str());
+
+    G.setSinkNodes(zOffset, zOffset + n);
 
     // find empty rows in the matrix L
     vector<bool> L_rowEmpty(n, true);
@@ -1029,6 +1095,8 @@ void CreateLUSolver(DAG& G, const LowerTriangularSquareMatrix& L,
     G.addDescriptionLine("Nodes of the final result z: [" + to_string(zOffset) +
                          ";" + to_string(zOffset + n - 1) + "]");
 
+    G.setSinkNodes(zOffset, zOffset + n);
+
     // find empty rows in the matrix L and U
     vector<bool> L_rowEmpty(n, true), U_rowEmpty(n, true);
     for (num_t i = 0; i < n; ++i) {
@@ -1148,16 +1216,6 @@ void CreateLUSolver(DAG& G, const LowerTriangularSquareMatrix& L,
     if (DebugMode) cout << "-- Backward substitution DAG created." << endl;
 }
 
-DAG CreateRandomLUSolver(num_t N, double nonzero) {
-    LowerTriangularSquareMatrix L(N);
-    UpperTriangularSquareMatrix U(N);
-    L.randomize(nonzero);
-    U.randomize(nonzero);
-    DAG G;
-    CreateLUSolver(G, L, U);
-    return G;
-}
-
 void CreateALUSolver(DAG& G, const SquareMatrix& A,
                      const LowerTriangularSquareMatrix& L,
                      const UpperTriangularSquareMatrix& U) {
@@ -1168,18 +1226,6 @@ void CreateALUSolver(DAG& G, const SquareMatrix& A,
     }
     CreateLUSolver(G, L, U);
     CreateSpMV(G, A, G.size() - L.nrows());
-}
-
-DAG CreateRandomALUSolver(num_t N, double nonzero) {
-    SquareMatrix A(N);
-    LowerTriangularSquareMatrix L(N);
-    UpperTriangularSquareMatrix U(N);
-    A.randomize(nonzero);
-    L.randomize(nonzero);
-    U.randomize(nonzero);
-    DAG G;
-    CreateALUSolver(G, A, L, U);
-    return G;
 }
 
 DAG CreateSpMVExp(const SquareMatrix& M, num_t K) {
@@ -1252,15 +1298,6 @@ DAG CreateSpMVExp(const SquareMatrix& M, num_t K) {
         if (rowValid[i]) finalVector.push_back(Vbase + i);
 
     return G.keepGivenNodes(G.isReachable(finalVector, true));
-}
-
-DAG CreateRandomSpMVExp(num_t N, double nonzero, num_t K) {
-    SquareMatrix M(N);
-    M.randomize(nonzero);
-
-    DAG G = CreateSpMVExp(M, K);
-
-    return G;
 }
 
 DAG CreateSparseCG(const SquareMatrix& M, num_t K) {
@@ -1524,6 +1561,11 @@ class Parser {
     bool has_sourceNode = true;
     size_t sourceNode = 0;
 
+    bool has_sink = false;
+    bool has_reindex = false;
+
+    bool has_idx_from_one = false;
+
     bool has_inputs = false;
     vector<string> inputs;
 
@@ -1599,6 +1641,21 @@ class Parser {
                 }
                 continue;
             }
+            // Check for: -has_sink
+            if (arg == "-sink") {
+                has_sink = true;
+                continue;
+            }
+            // Check for: -has_reindex
+            if (arg == "-reindex") {
+                has_reindex = true;
+                continue;
+            }
+            // Check for: -idx_from_one
+            if (arg == "-idx_from_one") {
+                has_idx_from_one = true;
+                continue;
+            }
             // Check for: -output <filename>
             if (arg == "-output") {
                 if (i + 1 < argc) {
@@ -1618,8 +1675,8 @@ class Parser {
         }
 
         // Check that a mode was provided
-        if (mode.empty() || std::find(getModes().cbegin(), getModes().cend(),
-                                      mode) == getModes().cend()) {
+        if (mode.empty() || find(getModes().cbegin(), getModes().cend(),
+                                 mode) == getModes().cend()) {
             showUsage("No or invalid mode provided: " + mode + "\n");
             exit(1);
         }
@@ -1689,10 +1746,9 @@ class Parser {
             exit(1);
         }
         // Check that inputs (if provided) is not empty
-        if (has_inputs &&
-            (inputs.empty() ||
-             std::any_of(inputs.cbegin(), inputs.cend(),
-                         [](const string& s) { return s.empty(); }))) {
+        if (has_inputs && (inputs.empty() ||
+                           any_of(inputs.cbegin(), inputs.cend(),
+                                  [](const string& s) { return s.empty(); }))) {
             showUsage("<inputs> must contain valid filenames.\n");
             exit(1);
         }
@@ -1703,10 +1759,30 @@ class Parser {
             cerr << "Error: " << message << endl;
         }
         cerr << "Usage: " << endl;
-        cerr << "  "
+        cerr << " # Common parameters:" << endl;
+        cerr << "   [-debug]              Enable verbose mode" << endl;
+        cerr << "   [-idx_from_one]       Whether input files contains nodes "
+                "indexed from one or zero (default: false)"
+             << endl;
+        cerr << "   [-sink]               Restrict output to used nodes only"
+             << endl;
+        cerr << "   [-reindex]            Reindex nodes indexes to be "
+                "consecutive"
+             << endl;
+        cerr << "   [-output <filename>]  Output file name (default: " << output
+             << ")" << endl;
+        cerr << " # Commands:" << endl;
+        size_t max_cmd_length = 0;
+        for (const auto& entry : modes_usage) {
+            max_cmd_length = max(max_cmd_length, entry.first.length());
+        }
+        cerr << "   "
              << "help <mode>" << endl;
         for (const auto& entry : modes_usage) {
-            cerr << "  " << entry.first << " " << entry.second << endl;
+            size_t cmd_length = entry.first.length();
+            cerr << "   " << entry.first
+                 << string(1 + max_cmd_length - cmd_length, ' ') << entry.second
+                 << endl;
         }
     }
 };
@@ -1730,10 +1806,10 @@ static void ER(const Parser& arguments, DAG& G) {
 }
 
 static void SpMV(const Parser& arguments, DAG& G) {
-    std::unique_ptr<SquareMatrix> A = nullptr;
+    unique_ptr<SquareMatrix> A = nullptr;
     if (arguments.has_inputs) {
-        A = make_unique<SquareMatrix>(
-            IMatrix::readFromFile<SquareMatrix>(arguments.inputs[0]));
+        A = make_unique<SquareMatrix>(IMatrix::readFromFile<SquareMatrix>(
+            arguments.inputs[0], arguments.has_idx_from_one));
     } else {
         assert(arguments.has_N);
         assert(arguments.has_nonzeroProb);
@@ -1744,12 +1820,12 @@ static void SpMV(const Parser& arguments, DAG& G) {
 }
 
 static void LLtSolver(const Parser& arguments, DAG& G) {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
-    std::unique_ptr<LowerTriangularSquareMatrix> L;
+    cout << __PRETTY_FUNCTION__ << endl;
+    unique_ptr<LowerTriangularSquareMatrix> L;
     if (arguments.has_inputs) {
         L = make_unique<LowerTriangularSquareMatrix>(
             IMatrix::readFromFile<LowerTriangularSquareMatrix>(
-                arguments.inputs[0]));
+                arguments.inputs[0], arguments.has_idx_from_one));
     } else {
         assert(arguments.has_N);
         assert(arguments.has_nonzeroProb);
@@ -1768,11 +1844,11 @@ static void ALLtSolver(const Parser& arguments, DAG& G) {
     unique_ptr<SquareMatrix> A;
     unique_ptr<LowerTriangularSquareMatrix> L;
     if (arguments.has_inputs) {
-        A = make_unique<SquareMatrix>(
-            IMatrix::readFromFile<SquareMatrix>(arguments.inputs[0]));
+        A = make_unique<SquareMatrix>(IMatrix::readFromFile<SquareMatrix>(
+            arguments.inputs[0], arguments.has_idx_from_one));
         L = make_unique<LowerTriangularSquareMatrix>(
             IMatrix::readFromFile<LowerTriangularSquareMatrix>(
-                arguments.inputs[1]));
+                arguments.inputs[1], arguments.has_idx_from_one));
     } else {
         A = make_unique<SquareMatrix>(arguments.N);
         A->randomize(arguments.nonzeroProb);
@@ -1793,10 +1869,10 @@ static void LUSolver(const Parser& arguments, DAG& G) {
     if (arguments.has_inputs) {
         L = make_unique<LowerTriangularSquareMatrix>(
             IMatrix::readFromFile<LowerTriangularSquareMatrix>(
-                arguments.inputs[0]));
+                arguments.inputs[0], arguments.has_idx_from_one));
         U = make_unique<UpperTriangularSquareMatrix>(
             IMatrix::readFromFile<UpperTriangularSquareMatrix>(
-                arguments.inputs[1]));
+                arguments.inputs[1], arguments.has_idx_from_one));
     } else {
         L = make_unique<LowerTriangularSquareMatrix>(arguments.N);
         L->randomize(arguments.nonzeroProb);
@@ -1816,14 +1892,14 @@ static void ALUSolver(const Parser& arguments, DAG& G) {
     unique_ptr<LowerTriangularSquareMatrix> L;
     unique_ptr<UpperTriangularSquareMatrix> U;
     if (arguments.has_inputs) {
-        A = make_unique<SquareMatrix>(
-            IMatrix::readFromFile<SquareMatrix>(arguments.inputs[0]));
+        A = make_unique<SquareMatrix>(IMatrix::readFromFile<SquareMatrix>(
+            arguments.inputs[0], arguments.has_idx_from_one));
         L = make_unique<LowerTriangularSquareMatrix>(
             IMatrix::readFromFile<LowerTriangularSquareMatrix>(
-                arguments.inputs[1]));
+                arguments.inputs[1], arguments.has_idx_from_one));
         U = make_unique<UpperTriangularSquareMatrix>(
             IMatrix::readFromFile<UpperTriangularSquareMatrix>(
-                arguments.inputs[2]));
+                arguments.inputs[2], arguments.has_idx_from_one));
     } else {
         A = make_unique<SquareMatrix>(arguments.N);
         A->randomize(arguments.nonzeroProb);
@@ -1905,6 +1981,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    if (arguments.has_sink) G.removeNonSinkNodes(arguments.has_reindex);
     G.printDAG(arguments.output + ".dag");
     G.printHyperDAG(arguments.output);
     return 0;
