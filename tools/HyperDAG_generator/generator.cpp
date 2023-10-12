@@ -678,36 +678,33 @@ struct UpperTriangularSquareMatrix : public SquareMatrix {
         SquareMatrix::set(i, j, value);
     }
 };
-DAG CreateRandomIndegExpected(num_t N, double indeg, double sourceProb = 0.0) {
-    DAG G(N);
 
+void CreateRandomIndegExpected(DAG& G, num_t N, double indeg, double srcProb) {
+    G.resize(N);
     G.addDescriptionLine("HyperDAG from a random DAG with expected indegree " +
                          to_string(indeg) + ".");
     G.addDescriptionLine("Each node is chosen as a source with probability " +
-                         to_string(sourceProb) + ".");
+                         to_string(srcProb) + ".");
 
     for (num_t i = 1; i < N; ++i) {
-        if ((double)rand() / (double)RAND_MAX < sourceProb) continue;
+        if ((double)rand() / (double)RAND_MAX < srcProb) continue;
 
         double p = indeg / (double)i;
 
         for (num_t j = 0; j < i; ++j)
             if ((double)rand() / (double)RAND_MAX < p) G.addEdge(j, i);
     }
-
-    return G;
 }
 
-DAG CreateRandomIndegFixed(num_t N, num_t indeg, double sourceProb = 0.0) {
-    DAG G(N);
-
+void CreateRandomIndegFixed(DAG& G, num_t N, num_t indeg, double srcProb) {
+    G.resize(N);
     G.addDescriptionLine("HyperDAG from a random DAG with fixed indegree " +
                          to_string(indeg) + ".");
     G.addDescriptionLine("Each node is chosen as a source with probability " +
-                         to_string(sourceProb) + ".");
+                         to_string(srcProb) + ".");
 
     for (num_t i = 1; i < N; ++i) {
-        if ((double)rand() / (double)RAND_MAX < sourceProb) continue;
+        if ((double)rand() / (double)RAND_MAX < srcProb) continue;
 
         if (i <= indeg)  // all previous nodes are chosen
             for (num_t j = 0; j < i; ++j) G.addEdge(j, i);
@@ -729,8 +726,6 @@ DAG CreateRandomIndegFixed(num_t N, num_t indeg, double sourceProb = 0.0) {
             }
         }
     }
-
-    return G;
 }
 
 void CreateRandomER(DAG& G, num_t N, num_t NrOfEdges) {
@@ -1300,10 +1295,10 @@ DAG CreateSpMVExp(const SquareMatrix& M, num_t K) {
     return G.keepGivenNodes(G.isReachable(finalVector, true));
 }
 
-DAG CreateSparseCG(const SquareMatrix& M, num_t K) {
+DAG CreateSparseCG(DAG& G, const SquareMatrix& M, num_t K) {
     num_t N = M.nrows();
 
-    DAG G(3 * N - 1 + 2 * M.nnz() + K * (M.nnz() + 9 * N + 4));
+    G.resize(3 * N - 1 + 2 * M.nnz() + K * (M.nnz() + 9 * N + 4));
     G.addDescriptionLine("HyperDAG model of naive implementation of " +
                          to_string(K) +
                          " iterations of the conjugate gradient method.");
@@ -1434,19 +1429,10 @@ DAG CreateSparseCG(const SquareMatrix& M, num_t K) {
     return G;
 }
 
-DAG CreateRandomSparseCG(num_t N, double nonzero, num_t K) {
-    SquareMatrix M(N);
-    M.randomize(nonzero);
-
-    DAG G = CreateSparseCG(M, K);
-
-    return G;
-}
-
-DAG CreatekNN(const SquareMatrix& M, num_t K, num_t source) {
+DAG CreatekNN(DAG& G, const SquareMatrix& M, num_t K, num_t source) {
     num_t N = M.nrows();
 
-    DAG G((K + 1) * (M.nnz() + N));
+    G.resize((K + 1) * (M.nnz() + N));
     G.addDescriptionLine(
         "HyperDAG model of naive implementation of " + to_string(K) +
         " iterations of kNN, starting from node number " + to_string(source) +
@@ -1522,18 +1508,6 @@ DAG CreatekNN(const SquareMatrix& M, num_t K, num_t source) {
     for (num_t i = Vbase; i < base; ++i) finalVector.push_back(i);
 
     return G.keepGivenNodes(G.isReachable(finalVector));
-}
-
-DAG CreateRandomkNN(num_t N, double nonzero, num_t K) {
-    SquareMatrix M(N);
-    M.randomize(nonzero);
-    M.setMainDiagonal();
-
-    num_t source = randInt(N);
-
-    DAG G = CreatekNN(M, K, source);
-
-    return G;
 }
 
 class Parser {
@@ -1874,6 +1848,9 @@ static void LUSolver(const Parser& arguments, DAG& G) {
             IMatrix::readFromFile<UpperTriangularSquareMatrix>(
                 arguments.inputs[1], arguments.has_idx_from_one));
     } else {
+        assert(arguments.has_N);
+        assert(arguments.nonzeroProb);
+
         L = make_unique<LowerTriangularSquareMatrix>(arguments.N);
         L->randomize(arguments.nonzeroProb);
         U = make_unique<UpperTriangularSquareMatrix>(arguments.N);
@@ -1901,6 +1878,9 @@ static void ALUSolver(const Parser& arguments, DAG& G) {
             IMatrix::readFromFile<UpperTriangularSquareMatrix>(
                 arguments.inputs[2], arguments.has_idx_from_one));
     } else {
+        assert(arguments.has_N);
+        assert(arguments.nonzeroProb);
+
         A = make_unique<SquareMatrix>(arguments.N);
         A->randomize(arguments.nonzeroProb);
         L = make_unique<LowerTriangularSquareMatrix>(arguments.N);
@@ -1919,23 +1899,64 @@ static void ALUSolverExp(const Parser& arguments, DAG& G) {
 static void fixedIn(const Parser& arguments, DAG& G) {
     assert(arguments.has_indegree);
     assert(arguments.indegree >= 1.0);
+
+    CreateRandomIndegFixed(G, arguments.N, arguments.indegree,
+                           arguments.sourceProb);
 }
 
 static void expectedIn(const Parser& arguments, DAG& G) {
+    assert(arguments.has_N);
     assert(arguments.has_indegree);
     assert(arguments.indegree >= .0);
+    assert(arguments.has_sourceProb);
+
+    CreateRandomIndegExpected(G, arguments.N, arguments.indegree, arguments.sourceProb);
 }
 
 static void kNN(const Parser& arguments, DAG& G) {
-    assert(arguments.has_sourceNode);
-    assert(arguments.sourceNode >= 0);
-    assert(arguments.sourceNode < arguments.N);
+    assert(arguments.has_K);
+
+    if (arguments.has_sourceNode) {
+        assert(arguments.has_N);
+        assert(arguments.sourceNode >= 0);
+        assert(arguments.sourceNode < arguments.N);
+    }
+
+    num_t srcNode;
+    unique_ptr<SquareMatrix> A;
+    if (arguments.has_inputs) {
+        A = make_unique<SquareMatrix>(IMatrix::readFromFile<SquareMatrix>(
+            arguments.inputs[0], arguments.has_idx_from_one));
+        srcNode = arguments.sourceNode;
+    } else {
+        assert(arguments.has_N);
+        assert(arguments.nonzeroProb);
+
+        A = make_unique<SquareMatrix>(arguments.N);
+        A->randomize(arguments.nonzeroProb);
+        A->setMainDiagonal();
+        srcNode = arguments.has_sourceNode ? arguments.sourceNode
+                                           : randInt(arguments.N);
+    }
+    CreatekNN(G, *A, arguments.K, arguments.sourceNode);
 }
 
 static void CG(const Parser& arguments, DAG& G) {
-    assert(arguments.has_sourceNode);
-    assert(arguments.sourceNode >= 0);
-    assert(arguments.sourceNode < arguments.N);
+    assert(arguments.has_K);
+
+    unique_ptr<SquareMatrix> A;
+    if (arguments.has_inputs) {
+        A = make_unique<SquareMatrix>(IMatrix::readFromFile<SquareMatrix>(
+            arguments.inputs[0], arguments.has_idx_from_one));
+    } else {
+        assert(arguments.has_N);
+        assert(arguments.nonzeroProb);
+
+        A = make_unique<SquareMatrix>(arguments.N);
+        A->randomize(arguments.nonzeroProb);
+    }
+
+    CreateSparseCG(G, *A, arguments.K);
 }
 
 }  // namespace command
