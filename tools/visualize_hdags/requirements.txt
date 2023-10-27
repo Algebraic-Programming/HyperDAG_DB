@@ -2,4 +2,6 @@ matplotlib
 networkx
 hypernetx
 graphviz
+pygraphviz
 pydot
+igraph

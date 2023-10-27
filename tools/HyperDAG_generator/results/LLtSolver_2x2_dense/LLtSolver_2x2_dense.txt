@@ -1,0 +1,74 @@
+% HyperDAG model of LLtSolver operation: inv(trans(L)) . (inv(L) . b)
+% L.desc: Matrix A is a square-matrix of size 2x2.
+% Matrix A is a lower triangular square-matrix of size 2x2.
+% The probability for having a nonzero in any cell of matrix  is 1.000000.
+% Nodes of matrix L: [0;3] (row-wise)
+% Nodes of vector x: [4;5]
+% Nodes of the multiplication in the forward substitution phase to compute y: L[i][j] * x[j], range: [6;9]
+% Nodes of the subtraction in the forward substitution phase to compute y: y[i] - sum(L[i][j] * y[j]), range: [10;11]
+% Nodes of vector y: [12;13]
+% Nodes of the multiplication in the backward substitution phase to compute z: Lt[i][j] * z[j], range: [14;17]
+% Nodes of the subtraction in the forward substitution phase to compute z: z[i] - sum(Lt[i][j] * z[j]), range: [18;19]
+% Nodes of vector z: [20;21]
+% Nodes of the final result z: [20;21]
+%
+% Hyperedges: 12
+% Nodes: 22
+% Pins: 28
+12 22 28
+% Hyperedges ( id, communication cost ):
+0 1
+1 1
+2 1
+3 1
+4 1
+5 1
+6 1
+7 1
+8 1
+9 1
+10 1
+11 1
+% Nodes ( id, work cost ):
+0 0
+2 0
+3 0
+4 0
+5 0
+8 1
+11 1
+12 1
+13 1
+15 1
+18 1
+20 1
+21 1
+% Pins ( hyperdedge.id, node.id ):
+0 0
+0 12
+0 20
+1 2
+1 8
+1 15
+2 3
+2 13
+2 21
+3 4
+3 12
+4 5
+4 11
+5 8
+5 11
+6 11
+6 13
+7 12
+7 8
+7 18
+8 13
+8 21
+9 15
+9 18
+10 18
+10 20
+11 21
+11 15
