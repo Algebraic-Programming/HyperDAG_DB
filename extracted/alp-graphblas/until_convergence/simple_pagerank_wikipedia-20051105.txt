@@ -13,7 +13,7 @@
 %	 There are 1 unique output vertex types present in this graph. An index of output vertex type ID and their description follows:
 %		 103: output container
 %        This hyperDAG captures the canonical PageRank algorithm on wikipedia-20051105, which converged within 44 iterations.
-281 326 587
+281 326 868
 0 % no additional data on hyperedges at present
 1 % no additional data on hyperedges at present
 2 % no additional data on hyperedges at present
@@ -295,332 +295,332 @@
 278 % no additional data on hyperedges at present
 279 % no additional data on hyperedges at present
 280 % no additional data on hyperedges at present
-0 1 0 % source vertex of type ALP/GraphBLAS container no. 0
-1 2 0 % source vertex of type input iterator no. 0
-3 1 1 % source vertex of type ALP/GraphBLAS container no. 1
-4 1 2 % source vertex of type ALP/GraphBLAS container no. 2
-5 1 3 % source vertex of type ALP/GraphBLAS container no. 3
-6 1 4 % source vertex of type ALP/GraphBLAS container no. 4
-8 0 0 % source vertex of type input scalar no. 0
-10 0 1 % source vertex of type input scalar no. 1
-12 0 2 % source vertex of type input scalar no. 2
-14 0 3 % source vertex of type input scalar no. 3
-18 1 5 % source vertex of type ALP/GraphBLAS container no. 5
-21 0 4 % source vertex of type input scalar no. 4
-25 1 6 % source vertex of type ALP/GraphBLAS container no. 6
-28 0 5 % source vertex of type input scalar no. 5
-32 1 7 % source vertex of type ALP/GraphBLAS container no. 7
-35 0 6 % source vertex of type input scalar no. 6
-39 1 8 % source vertex of type ALP/GraphBLAS container no. 8
-42 0 7 % source vertex of type input scalar no. 7
-46 1 9 % source vertex of type ALP/GraphBLAS container no. 9
-49 0 8 % source vertex of type input scalar no. 8
-53 1 10 % source vertex of type ALP/GraphBLAS container no. 10
-56 0 9 % source vertex of type input scalar no. 9
-60 1 11 % source vertex of type ALP/GraphBLAS container no. 11
-63 0 10 % source vertex of type input scalar no. 10
-67 1 12 % source vertex of type ALP/GraphBLAS container no. 12
-70 0 11 % source vertex of type input scalar no. 11
-74 1 13 % source vertex of type ALP/GraphBLAS container no. 13
-77 0 12 % source vertex of type input scalar no. 12
-81 1 14 % source vertex of type ALP/GraphBLAS container no. 14
-84 0 13 % source vertex of type input scalar no. 13
-88 1 15 % source vertex of type ALP/GraphBLAS container no. 15
-91 0 14 % source vertex of type input scalar no. 14
-95 1 16 % source vertex of type ALP/GraphBLAS container no. 16
-98 0 15 % source vertex of type input scalar no. 15
-102 1 17 % source vertex of type ALP/GraphBLAS container no. 17
-105 0 16 % source vertex of type input scalar no. 16
-109 1 18 % source vertex of type ALP/GraphBLAS container no. 18
-112 0 17 % source vertex of type input scalar no. 17
-116 1 19 % source vertex of type ALP/GraphBLAS container no. 19
-119 0 18 % source vertex of type input scalar no. 18
-123 1 20 % source vertex of type ALP/GraphBLAS container no. 20
-126 0 19 % source vertex of type input scalar no. 19
-130 1 21 % source vertex of type ALP/GraphBLAS container no. 21
-133 0 20 % source vertex of type input scalar no. 20
-137 1 22 % source vertex of type ALP/GraphBLAS container no. 22
-140 0 21 % source vertex of type input scalar no. 21
-144 1 23 % source vertex of type ALP/GraphBLAS container no. 23
-147 0 22 % source vertex of type input scalar no. 22
-151 1 24 % source vertex of type ALP/GraphBLAS container no. 24
-154 0 23 % source vertex of type input scalar no. 23
-158 1 25 % source vertex of type ALP/GraphBLAS container no. 25
-161 0 24 % source vertex of type input scalar no. 24
-165 1 26 % source vertex of type ALP/GraphBLAS container no. 26
-168 0 25 % source vertex of type input scalar no. 25
-172 1 27 % source vertex of type ALP/GraphBLAS container no. 27
-175 0 26 % source vertex of type input scalar no. 26
-179 1 28 % source vertex of type ALP/GraphBLAS container no. 28
-182 0 27 % source vertex of type input scalar no. 27
-186 1 29 % source vertex of type ALP/GraphBLAS container no. 29
-189 0 28 % source vertex of type input scalar no. 28
-193 1 30 % source vertex of type ALP/GraphBLAS container no. 30
-196 0 29 % source vertex of type input scalar no. 29
-200 1 31 % source vertex of type ALP/GraphBLAS container no. 31
-203 0 30 % source vertex of type input scalar no. 30
-207 1 32 % source vertex of type ALP/GraphBLAS container no. 32
-210 0 31 % source vertex of type input scalar no. 31
-214 1 33 % source vertex of type ALP/GraphBLAS container no. 33
-217 0 32 % source vertex of type input scalar no. 32
-221 1 34 % source vertex of type ALP/GraphBLAS container no. 34
-224 0 33 % source vertex of type input scalar no. 33
-228 1 35 % source vertex of type ALP/GraphBLAS container no. 35
-231 0 34 % source vertex of type input scalar no. 34
-235 1 36 % source vertex of type ALP/GraphBLAS container no. 36
-238 0 35 % source vertex of type input scalar no. 35
-242 1 37 % source vertex of type ALP/GraphBLAS container no. 37
-245 0 36 % source vertex of type input scalar no. 36
-249 1 38 % source vertex of type ALP/GraphBLAS container no. 38
-252 0 37 % source vertex of type input scalar no. 37
-256 1 39 % source vertex of type ALP/GraphBLAS container no. 39
-259 0 38 % source vertex of type input scalar no. 38
-263 1 40 % source vertex of type ALP/GraphBLAS container no. 40
-266 0 39 % source vertex of type input scalar no. 39
-270 1 41 % source vertex of type ALP/GraphBLAS container no. 41
-273 0 40 % source vertex of type input scalar no. 40
-277 1 42 % source vertex of type ALP/GraphBLAS container no. 42
-280 0 41 % source vertex of type input scalar no. 41
-284 1 43 % source vertex of type ALP/GraphBLAS container no. 43
-287 0 42 % source vertex of type input scalar no. 42
-291 1 44 % source vertex of type ALP/GraphBLAS container no. 44
-294 0 43 % source vertex of type input scalar no. 43
-298 1 45 % source vertex of type ALP/GraphBLAS container no. 45
-301 0 44 % source vertex of type input scalar no. 44
-305 1 46 % source vertex of type ALP/GraphBLAS container no. 46
-308 0 45 % source vertex of type input scalar no. 45
-312 1 47 % source vertex of type ALP/GraphBLAS container no. 47
-315 0 46 % source vertex of type input scalar no. 46
-319 1 48 % source vertex of type ALP/GraphBLAS container no. 48
-322 0 47 % source vertex of type input scalar no. 47
-7 6 0 % operation vertex of type clear( vector ) no. 0
-13 9 0 % operation vertex of type set( vector, scalar ) no. 0
-2 71 0 % operation vertex of type buildMatrixUnique( matrix, scalar, scalar, scalar ) no. 0
-15 9 1 % operation vertex of type set( vector, scalar ) no. 1
-16 65 0 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 0
-9 9 2 % operation vertex of type set( vector, scalar ) no. 2
-17 19 0 % operation vertex of type eWiseLambda( f, vector ) no. 0
-11 9 3 % operation vertex of type set( vector, scalar ) no. 3
-22 9 4 % operation vertex of type set( vector, scalar ) no. 4
-23 65 1 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 1
-19 102 0 % operation vertex of type eWiseLambda( function, vector ) no. 0
-20 102 1 % operation vertex of type eWiseLambda( function, vector ) no. 1
-24 102 2 % operation vertex of type eWiseLambda( function, vector ) no. 2
-29 9 5 % operation vertex of type set( vector, scalar ) no. 5
-30 65 2 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 2
-26 102 3 % operation vertex of type eWiseLambda( function, vector ) no. 3
-27 102 4 % operation vertex of type eWiseLambda( function, vector ) no. 4
-31 102 5 % operation vertex of type eWiseLambda( function, vector ) no. 5
-36 9 6 % operation vertex of type set( vector, scalar ) no. 6
-37 65 3 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 3
-33 102 6 % operation vertex of type eWiseLambda( function, vector ) no. 6
-34 102 7 % operation vertex of type eWiseLambda( function, vector ) no. 7
-38 102 8 % operation vertex of type eWiseLambda( function, vector ) no. 8
-43 9 7 % operation vertex of type set( vector, scalar ) no. 7
-44 65 4 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 4
-40 102 9 % operation vertex of type eWiseLambda( function, vector ) no. 9
-41 102 10 % operation vertex of type eWiseLambda( function, vector ) no. 10
-45 102 11 % operation vertex of type eWiseLambda( function, vector ) no. 11
-50 9 8 % operation vertex of type set( vector, scalar ) no. 8
-51 65 5 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 5
-47 102 12 % operation vertex of type eWiseLambda( function, vector ) no. 12
-48 102 13 % operation vertex of type eWiseLambda( function, vector ) no. 13
-52 102 14 % operation vertex of type eWiseLambda( function, vector ) no. 14
-57 9 9 % operation vertex of type set( vector, scalar ) no. 9
-58 65 6 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 6
-54 102 15 % operation vertex of type eWiseLambda( function, vector ) no. 15
-55 102 16 % operation vertex of type eWiseLambda( function, vector ) no. 16
-59 102 17 % operation vertex of type eWiseLambda( function, vector ) no. 17
-64 9 10 % operation vertex of type set( vector, scalar ) no. 10
-65 65 7 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 7
-61 102 18 % operation vertex of type eWiseLambda( function, vector ) no. 18
-62 102 19 % operation vertex of type eWiseLambda( function, vector ) no. 19
-66 102 20 % operation vertex of type eWiseLambda( function, vector ) no. 20
-71 9 11 % operation vertex of type set( vector, scalar ) no. 11
-72 65 8 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 8
-68 102 21 % operation vertex of type eWiseLambda( function, vector ) no. 21
-69 102 22 % operation vertex of type eWiseLambda( function, vector ) no. 22
-73 102 23 % operation vertex of type eWiseLambda( function, vector ) no. 23
-78 9 12 % operation vertex of type set( vector, scalar ) no. 12
-79 65 9 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 9
-75 102 24 % operation vertex of type eWiseLambda( function, vector ) no. 24
-76 102 25 % operation vertex of type eWiseLambda( function, vector ) no. 25
-80 102 26 % operation vertex of type eWiseLambda( function, vector ) no. 26
-85 9 13 % operation vertex of type set( vector, scalar ) no. 13
-86 65 10 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 10
-82 102 27 % operation vertex of type eWiseLambda( function, vector ) no. 27
-83 102 28 % operation vertex of type eWiseLambda( function, vector ) no. 28
-87 102 29 % operation vertex of type eWiseLambda( function, vector ) no. 29
-92 9 14 % operation vertex of type set( vector, scalar ) no. 14
-93 65 11 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 11
-89 102 30 % operation vertex of type eWiseLambda( function, vector ) no. 30
-90 102 31 % operation vertex of type eWiseLambda( function, vector ) no. 31
-94 102 32 % operation vertex of type eWiseLambda( function, vector ) no. 32
-99 9 15 % operation vertex of type set( vector, scalar ) no. 15
-100 65 12 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 12
-96 102 33 % operation vertex of type eWiseLambda( function, vector ) no. 33
-97 102 34 % operation vertex of type eWiseLambda( function, vector ) no. 34
-101 102 35 % operation vertex of type eWiseLambda( function, vector ) no. 35
-106 9 16 % operation vertex of type set( vector, scalar ) no. 16
-107 65 13 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 13
-103 102 36 % operation vertex of type eWiseLambda( function, vector ) no. 36
-104 102 37 % operation vertex of type eWiseLambda( function, vector ) no. 37
-108 102 38 % operation vertex of type eWiseLambda( function, vector ) no. 38
-113 9 17 % operation vertex of type set( vector, scalar ) no. 17
-114 65 14 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 14
-110 102 39 % operation vertex of type eWiseLambda( function, vector ) no. 39
-111 102 40 % operation vertex of type eWiseLambda( function, vector ) no. 40
-115 102 41 % operation vertex of type eWiseLambda( function, vector ) no. 41
-120 9 18 % operation vertex of type set( vector, scalar ) no. 18
-121 65 15 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 15
-117 102 42 % operation vertex of type eWiseLambda( function, vector ) no. 42
-118 102 43 % operation vertex of type eWiseLambda( function, vector ) no. 43
-122 102 44 % operation vertex of type eWiseLambda( function, vector ) no. 44
-127 9 19 % operation vertex of type set( vector, scalar ) no. 19
-128 65 16 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 16
-124 102 45 % operation vertex of type eWiseLambda( function, vector ) no. 45
-125 102 46 % operation vertex of type eWiseLambda( function, vector ) no. 46
-129 102 47 % operation vertex of type eWiseLambda( function, vector ) no. 47
-134 9 20 % operation vertex of type set( vector, scalar ) no. 20
-135 65 17 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 17
-131 102 48 % operation vertex of type eWiseLambda( function, vector ) no. 48
-132 102 49 % operation vertex of type eWiseLambda( function, vector ) no. 49
-136 102 50 % operation vertex of type eWiseLambda( function, vector ) no. 50
-141 9 21 % operation vertex of type set( vector, scalar ) no. 21
-142 65 18 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 18
-138 102 51 % operation vertex of type eWiseLambda( function, vector ) no. 51
-139 102 52 % operation vertex of type eWiseLambda( function, vector ) no. 52
-143 102 53 % operation vertex of type eWiseLambda( function, vector ) no. 53
-148 9 22 % operation vertex of type set( vector, scalar ) no. 22
-149 65 19 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 19
-145 102 54 % operation vertex of type eWiseLambda( function, vector ) no. 54
-146 102 55 % operation vertex of type eWiseLambda( function, vector ) no. 55
-150 102 56 % operation vertex of type eWiseLambda( function, vector ) no. 56
-155 9 23 % operation vertex of type set( vector, scalar ) no. 23
-156 65 20 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 20
-152 102 57 % operation vertex of type eWiseLambda( function, vector ) no. 57
-153 102 58 % operation vertex of type eWiseLambda( function, vector ) no. 58
-157 102 59 % operation vertex of type eWiseLambda( function, vector ) no. 59
-162 9 24 % operation vertex of type set( vector, scalar ) no. 24
-163 65 21 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 21
-159 102 60 % operation vertex of type eWiseLambda( function, vector ) no. 60
-160 102 61 % operation vertex of type eWiseLambda( function, vector ) no. 61
-164 102 62 % operation vertex of type eWiseLambda( function, vector ) no. 62
-169 9 25 % operation vertex of type set( vector, scalar ) no. 25
-170 65 22 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 22
-166 102 63 % operation vertex of type eWiseLambda( function, vector ) no. 63
-167 102 64 % operation vertex of type eWiseLambda( function, vector ) no. 64
-171 102 65 % operation vertex of type eWiseLambda( function, vector ) no. 65
-176 9 26 % operation vertex of type set( vector, scalar ) no. 26
-177 65 23 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 23
-173 102 66 % operation vertex of type eWiseLambda( function, vector ) no. 66
-174 102 67 % operation vertex of type eWiseLambda( function, vector ) no. 67
-178 102 68 % operation vertex of type eWiseLambda( function, vector ) no. 68
-183 9 27 % operation vertex of type set( vector, scalar ) no. 27
-184 65 24 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 24
-180 102 69 % operation vertex of type eWiseLambda( function, vector ) no. 69
-181 102 70 % operation vertex of type eWiseLambda( function, vector ) no. 70
-185 102 71 % operation vertex of type eWiseLambda( function, vector ) no. 71
-190 9 28 % operation vertex of type set( vector, scalar ) no. 28
-191 65 25 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 25
-187 102 72 % operation vertex of type eWiseLambda( function, vector ) no. 72
-188 102 73 % operation vertex of type eWiseLambda( function, vector ) no. 73
-192 102 74 % operation vertex of type eWiseLambda( function, vector ) no. 74
-197 9 29 % operation vertex of type set( vector, scalar ) no. 29
-198 65 26 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 26
-194 102 75 % operation vertex of type eWiseLambda( function, vector ) no. 75
-195 102 76 % operation vertex of type eWiseLambda( function, vector ) no. 76
-199 102 77 % operation vertex of type eWiseLambda( function, vector ) no. 77
-204 9 30 % operation vertex of type set( vector, scalar ) no. 30
-205 65 27 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 27
-201 102 78 % operation vertex of type eWiseLambda( function, vector ) no. 78
-202 102 79 % operation vertex of type eWiseLambda( function, vector ) no. 79
-206 102 80 % operation vertex of type eWiseLambda( function, vector ) no. 80
-211 9 31 % operation vertex of type set( vector, scalar ) no. 31
-212 65 28 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 28
-208 102 81 % operation vertex of type eWiseLambda( function, vector ) no. 81
-209 102 82 % operation vertex of type eWiseLambda( function, vector ) no. 82
-213 102 83 % operation vertex of type eWiseLambda( function, vector ) no. 83
-218 9 32 % operation vertex of type set( vector, scalar ) no. 32
-219 65 29 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 29
-215 102 84 % operation vertex of type eWiseLambda( function, vector ) no. 84
-216 102 85 % operation vertex of type eWiseLambda( function, vector ) no. 85
-220 102 86 % operation vertex of type eWiseLambda( function, vector ) no. 86
-225 9 33 % operation vertex of type set( vector, scalar ) no. 33
-226 65 30 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 30
-222 102 87 % operation vertex of type eWiseLambda( function, vector ) no. 87
-223 102 88 % operation vertex of type eWiseLambda( function, vector ) no. 88
-227 102 89 % operation vertex of type eWiseLambda( function, vector ) no. 89
-232 9 34 % operation vertex of type set( vector, scalar ) no. 34
-233 65 31 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 31
-229 102 90 % operation vertex of type eWiseLambda( function, vector ) no. 90
-230 102 91 % operation vertex of type eWiseLambda( function, vector ) no. 91
-234 102 92 % operation vertex of type eWiseLambda( function, vector ) no. 92
-239 9 35 % operation vertex of type set( vector, scalar ) no. 35
-240 65 32 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 32
-236 102 93 % operation vertex of type eWiseLambda( function, vector ) no. 93
-237 102 94 % operation vertex of type eWiseLambda( function, vector ) no. 94
-241 102 95 % operation vertex of type eWiseLambda( function, vector ) no. 95
-246 9 36 % operation vertex of type set( vector, scalar ) no. 36
-247 65 33 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 33
-243 102 96 % operation vertex of type eWiseLambda( function, vector ) no. 96
-244 102 97 % operation vertex of type eWiseLambda( function, vector ) no. 97
-248 102 98 % operation vertex of type eWiseLambda( function, vector ) no. 98
-253 9 37 % operation vertex of type set( vector, scalar ) no. 37
-254 65 34 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 34
-250 102 99 % operation vertex of type eWiseLambda( function, vector ) no. 99
-251 102 100 % operation vertex of type eWiseLambda( function, vector ) no. 100
-255 102 101 % operation vertex of type eWiseLambda( function, vector ) no. 101
-260 9 38 % operation vertex of type set( vector, scalar ) no. 38
-261 65 35 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 35
-257 102 102 % operation vertex of type eWiseLambda( function, vector ) no. 102
-258 102 103 % operation vertex of type eWiseLambda( function, vector ) no. 103
-262 102 104 % operation vertex of type eWiseLambda( function, vector ) no. 104
-267 9 39 % operation vertex of type set( vector, scalar ) no. 39
-268 65 36 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 36
-264 102 105 % operation vertex of type eWiseLambda( function, vector ) no. 105
-265 102 106 % operation vertex of type eWiseLambda( function, vector ) no. 106
-269 102 107 % operation vertex of type eWiseLambda( function, vector ) no. 107
-274 9 40 % operation vertex of type set( vector, scalar ) no. 40
-275 65 37 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 37
-271 102 108 % operation vertex of type eWiseLambda( function, vector ) no. 108
-272 102 109 % operation vertex of type eWiseLambda( function, vector ) no. 109
-276 102 110 % operation vertex of type eWiseLambda( function, vector ) no. 110
-281 9 41 % operation vertex of type set( vector, scalar ) no. 41
-282 65 38 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 38
-278 102 111 % operation vertex of type eWiseLambda( function, vector ) no. 111
-279 102 112 % operation vertex of type eWiseLambda( function, vector ) no. 112
-283 102 113 % operation vertex of type eWiseLambda( function, vector ) no. 113
-288 9 42 % operation vertex of type set( vector, scalar ) no. 42
-289 65 39 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 39
-285 102 114 % operation vertex of type eWiseLambda( function, vector ) no. 114
-286 102 115 % operation vertex of type eWiseLambda( function, vector ) no. 115
-290 102 116 % operation vertex of type eWiseLambda( function, vector ) no. 116
-295 9 43 % operation vertex of type set( vector, scalar ) no. 43
-296 65 40 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 40
-292 102 117 % operation vertex of type eWiseLambda( function, vector ) no. 117
-293 102 118 % operation vertex of type eWiseLambda( function, vector ) no. 118
-297 102 119 % operation vertex of type eWiseLambda( function, vector ) no. 119
-302 9 44 % operation vertex of type set( vector, scalar ) no. 44
-303 65 41 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 41
-299 102 120 % operation vertex of type eWiseLambda( function, vector ) no. 120
-300 102 121 % operation vertex of type eWiseLambda( function, vector ) no. 121
-304 102 122 % operation vertex of type eWiseLambda( function, vector ) no. 122
-309 9 45 % operation vertex of type set( vector, scalar ) no. 45
-310 65 42 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 42
-306 102 123 % operation vertex of type eWiseLambda( function, vector ) no. 123
-307 102 124 % operation vertex of type eWiseLambda( function, vector ) no. 124
-311 102 125 % operation vertex of type eWiseLambda( function, vector ) no. 125
-316 9 46 % operation vertex of type set( vector, scalar ) no. 46
-317 65 43 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 43
-313 102 126 % operation vertex of type eWiseLambda( function, vector ) no. 126
-314 102 127 % operation vertex of type eWiseLambda( function, vector ) no. 127
-318 102 128 % operation vertex of type eWiseLambda( function, vector ) no. 128
-323 9 47 % operation vertex of type set( vector, scalar ) no. 47
-324 65 44 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 44
-320 102 129 % operation vertex of type eWiseLambda( function, vector ) no. 129
-325 103 0 % output vertex of type output container no. 0
-321 103 1 % output vertex of type output container no. 1
+0 1 0 0 % source vertex of type ALP/GraphBLAS container no. 0
+1 2 0 0 % source vertex of type input iterator no. 0
+3 1 0 1 % source vertex of type ALP/GraphBLAS container no. 1
+4 1 0 2 % source vertex of type ALP/GraphBLAS container no. 2
+5 1 0 3 % source vertex of type ALP/GraphBLAS container no. 3
+6 1 0 4 % source vertex of type ALP/GraphBLAS container no. 4
+8 0 0 0 % source vertex of type input scalar no. 0
+10 0 0 1 % source vertex of type input scalar no. 1
+12 0 0 2 % source vertex of type input scalar no. 2
+14 0 0 3 % source vertex of type input scalar no. 3
+18 1 0 5 % source vertex of type ALP/GraphBLAS container no. 5
+21 0 0 4 % source vertex of type input scalar no. 4
+25 1 0 6 % source vertex of type ALP/GraphBLAS container no. 6
+28 0 0 5 % source vertex of type input scalar no. 5
+32 1 0 7 % source vertex of type ALP/GraphBLAS container no. 7
+35 0 0 6 % source vertex of type input scalar no. 6
+39 1 0 8 % source vertex of type ALP/GraphBLAS container no. 8
+42 0 0 7 % source vertex of type input scalar no. 7
+46 1 0 9 % source vertex of type ALP/GraphBLAS container no. 9
+49 0 0 8 % source vertex of type input scalar no. 8
+53 1 0 10 % source vertex of type ALP/GraphBLAS container no. 10
+56 0 0 9 % source vertex of type input scalar no. 9
+60 1 0 11 % source vertex of type ALP/GraphBLAS container no. 11
+63 0 0 10 % source vertex of type input scalar no. 10
+67 1 0 12 % source vertex of type ALP/GraphBLAS container no. 12
+70 0 0 11 % source vertex of type input scalar no. 11
+74 1 0 13 % source vertex of type ALP/GraphBLAS container no. 13
+77 0 0 12 % source vertex of type input scalar no. 12
+81 1 0 14 % source vertex of type ALP/GraphBLAS container no. 14
+84 0 0 13 % source vertex of type input scalar no. 13
+88 1 0 15 % source vertex of type ALP/GraphBLAS container no. 15
+91 0 0 14 % source vertex of type input scalar no. 14
+95 1 0 16 % source vertex of type ALP/GraphBLAS container no. 16
+98 0 0 15 % source vertex of type input scalar no. 15
+102 1 0 17 % source vertex of type ALP/GraphBLAS container no. 17
+105 0 0 16 % source vertex of type input scalar no. 16
+109 1 0 18 % source vertex of type ALP/GraphBLAS container no. 18
+112 0 0 17 % source vertex of type input scalar no. 17
+116 1 0 19 % source vertex of type ALP/GraphBLAS container no. 19
+119 0 0 18 % source vertex of type input scalar no. 18
+123 1 0 20 % source vertex of type ALP/GraphBLAS container no. 20
+126 0 0 19 % source vertex of type input scalar no. 19
+130 1 0 21 % source vertex of type ALP/GraphBLAS container no. 21
+133 0 0 20 % source vertex of type input scalar no. 20
+137 1 0 22 % source vertex of type ALP/GraphBLAS container no. 22
+140 0 0 21 % source vertex of type input scalar no. 21
+144 1 0 23 % source vertex of type ALP/GraphBLAS container no. 23
+147 0 0 22 % source vertex of type input scalar no. 22
+151 1 0 24 % source vertex of type ALP/GraphBLAS container no. 24
+154 0 0 23 % source vertex of type input scalar no. 23
+158 1 0 25 % source vertex of type ALP/GraphBLAS container no. 25
+161 0 0 24 % source vertex of type input scalar no. 24
+165 1 0 26 % source vertex of type ALP/GraphBLAS container no. 26
+168 0 0 25 % source vertex of type input scalar no. 25
+172 1 0 27 % source vertex of type ALP/GraphBLAS container no. 27
+175 0 0 26 % source vertex of type input scalar no. 26
+179 1 0 28 % source vertex of type ALP/GraphBLAS container no. 28
+182 0 0 27 % source vertex of type input scalar no. 27
+186 1 0 29 % source vertex of type ALP/GraphBLAS container no. 29
+189 0 0 28 % source vertex of type input scalar no. 28
+193 1 0 30 % source vertex of type ALP/GraphBLAS container no. 30
+196 0 0 29 % source vertex of type input scalar no. 29
+200 1 0 31 % source vertex of type ALP/GraphBLAS container no. 31
+203 0 0 30 % source vertex of type input scalar no. 30
+207 1 0 32 % source vertex of type ALP/GraphBLAS container no. 32
+210 0 0 31 % source vertex of type input scalar no. 31
+214 1 0 33 % source vertex of type ALP/GraphBLAS container no. 33
+217 0 0 32 % source vertex of type input scalar no. 32
+221 1 0 34 % source vertex of type ALP/GraphBLAS container no. 34
+224 0 0 33 % source vertex of type input scalar no. 33
+228 1 0 35 % source vertex of type ALP/GraphBLAS container no. 35
+231 0 0 34 % source vertex of type input scalar no. 34
+235 1 0 36 % source vertex of type ALP/GraphBLAS container no. 36
+238 0 0 35 % source vertex of type input scalar no. 35
+242 1 0 37 % source vertex of type ALP/GraphBLAS container no. 37
+245 0 0 36 % source vertex of type input scalar no. 36
+249 1 0 38 % source vertex of type ALP/GraphBLAS container no. 38
+252 0 0 37 % source vertex of type input scalar no. 37
+256 1 0 39 % source vertex of type ALP/GraphBLAS container no. 39
+259 0 0 38 % source vertex of type input scalar no. 38
+263 1 0 40 % source vertex of type ALP/GraphBLAS container no. 40
+266 0 0 39 % source vertex of type input scalar no. 39
+270 1 0 41 % source vertex of type ALP/GraphBLAS container no. 41
+273 0 0 40 % source vertex of type input scalar no. 40
+277 1 0 42 % source vertex of type ALP/GraphBLAS container no. 42
+280 0 0 41 % source vertex of type input scalar no. 41
+284 1 0 43 % source vertex of type ALP/GraphBLAS container no. 43
+287 0 0 42 % source vertex of type input scalar no. 42
+291 1 0 44 % source vertex of type ALP/GraphBLAS container no. 44
+294 0 0 43 % source vertex of type input scalar no. 43
+298 1 0 45 % source vertex of type ALP/GraphBLAS container no. 45
+301 0 0 44 % source vertex of type input scalar no. 44
+305 1 0 46 % source vertex of type ALP/GraphBLAS container no. 46
+308 0 0 45 % source vertex of type input scalar no. 45
+312 1 0 47 % source vertex of type ALP/GraphBLAS container no. 47
+315 0 0 46 % source vertex of type input scalar no. 46
+319 1 0 48 % source vertex of type ALP/GraphBLAS container no. 48
+322 0 0 47 % source vertex of type input scalar no. 47
+7 6 0 0 % operation vertex of type clear( vector ) no. 0
+13 9 0 0 % operation vertex of type set( vector, scalar ) no. 0
+2 71 0 0 % operation vertex of type buildMatrixUnique( matrix, scalar, scalar, scalar ) no. 0
+15 9 0 1 % operation vertex of type set( vector, scalar ) no. 1
+16 65 0 0 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 0
+9 9 0 2 % operation vertex of type set( vector, scalar ) no. 2
+17 19 0 0 % operation vertex of type eWiseLambda( f, vector ) no. 0
+11 9 0 3 % operation vertex of type set( vector, scalar ) no. 3
+22 9 0 4 % operation vertex of type set( vector, scalar ) no. 4
+23 65 0 1 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 1
+19 102 0 0 % operation vertex of type eWiseLambda( function, vector ) no. 0
+20 102 0 1 % operation vertex of type eWiseLambda( function, vector ) no. 1
+24 102 0 2 % operation vertex of type eWiseLambda( function, vector ) no. 2
+29 9 0 5 % operation vertex of type set( vector, scalar ) no. 5
+30 65 0 2 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 2
+26 102 0 3 % operation vertex of type eWiseLambda( function, vector ) no. 3
+27 102 0 4 % operation vertex of type eWiseLambda( function, vector ) no. 4
+31 102 0 5 % operation vertex of type eWiseLambda( function, vector ) no. 5
+36 9 0 6 % operation vertex of type set( vector, scalar ) no. 6
+37 65 0 3 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 3
+33 102 0 6 % operation vertex of type eWiseLambda( function, vector ) no. 6
+34 102 0 7 % operation vertex of type eWiseLambda( function, vector ) no. 7
+38 102 0 8 % operation vertex of type eWiseLambda( function, vector ) no. 8
+43 9 0 7 % operation vertex of type set( vector, scalar ) no. 7
+44 65 0 4 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 4
+40 102 0 9 % operation vertex of type eWiseLambda( function, vector ) no. 9
+41 102 0 10 % operation vertex of type eWiseLambda( function, vector ) no. 10
+45 102 0 11 % operation vertex of type eWiseLambda( function, vector ) no. 11
+50 9 0 8 % operation vertex of type set( vector, scalar ) no. 8
+51 65 0 5 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 5
+47 102 0 12 % operation vertex of type eWiseLambda( function, vector ) no. 12
+48 102 0 13 % operation vertex of type eWiseLambda( function, vector ) no. 13
+52 102 0 14 % operation vertex of type eWiseLambda( function, vector ) no. 14
+57 9 0 9 % operation vertex of type set( vector, scalar ) no. 9
+58 65 0 6 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 6
+54 102 0 15 % operation vertex of type eWiseLambda( function, vector ) no. 15
+55 102 0 16 % operation vertex of type eWiseLambda( function, vector ) no. 16
+59 102 0 17 % operation vertex of type eWiseLambda( function, vector ) no. 17
+64 9 0 10 % operation vertex of type set( vector, scalar ) no. 10
+65 65 0 7 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 7
+61 102 0 18 % operation vertex of type eWiseLambda( function, vector ) no. 18
+62 102 0 19 % operation vertex of type eWiseLambda( function, vector ) no. 19
+66 102 0 20 % operation vertex of type eWiseLambda( function, vector ) no. 20
+71 9 0 11 % operation vertex of type set( vector, scalar ) no. 11
+72 65 0 8 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 8
+68 102 0 21 % operation vertex of type eWiseLambda( function, vector ) no. 21
+69 102 0 22 % operation vertex of type eWiseLambda( function, vector ) no. 22
+73 102 0 23 % operation vertex of type eWiseLambda( function, vector ) no. 23
+78 9 0 12 % operation vertex of type set( vector, scalar ) no. 12
+79 65 0 9 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 9
+75 102 0 24 % operation vertex of type eWiseLambda( function, vector ) no. 24
+76 102 0 25 % operation vertex of type eWiseLambda( function, vector ) no. 25
+80 102 0 26 % operation vertex of type eWiseLambda( function, vector ) no. 26
+85 9 0 13 % operation vertex of type set( vector, scalar ) no. 13
+86 65 0 10 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 10
+82 102 0 27 % operation vertex of type eWiseLambda( function, vector ) no. 27
+83 102 0 28 % operation vertex of type eWiseLambda( function, vector ) no. 28
+87 102 0 29 % operation vertex of type eWiseLambda( function, vector ) no. 29
+92 9 0 14 % operation vertex of type set( vector, scalar ) no. 14
+93 65 0 11 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 11
+89 102 0 30 % operation vertex of type eWiseLambda( function, vector ) no. 30
+90 102 0 31 % operation vertex of type eWiseLambda( function, vector ) no. 31
+94 102 0 32 % operation vertex of type eWiseLambda( function, vector ) no. 32
+99 9 0 15 % operation vertex of type set( vector, scalar ) no. 15
+100 65 0 12 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 12
+96 102 0 33 % operation vertex of type eWiseLambda( function, vector ) no. 33
+97 102 0 34 % operation vertex of type eWiseLambda( function, vector ) no. 34
+101 102 0 35 % operation vertex of type eWiseLambda( function, vector ) no. 35
+106 9 0 16 % operation vertex of type set( vector, scalar ) no. 16
+107 65 0 13 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 13
+103 102 0 36 % operation vertex of type eWiseLambda( function, vector ) no. 36
+104 102 0 37 % operation vertex of type eWiseLambda( function, vector ) no. 37
+108 102 0 38 % operation vertex of type eWiseLambda( function, vector ) no. 38
+113 9 0 17 % operation vertex of type set( vector, scalar ) no. 17
+114 65 0 14 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 14
+110 102 0 39 % operation vertex of type eWiseLambda( function, vector ) no. 39
+111 102 0 40 % operation vertex of type eWiseLambda( function, vector ) no. 40
+115 102 0 41 % operation vertex of type eWiseLambda( function, vector ) no. 41
+120 9 0 18 % operation vertex of type set( vector, scalar ) no. 18
+121 65 0 15 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 15
+117 102 0 42 % operation vertex of type eWiseLambda( function, vector ) no. 42
+118 102 0 43 % operation vertex of type eWiseLambda( function, vector ) no. 43
+122 102 0 44 % operation vertex of type eWiseLambda( function, vector ) no. 44
+127 9 0 19 % operation vertex of type set( vector, scalar ) no. 19
+128 65 0 16 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 16
+124 102 0 45 % operation vertex of type eWiseLambda( function, vector ) no. 45
+125 102 0 46 % operation vertex of type eWiseLambda( function, vector ) no. 46
+129 102 0 47 % operation vertex of type eWiseLambda( function, vector ) no. 47
+134 9 0 20 % operation vertex of type set( vector, scalar ) no. 20
+135 65 0 17 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 17
+131 102 0 48 % operation vertex of type eWiseLambda( function, vector ) no. 48
+132 102 0 49 % operation vertex of type eWiseLambda( function, vector ) no. 49
+136 102 0 50 % operation vertex of type eWiseLambda( function, vector ) no. 50
+141 9 0 21 % operation vertex of type set( vector, scalar ) no. 21
+142 65 0 18 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 18
+138 102 0 51 % operation vertex of type eWiseLambda( function, vector ) no. 51
+139 102 0 52 % operation vertex of type eWiseLambda( function, vector ) no. 52
+143 102 0 53 % operation vertex of type eWiseLambda( function, vector ) no. 53
+148 9 0 22 % operation vertex of type set( vector, scalar ) no. 22
+149 65 0 19 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 19
+145 102 0 54 % operation vertex of type eWiseLambda( function, vector ) no. 54
+146 102 0 55 % operation vertex of type eWiseLambda( function, vector ) no. 55
+150 102 0 56 % operation vertex of type eWiseLambda( function, vector ) no. 56
+155 9 0 23 % operation vertex of type set( vector, scalar ) no. 23
+156 65 0 20 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 20
+152 102 0 57 % operation vertex of type eWiseLambda( function, vector ) no. 57
+153 102 0 58 % operation vertex of type eWiseLambda( function, vector ) no. 58
+157 102 0 59 % operation vertex of type eWiseLambda( function, vector ) no. 59
+162 9 0 24 % operation vertex of type set( vector, scalar ) no. 24
+163 65 0 21 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 21
+159 102 0 60 % operation vertex of type eWiseLambda( function, vector ) no. 60
+160 102 0 61 % operation vertex of type eWiseLambda( function, vector ) no. 61
+164 102 0 62 % operation vertex of type eWiseLambda( function, vector ) no. 62
+169 9 0 25 % operation vertex of type set( vector, scalar ) no. 25
+170 65 0 22 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 22
+166 102 0 63 % operation vertex of type eWiseLambda( function, vector ) no. 63
+167 102 0 64 % operation vertex of type eWiseLambda( function, vector ) no. 64
+171 102 0 65 % operation vertex of type eWiseLambda( function, vector ) no. 65
+176 9 0 26 % operation vertex of type set( vector, scalar ) no. 26
+177 65 0 23 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 23
+173 102 0 66 % operation vertex of type eWiseLambda( function, vector ) no. 66
+174 102 0 67 % operation vertex of type eWiseLambda( function, vector ) no. 67
+178 102 0 68 % operation vertex of type eWiseLambda( function, vector ) no. 68
+183 9 0 27 % operation vertex of type set( vector, scalar ) no. 27
+184 65 0 24 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 24
+180 102 0 69 % operation vertex of type eWiseLambda( function, vector ) no. 69
+181 102 0 70 % operation vertex of type eWiseLambda( function, vector ) no. 70
+185 102 0 71 % operation vertex of type eWiseLambda( function, vector ) no. 71
+190 9 0 28 % operation vertex of type set( vector, scalar ) no. 28
+191 65 0 25 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 25
+187 102 0 72 % operation vertex of type eWiseLambda( function, vector ) no. 72
+188 102 0 73 % operation vertex of type eWiseLambda( function, vector ) no. 73
+192 102 0 74 % operation vertex of type eWiseLambda( function, vector ) no. 74
+197 9 0 29 % operation vertex of type set( vector, scalar ) no. 29
+198 65 0 26 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 26
+194 102 0 75 % operation vertex of type eWiseLambda( function, vector ) no. 75
+195 102 0 76 % operation vertex of type eWiseLambda( function, vector ) no. 76
+199 102 0 77 % operation vertex of type eWiseLambda( function, vector ) no. 77
+204 9 0 30 % operation vertex of type set( vector, scalar ) no. 30
+205 65 0 27 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 27
+201 102 0 78 % operation vertex of type eWiseLambda( function, vector ) no. 78
+202 102 0 79 % operation vertex of type eWiseLambda( function, vector ) no. 79
+206 102 0 80 % operation vertex of type eWiseLambda( function, vector ) no. 80
+211 9 0 31 % operation vertex of type set( vector, scalar ) no. 31
+212 65 0 28 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 28
+208 102 0 81 % operation vertex of type eWiseLambda( function, vector ) no. 81
+209 102 0 82 % operation vertex of type eWiseLambda( function, vector ) no. 82
+213 102 0 83 % operation vertex of type eWiseLambda( function, vector ) no. 83
+218 9 0 32 % operation vertex of type set( vector, scalar ) no. 32
+219 65 0 29 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 29
+215 102 0 84 % operation vertex of type eWiseLambda( function, vector ) no. 84
+216 102 0 85 % operation vertex of type eWiseLambda( function, vector ) no. 85
+220 102 0 86 % operation vertex of type eWiseLambda( function, vector ) no. 86
+225 9 0 33 % operation vertex of type set( vector, scalar ) no. 33
+226 65 0 30 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 30
+222 102 0 87 % operation vertex of type eWiseLambda( function, vector ) no. 87
+223 102 0 88 % operation vertex of type eWiseLambda( function, vector ) no. 88
+227 102 0 89 % operation vertex of type eWiseLambda( function, vector ) no. 89
+232 9 0 34 % operation vertex of type set( vector, scalar ) no. 34
+233 65 0 31 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 31
+229 102 0 90 % operation vertex of type eWiseLambda( function, vector ) no. 90
+230 102 0 91 % operation vertex of type eWiseLambda( function, vector ) no. 91
+234 102 0 92 % operation vertex of type eWiseLambda( function, vector ) no. 92
+239 9 0 35 % operation vertex of type set( vector, scalar ) no. 35
+240 65 0 32 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 32
+236 102 0 93 % operation vertex of type eWiseLambda( function, vector ) no. 93
+237 102 0 94 % operation vertex of type eWiseLambda( function, vector ) no. 94
+241 102 0 95 % operation vertex of type eWiseLambda( function, vector ) no. 95
+246 9 0 36 % operation vertex of type set( vector, scalar ) no. 36
+247 65 0 33 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 33
+243 102 0 96 % operation vertex of type eWiseLambda( function, vector ) no. 96
+244 102 0 97 % operation vertex of type eWiseLambda( function, vector ) no. 97
+248 102 0 98 % operation vertex of type eWiseLambda( function, vector ) no. 98
+253 9 0 37 % operation vertex of type set( vector, scalar ) no. 37
+254 65 0 34 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 34
+250 102 0 99 % operation vertex of type eWiseLambda( function, vector ) no. 99
+251 102 0 100 % operation vertex of type eWiseLambda( function, vector ) no. 100
+255 102 0 101 % operation vertex of type eWiseLambda( function, vector ) no. 101
+260 9 0 38 % operation vertex of type set( vector, scalar ) no. 38
+261 65 0 35 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 35
+257 102 0 102 % operation vertex of type eWiseLambda( function, vector ) no. 102
+258 102 0 103 % operation vertex of type eWiseLambda( function, vector ) no. 103
+262 102 0 104 % operation vertex of type eWiseLambda( function, vector ) no. 104
+267 9 0 39 % operation vertex of type set( vector, scalar ) no. 39
+268 65 0 36 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 36
+264 102 0 105 % operation vertex of type eWiseLambda( function, vector ) no. 105
+265 102 0 106 % operation vertex of type eWiseLambda( function, vector ) no. 106
+269 102 0 107 % operation vertex of type eWiseLambda( function, vector ) no. 107
+274 9 0 40 % operation vertex of type set( vector, scalar ) no. 40
+275 65 0 37 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 37
+271 102 0 108 % operation vertex of type eWiseLambda( function, vector ) no. 108
+272 102 0 109 % operation vertex of type eWiseLambda( function, vector ) no. 109
+276 102 0 110 % operation vertex of type eWiseLambda( function, vector ) no. 110
+281 9 0 41 % operation vertex of type set( vector, scalar ) no. 41
+282 65 0 38 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 38
+278 102 0 111 % operation vertex of type eWiseLambda( function, vector ) no. 111
+279 102 0 112 % operation vertex of type eWiseLambda( function, vector ) no. 112
+283 102 0 113 % operation vertex of type eWiseLambda( function, vector ) no. 113
+288 9 0 42 % operation vertex of type set( vector, scalar ) no. 42
+289 65 0 39 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 39
+285 102 0 114 % operation vertex of type eWiseLambda( function, vector ) no. 114
+286 102 0 115 % operation vertex of type eWiseLambda( function, vector ) no. 115
+290 102 0 116 % operation vertex of type eWiseLambda( function, vector ) no. 116
+295 9 0 43 % operation vertex of type set( vector, scalar ) no. 43
+296 65 0 40 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 40
+292 102 0 117 % operation vertex of type eWiseLambda( function, vector ) no. 117
+293 102 0 118 % operation vertex of type eWiseLambda( function, vector ) no. 118
+297 102 0 119 % operation vertex of type eWiseLambda( function, vector ) no. 119
+302 9 0 44 % operation vertex of type set( vector, scalar ) no. 44
+303 65 0 41 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 41
+299 102 0 120 % operation vertex of type eWiseLambda( function, vector ) no. 120
+300 102 0 121 % operation vertex of type eWiseLambda( function, vector ) no. 121
+304 102 0 122 % operation vertex of type eWiseLambda( function, vector ) no. 122
+309 9 0 45 % operation vertex of type set( vector, scalar ) no. 45
+310 65 0 42 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 42
+306 102 0 123 % operation vertex of type eWiseLambda( function, vector ) no. 123
+307 102 0 124 % operation vertex of type eWiseLambda( function, vector ) no. 124
+311 102 0 125 % operation vertex of type eWiseLambda( function, vector ) no. 125
+316 9 0 46 % operation vertex of type set( vector, scalar ) no. 46
+317 65 0 43 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 43
+313 102 0 126 % operation vertex of type eWiseLambda( function, vector ) no. 126
+314 102 0 127 % operation vertex of type eWiseLambda( function, vector ) no. 127
+318 102 0 128 % operation vertex of type eWiseLambda( function, vector ) no. 128
+323 9 0 47 % operation vertex of type set( vector, scalar ) no. 47
+324 65 0 44 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 44
+320 102 0 129 % operation vertex of type eWiseLambda( function, vector ) no. 129
+325 103 0 0 % output vertex of type output container no. 0
+321 103 0 1 % output vertex of type output container no. 1
 0 0
 0 2
 1 1

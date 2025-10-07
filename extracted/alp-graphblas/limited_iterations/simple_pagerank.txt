@@ -16,7 +16,7 @@
 %        ALP/GraphBLAS. This particular hyperDAG is extracted from running three PageRank iterations on the gyro_m dataset, which, on
 %        exit, has not converged. This hyperDAG will be the same of that of running three iterations on any other dataset, assuming a
 %        converging run requires more than two iterations to converge.
-35 39 54
+35 39 89
 0 % no additional data on hyperedges at present
 1 % no additional data on hyperedges at present
 2 % no additional data on hyperedges at present
@@ -52,45 +52,45 @@
 32 % no additional data on hyperedges at present
 33 % no additional data on hyperedges at present
 34 % no additional data on hyperedges at present
-0 1 0 % source vertex of type ALP/GraphBLAS container no. 0
-1 2 0 % source vertex of type input iterator no. 0
-3 1 1 % source vertex of type ALP/GraphBLAS container no. 1
-4 1 2 % source vertex of type ALP/GraphBLAS container no. 2
-5 1 3 % source vertex of type ALP/GraphBLAS container no. 3
-6 1 4 % source vertex of type ALP/GraphBLAS container no. 4
-8 0 0 % source vertex of type input scalar no. 0
-10 0 1 % source vertex of type input scalar no. 1
-12 0 2 % source vertex of type input scalar no. 2
-14 0 3 % source vertex of type input scalar no. 3
-18 1 5 % source vertex of type ALP/GraphBLAS container no. 5
-21 0 4 % source vertex of type input scalar no. 4
-25 1 6 % source vertex of type ALP/GraphBLAS container no. 6
-28 0 5 % source vertex of type input scalar no. 5
-32 1 7 % source vertex of type ALP/GraphBLAS container no. 7
-35 0 6 % source vertex of type input scalar no. 6
-7 6 0 % operation vertex of type clear( vector ) no. 0
-13 9 0 % operation vertex of type set( vector, scalar ) no. 0
-2 71 0 % operation vertex of type buildMatrixUnique( matrix, scalar, scalar, scalar ) no. 0
-15 9 1 % operation vertex of type set( vector, scalar ) no. 1
-16 65 0 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 0
-9 9 2 % operation vertex of type set( vector, scalar ) no. 2
-17 19 0 % operation vertex of type eWiseLambda( f, vector ) no. 0
-11 9 3 % operation vertex of type set( vector, scalar ) no. 3
-22 9 4 % operation vertex of type set( vector, scalar ) no. 4
-23 65 1 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 1
-19 102 0 % operation vertex of type eWiseLambda( function, vector ) no. 0
-20 102 1 % operation vertex of type eWiseLambda( function, vector ) no. 1
-24 102 2 % operation vertex of type eWiseLambda( function, vector ) no. 2
-29 9 5 % operation vertex of type set( vector, scalar ) no. 5
-30 65 2 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 2
-26 102 3 % operation vertex of type eWiseLambda( function, vector ) no. 3
-27 102 4 % operation vertex of type eWiseLambda( function, vector ) no. 4
-31 102 5 % operation vertex of type eWiseLambda( function, vector ) no. 5
-36 9 6 % operation vertex of type set( vector, scalar ) no. 6
-37 65 3 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 3
-33 102 6 % operation vertex of type eWiseLambda( function, vector ) no. 6
-38 103 0 % output vertex of type output container no. 0
-34 103 1 % output vertex of type output container no. 1
+0 1 0 0 % source vertex of type ALP/GraphBLAS container no. 0
+1 2 0 0 % source vertex of type input iterator no. 0
+3 1 0 1 % source vertex of type ALP/GraphBLAS container no. 1
+4 1 0 2 % source vertex of type ALP/GraphBLAS container no. 2
+5 1 0 3 % source vertex of type ALP/GraphBLAS container no. 3
+6 1 0 4 % source vertex of type ALP/GraphBLAS container no. 4
+8 0 0 0 % source vertex of type input scalar no. 0
+10 0 0 1 % source vertex of type input scalar no. 1
+12 0 0 2 % source vertex of type input scalar no. 2
+14 0 0 3 % source vertex of type input scalar no. 3
+18 1 0 5 % source vertex of type ALP/GraphBLAS container no. 5
+21 0 0 4 % source vertex of type input scalar no. 4
+25 1 0 6 % source vertex of type ALP/GraphBLAS container no. 6
+28 0 0 5 % source vertex of type input scalar no. 5
+32 1 0 7 % source vertex of type ALP/GraphBLAS container no. 7
+35 0 0 6 % source vertex of type input scalar no. 6
+7 6 0 0 % operation vertex of type clear( vector ) no. 0
+13 9 0 0 % operation vertex of type set( vector, scalar ) no. 0
+2 71 0 0 % operation vertex of type buildMatrixUnique( matrix, scalar, scalar, scalar ) no. 0
+15 9 0 1 % operation vertex of type set( vector, scalar ) no. 1
+16 65 0 0 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 0
+9 9 0 2 % operation vertex of type set( vector, scalar ) no. 2
+17 19 0 0 % operation vertex of type eWiseLambda( f, vector ) no. 0
+11 9 0 3 % operation vertex of type set( vector, scalar ) no. 3
+22 9 0 4 % operation vertex of type set( vector, scalar ) no. 4
+23 65 0 1 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 1
+19 102 0 0 % operation vertex of type eWiseLambda( function, vector ) no. 0
+20 102 0 1 % operation vertex of type eWiseLambda( function, vector ) no. 1
+24 102 0 2 % operation vertex of type eWiseLambda( function, vector ) no. 2
+29 9 0 5 % operation vertex of type set( vector, scalar ) no. 5
+30 65 0 2 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 2
+26 102 0 3 % operation vertex of type eWiseLambda( function, vector ) no. 3
+27 102 0 4 % operation vertex of type eWiseLambda( function, vector ) no. 4
+31 102 0 5 % operation vertex of type eWiseLambda( function, vector ) no. 5
+36 9 0 6 % operation vertex of type set( vector, scalar ) no. 6
+37 65 0 3 % operation vertex of type vxm( vector, vector, matrix, ring ) no. 3
+33 102 0 6 % operation vertex of type eWiseLambda( function, vector ) no. 6
+38 103 0 0 % output vertex of type output container no. 0
+34 103 0 1 % output vertex of type output container no. 1
 0 0
 0 2
 1 1

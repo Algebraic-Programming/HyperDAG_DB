@@ -17,7 +17,7 @@
 %		 102: eWiseLambda( function, vector )
 %	 There are 1 unique output vertex types present in this graph. An index of output vertex type ID and their description follows:
 %		 103: output container
-31 32 33
+31 32 64
 0 % no additional data on hyperedges at present
 1 % no additional data on hyperedges at present
 2 % no additional data on hyperedges at present
@@ -49,38 +49,38 @@
 28 % no additional data on hyperedges at present
 29 % no additional data on hyperedges at present
 30 % no additional data on hyperedges at present
-0 1 0 % source vertex of type ALP/GraphBLAS container no. 0
-1 1 1 % source vertex of type ALP/GraphBLAS container no. 1
-2 2 0 % source vertex of type input iterator no. 0
-4 1 2 % source vertex of type ALP/GraphBLAS container no. 2
-5 3 0 % source vertex of type input integer no. 0
-7 2 1 % source vertex of type input iterator no. 1
-9 1 3 % source vertex of type ALP/GraphBLAS container no. 3
-10 0 0 % source vertex of type input scalar no. 0
-12 1 4 % source vertex of type ALP/GraphBLAS container no. 4
-13 0 1 % source vertex of type input scalar no. 1
-17 1 5 % source vertex of type ALP/GraphBLAS container no. 5
-18 1 6 % source vertex of type ALP/GraphBLAS container no. 6
-19 1 7 % source vertex of type ALP/GraphBLAS container no. 7
-20 0 2 % source vertex of type input scalar no. 2
-21 3 1 % source vertex of type input integer no. 1
-24 0 3 % source vertex of type input scalar no. 3
-29 0 4 % source vertex of type input scalar no. 4
-6 75 0 % operation vertex of type resize( matrix, scalar ) no. 0
-8 71 0 % operation vertex of type buildMatrixUnique( matrix, scalar, scalar, scalar ) no. 0
-11 9 0 % operation vertex of type set( vector, scalar ) no. 0
-14 9 1 % operation vertex of type set( vector, scalar ) no. 1
-15 69 0 % operation vertex of type mxv( vector, matrix, vector, ring ) no. 0
-3 20 0 % operation vertex of type buildVector( vector, scalar, scalar, scalar, scalar ) no. 0
-23 12 0 % operation vertex of type set( vector, vector ) no. 0
-25 9 2 % operation vertex of type set( vector, scalar ) no. 2
-26 69 1 % operation vertex of type mxv( vector, matrix, vector, ring ) no. 1
-16 19 0 % operation vertex of type eWiseLambda( f, vector ) no. 0
-22 7 0 % operation vertex of type setElement( vector ) no. 0
-27 102 0 % operation vertex of type eWiseLambda( function, vector ) no. 0
-28 10 0 % operation vertex of type set( vector, vector, vector ) no. 0
-30 12 1 % operation vertex of type set( vector, vector ) no. 1
-31 103 0 % output vertex of type output container no. 0
+0 1 0 0 % source vertex of type ALP/GraphBLAS container no. 0
+1 1 0 1 % source vertex of type ALP/GraphBLAS container no. 1
+2 2 0 0 % source vertex of type input iterator no. 0
+4 1 0 2 % source vertex of type ALP/GraphBLAS container no. 2
+5 3 0 0 % source vertex of type input integer no. 0
+7 2 0 1 % source vertex of type input iterator no. 1
+9 1 0 3 % source vertex of type ALP/GraphBLAS container no. 3
+10 0 0 0 % source vertex of type input scalar no. 0
+12 1 0 4 % source vertex of type ALP/GraphBLAS container no. 4
+13 0 0 1 % source vertex of type input scalar no. 1
+17 1 0 5 % source vertex of type ALP/GraphBLAS container no. 5
+18 1 0 6 % source vertex of type ALP/GraphBLAS container no. 6
+19 1 0 7 % source vertex of type ALP/GraphBLAS container no. 7
+20 0 0 2 % source vertex of type input scalar no. 2
+21 3 0 1 % source vertex of type input integer no. 1
+24 0 0 3 % source vertex of type input scalar no. 3
+29 0 0 4 % source vertex of type input scalar no. 4
+6 75 0 0 % operation vertex of type resize( matrix, scalar ) no. 0
+8 71 0 0 % operation vertex of type buildMatrixUnique( matrix, scalar, scalar, scalar ) no. 0
+11 9 0 0 % operation vertex of type set( vector, scalar ) no. 0
+14 9 0 1 % operation vertex of type set( vector, scalar ) no. 1
+15 69 0 0 % operation vertex of type mxv( vector, matrix, vector, ring ) no. 0
+3 20 0 0 % operation vertex of type buildVector( vector, scalar, scalar, scalar, scalar ) no. 0
+23 12 0 0 % operation vertex of type set( vector, vector ) no. 0
+25 9 0 2 % operation vertex of type set( vector, scalar ) no. 2
+26 69 0 1 % operation vertex of type mxv( vector, matrix, vector, ring ) no. 1
+16 19 0 0 % operation vertex of type eWiseLambda( f, vector ) no. 0
+22 7 0 0 % operation vertex of type setElement( vector ) no. 0
+27 102 0 0 % operation vertex of type eWiseLambda( function, vector ) no. 0
+28 10 0 0 % operation vertex of type set( vector, vector, vector ) no. 0
+30 12 0 1 % operation vertex of type set( vector, vector ) no. 1
+31 103 0 0 % output vertex of type output container no. 0
 0 0
 0 3
 1 1
