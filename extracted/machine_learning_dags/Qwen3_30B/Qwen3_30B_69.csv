@@ -1,0 +1,96 @@
+Node,Shape,Dtype,Memory (Bytes)
+_to_copy,"torch.Size([1, 18, 2048])",torch.float32,147456
+pow_1,"torch.Size([1, 18, 2048])",torch.float32,147456
+mean,"torch.Size([1, 18, 1])",torch.float32,72
+add,"torch.Size([1, 18, 1])",torch.float32,72
+rsqrt,"torch.Size([1, 18, 1])",torch.float32,72
+mul,"torch.Size([1, 18, 2048])",torch.float32,147456
+_to_copy_1,"torch.Size([1, 18, 2048])",torch.bfloat16,73728
+mul_1,"torch.Size([1, 18, 2048])",torch.bfloat16,73728
+t,"torch.Size([2048, 4096])",torch.bfloat16,16777216
+view,"torch.Size([18, 2048])",torch.bfloat16,73728
+mm,"torch.Size([18, 4096])",torch.bfloat16,147456
+view_1,"torch.Size([1, 18, 4096])",torch.bfloat16,147456
+view_2,"torch.Size([1, 18, 32, 128])",torch.bfloat16,147456
+_to_copy_2,"torch.Size([1, 18, 32, 128])",torch.float32,294912
+pow_2,"torch.Size([1, 18, 32, 128])",torch.float32,294912
+mean_1,"torch.Size([1, 18, 32, 1])",torch.float32,2304
+add_1,"torch.Size([1, 18, 32, 1])",torch.float32,2304
+rsqrt_1,"torch.Size([1, 18, 32, 1])",torch.float32,2304
+mul_2,"torch.Size([1, 18, 32, 128])",torch.float32,294912
+_to_copy_3,"torch.Size([1, 18, 32, 128])",torch.bfloat16,147456
+mul_3,"torch.Size([1, 18, 32, 128])",torch.bfloat16,147456
+transpose,"torch.Size([1, 32, 18, 128])",torch.bfloat16,147456
+t_1,"torch.Size([2048, 512])",torch.bfloat16,2097152
+view_3,"torch.Size([18, 2048])",torch.bfloat16,73728
+mm_1,"torch.Size([18, 512])",torch.bfloat16,18432
+view_4,"torch.Size([1, 18, 512])",torch.bfloat16,18432
+view_5,"torch.Size([1, 18, 4, 128])",torch.bfloat16,18432
+_to_copy_4,"torch.Size([1, 18, 4, 128])",torch.float32,36864
+pow_3,"torch.Size([1, 18, 4, 128])",torch.float32,36864
+mean_2,"torch.Size([1, 18, 4, 1])",torch.float32,288
+add_2,"torch.Size([1, 18, 4, 1])",torch.float32,288
+rsqrt_2,"torch.Size([1, 18, 4, 1])",torch.float32,288
+mul_4,"torch.Size([1, 18, 4, 128])",torch.float32,36864
+_to_copy_5,"torch.Size([1, 18, 4, 128])",torch.bfloat16,18432
+mul_5,"torch.Size([1, 18, 4, 128])",torch.bfloat16,18432
+transpose_1,"torch.Size([1, 4, 18, 128])",torch.bfloat16,18432
+t_2,"torch.Size([2048, 512])",torch.bfloat16,2097152
+view_6,"torch.Size([18, 2048])",torch.bfloat16,73728
+mm_2,"torch.Size([18, 512])",torch.bfloat16,18432
+view_7,"torch.Size([1, 18, 512])",torch.bfloat16,18432
+view_8,"torch.Size([1, 18, 4, 128])",torch.bfloat16,18432
+transpose_2,"torch.Size([1, 4, 18, 128])",torch.bfloat16,18432
+unsqueeze,"torch.Size([1, 1, 18, 128])",torch.bfloat16,4608
+unsqueeze_1,"torch.Size([1, 1, 18, 128])",torch.bfloat16,4608
+mul_6,"torch.Size([1, 32, 18, 128])",torch.bfloat16,147456
+slice_1,"torch.Size([1, 32, 18, 64])",torch.bfloat16,73728
+slice_2,"torch.Size([1, 32, 18, 64])",torch.bfloat16,73728
+neg,"torch.Size([1, 32, 18, 64])",torch.bfloat16,73728
+cat,"torch.Size([1, 32, 18, 128])",torch.bfloat16,147456
+mul_7,"torch.Size([1, 32, 18, 128])",torch.bfloat16,147456
+add_3,"torch.Size([1, 32, 18, 128])",torch.bfloat16,147456
+mul_8,"torch.Size([1, 4, 18, 128])",torch.bfloat16,18432
+slice_3,"torch.Size([1, 4, 18, 64])",torch.bfloat16,9216
+slice_4,"torch.Size([1, 4, 18, 64])",torch.bfloat16,9216
+neg_1,"torch.Size([1, 4, 18, 64])",torch.bfloat16,9216
+cat_1,"torch.Size([1, 4, 18, 128])",torch.bfloat16,18432
+mul_9,"torch.Size([1, 4, 18, 128])",torch.bfloat16,18432
+add_4,"torch.Size([1, 4, 18, 128])",torch.bfloat16,18432
+slice_5,"torch.Size([1, 4, 18, 128])",torch.bfloat16,18432
+slice_6,"torch.Size([1, 4, 18, 128])",torch.bfloat16,18432
+unsqueeze_2,"torch.Size([1, 4, 1, 18, 128])",torch.bfloat16,18432
+slice_7,"torch.Size([1, 4, 1, 18, 128])",torch.bfloat16,18432
+slice_8,"torch.Size([1, 4, 1, 18, 128])",torch.bfloat16,18432
+expand,"torch.Size([1, 4, 8, 18, 128])",torch.bfloat16,147456
+clone,"torch.Size([1, 4, 8, 18, 128])",torch.bfloat16,147456
+_unsafe_view,"torch.Size([1, 32, 18, 128])",torch.bfloat16,147456
+slice_9,"torch.Size([1, 4, 18, 128])",torch.bfloat16,18432
+slice_10,"torch.Size([1, 4, 18, 128])",torch.bfloat16,18432
+unsqueeze_3,"torch.Size([1, 4, 1, 18, 128])",torch.bfloat16,18432
+slice_11,"torch.Size([1, 4, 1, 18, 128])",torch.bfloat16,18432
+slice_12,"torch.Size([1, 4, 1, 18, 128])",torch.bfloat16,18432
+expand_1,"torch.Size([1, 4, 8, 18, 128])",torch.bfloat16,147456
+clone_1,"torch.Size([1, 4, 8, 18, 128])",torch.bfloat16,147456
+_unsafe_view_1,"torch.Size([1, 32, 18, 128])",torch.bfloat16,147456
+slice_13,"torch.Size([1, 1, 18, 18])",torch.bfloat16,648
+slice_14,"torch.Size([1, 1, 18, 18])",torch.bfloat16,648
+slice_15,"torch.Size([1, 1, 18, 18])",torch.bfloat16,648
+clone_2,"torch.Size([1, 32, 18, 128])",torch.bfloat16,147456
+getitem,"torch.Size([1, 32, 18, 128])",torch.bfloat16,147456
+transpose_3,"torch.Size([1, 18, 32, 128])",torch.bfloat16,147456
+clone_3,"torch.Size([1, 18, 32, 128])",torch.bfloat16,147456
+view_9,"torch.Size([1, 18, 4096])",torch.bfloat16,147456
+t_3,"torch.Size([4096, 2048])",torch.bfloat16,16777216
+view_10,"torch.Size([18, 4096])",torch.bfloat16,147456
+mm_3,"torch.Size([18, 2048])",torch.bfloat16,73728
+view_11,"torch.Size([1, 18, 2048])",torch.bfloat16,73728
+add_5,"torch.Size([1, 18, 2048])",torch.bfloat16,73728
+_to_copy_6,"torch.Size([1, 18, 2048])",torch.float32,147456
+pow_4,"torch.Size([1, 18, 2048])",torch.float32,147456
+mean_3,"torch.Size([1, 18, 1])",torch.float32,72
+add_6,"torch.Size([1, 18, 1])",torch.float32,72
+rsqrt_3,"torch.Size([1, 18, 1])",torch.float32,72
+mul_10,"torch.Size([1, 18, 2048])",torch.float32,147456
+_to_copy_7,"torch.Size([1, 18, 2048])",torch.bfloat16,73728
+mul_11,"torch.Size([1, 18, 2048])",torch.bfloat16,73728
